@@ -7,6 +7,8 @@ struct ContentView: View {
     @State var wrongText: String?
     @State var isCheating: Bool = false
     let synthesizer = AVSpeechSynthesizer() // must be retained
+    @State var voice: AVSpeechSynthesisVoice = AVSpeechSynthesisVoice(language: "ja-JP")!
+    let japaneseVoices = AVSpeechSynthesisVoice.speechVoices().filter({ $0.language == "ja-JP" })
 
     var body: some View {
         VStack {
@@ -34,6 +36,14 @@ struct ContentView: View {
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .overlay(alignment: .topTrailing) {
+            Picker("Voice", selection: $voice) {
+                ForEach(japaneseVoices, id: \.identifier) { voiceOption in
+                    Text(voiceOption.name)
+                        .tag(voiceOption)
+                }
+            }
+        }
         .background {
             if isShowingIncorrect {
                 Color(.red).saturation(0.9).brightness(0.6).ignoresSafeArea()
@@ -84,24 +94,10 @@ struct ContentView: View {
 
     func speak(string: String) {
         let utterance = AVSpeechUtterance(string: string)
-        var bestVoice = AVSpeechSynthesisVoice(language: "ja-JP")
-        for voice in AVSpeechSynthesisVoice.speechVoices() {
-            if voice.language == "ja-JP" {
-                if voice.quality == .premium {
-                    bestVoice = voice
-                    break
-                } else if voice.quality == .enhanced {
-                    bestVoice = voice
-                    break
-                } else {
-                    bestVoice = voice
-                }
-            }
-        }
-
-        print(bestVoice.debugDescription)
-        utterance.voice = bestVoice
+        utterance.voice = voice
+        #if !targetEnvironment(simulator) // iOS17b5 console has a meltdown on simulator
         synthesizer.speak(utterance)
+        #endif
     }
 }
 
