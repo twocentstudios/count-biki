@@ -69,6 +69,7 @@ struct ContentView: View {
                         speak(string: question)
                     } else {
                         wrongText = text
+                        speak(string: question)
                     }
                 } label: {
                     Image(systemName: "checkmark.circle")
