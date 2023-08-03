@@ -58,6 +58,7 @@ struct ContentView: View {
                 Circle() // TODO: avatar
                     .fill(Color(.secondarySystemBackground))
                     .frame(width: 100, height: 100)
+                    .hidden()
             }
             Spacer()
             Button {
