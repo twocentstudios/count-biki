@@ -2,6 +2,7 @@ import AVFoundation
 import SwiftUI
 
 struct ContentView: View {
+    @State var questionNumber: Int = 0
     @State var question: String = ""
     @State var text: String = ""
     @State var wrongText: String?
@@ -30,7 +31,7 @@ struct ContentView: View {
                         }
                         HStack(spacing: 6) {
                             IndeterminateProgressView(
-                                animationCount: 0,
+                                animationCount: questionNumber,
                                 color1: Color(.tintColor),
                                 color2: Color(.systemBackground),
                                 barCount: 20,
@@ -150,6 +151,7 @@ struct ContentView: View {
 
     func generateQuestion() {
         question = String(Int.random(in: 0 ... 1000))
+        questionNumber += 1
     }
 
     func speak(string: String) {
