@@ -29,9 +29,16 @@ struct ContentView: View {
                                 .foregroundStyle(Color(.secondaryLabel))
                         }
                         HStack(spacing: 6) {
-                            Capsule(style: .continuous)
-                                .fill(Color.accentColor)
-                                .frame(height: 10)
+                            HStack(spacing: 0) {
+                                ForEach(0 ..< 18) { _ in
+                                    Rectangle().fill(Color.white).frame(width: 6, height: 300)
+                                    Rectangle().fill(Color.blue).frame(width: 6, height: 300)
+                                }
+                            }
+                            .rotationEffect(.degrees(60))
+                            .frame(height: 10)
+                            .clipShape(Capsule(style: .continuous))
+                            .frame(maxWidth: .infinity, alignment: .leading)
                             Image(systemName: "infinity")
                                 .font(.caption)
                                 .bold()
