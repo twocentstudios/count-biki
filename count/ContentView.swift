@@ -150,7 +150,7 @@ struct ContentView: View {
     }
 
     func generateQuestion() {
-        question = String(Int.random(in: 0 ... 1000))
+        question = String(Int.random(in: 0 ... 10000))
         questionNumber += 1
     }
 
