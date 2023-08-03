@@ -7,8 +7,8 @@ struct ContentView: View {
     @State var wrongText: String?
     @State var isCheating: Bool = false
     let synthesizer = AVSpeechSynthesizer() // must be retained
-    @State var voice: AVSpeechSynthesisVoice = AVSpeechSynthesisVoice(language: "ja-JP")!
-    let japaneseVoices = AVSpeechSynthesisVoice.speechVoices().filter({ $0.language == "ja-JP" })
+    @State var voice: AVSpeechSynthesisVoice = .init(language: "ja-JP")!
+    let japaneseVoices = AVSpeechSynthesisVoice.speechVoices().filter { $0.language == "ja-JP" }
 
     var body: some View {
         VStack {
@@ -97,7 +97,7 @@ struct ContentView: View {
         let utterance = AVSpeechUtterance(string: string)
         utterance.voice = voice
         #if !targetEnvironment(simulator) // iOS17b5 console has a meltdown on simulator
-        synthesizer.speak(utterance)
+            synthesizer.speak(utterance)
         #endif
     }
 }
