@@ -12,6 +12,45 @@ struct ContentView: View {
 
     var body: some View {
         VStack {
+            HStack(alignment: .top, spacing: 16) {
+                Button {
+                    // TODO: settings
+                } label: {
+                    VStack(alignment: .leading, spacing: 6) {
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Text("Numbers")
+                                .font(.system(.title, design: .rounded, weight: .semibold))
+                            Text("1-10k")
+                                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                .foregroundStyle(Color(.secondaryLabel))
+                            Spacer()
+                            Image(systemName: "gearshape.fill")
+                                .font(.title3)
+                                .foregroundStyle(Color(.secondaryLabel))
+                        }
+                        HStack(spacing: 6) {
+                            Capsule(style: .continuous)
+                                .fill(Color.accentColor)
+                                .frame(height: 10)
+                            Image(systemName: "infinity")
+                                .font(.caption)
+                                .bold()
+                                .foregroundColor(Color(.label))
+                        }
+                    }
+                    .padding(.vertical, 16)
+                    .padding(.horizontal, 16)
+                    .background {
+                        RoundedRectangle(cornerRadius: 16.0, style: .continuous)
+                            .fill(Color(.secondarySystemBackground))
+                            .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
+                    }
+                }
+                .buttonStyle(.plain)
+                Circle() // TODO: avatar
+                    .frame(width: 100, height: 100)
+            }
+            Spacer()
             Button {
                 isCheating.toggle()
             } label: {
@@ -29,10 +68,22 @@ struct ContentView: View {
             } label: {
                 Image(systemName: "speaker.fill") // TODO: playing state
                     .font(.title)
-                    .padding(60)
+                    .padding(70)
+                    .overlay(alignment: .bottom) {
+                        Text("Tap to replay")
+                            .font(.caption)
+                            .foregroundStyle(Color.secondary)
+                            .padding(.vertical, 10)
+                    }
+                    .background {
+                        RoundedRectangle(cornerRadius: 16.0, style: .continuous)
+                            .fill(Color(.secondarySystemBackground))
+                            .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
+                    }
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(.plain)
             .disabled(false) // TODO: isPlaying
+            Spacer()
         }
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
