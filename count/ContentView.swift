@@ -29,7 +29,7 @@ struct ContentView: View {
                                 .foregroundStyle(Color(.secondaryLabel))
                         }
                         HStack(spacing: 6) {
-                            Color.clear.frame(height: 10)
+                            Color.clear
                                 .overlay {
                                     GeometryReader { proxy in
                                         let barPairCount: Int = 10
@@ -41,7 +41,7 @@ struct ContentView: View {
                                             }
                                         }
                                         .rotationEffect(.degrees(50))
-                                        .frame(height: 10)
+                                        .frame(height: proxy.size.height)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                     }
                                 }
@@ -49,8 +49,8 @@ struct ContentView: View {
                                     LinearGradient(
                                         stops: [
                                             .init(color: .primary.opacity(0.1), location: 0),
-                                            .init(color: .clear, location: 0.4),
-                                            .init(color: .clear, location: 0.6),
+                                            .init(color: .clear, location: 0.2),
+                                            .init(color: .clear, location: 0.9),
                                             .init(color: .primary.opacity(0.1), location: 1.0),
                                         ],
                                         startPoint: .top,
@@ -58,6 +58,7 @@ struct ContentView: View {
                                     )
                                 }
                                 .clipShape(Capsule(style: .continuous))
+                                .frame(height: 10)
                             Image(systemName: "infinity")
                                 .font(.caption)
                                 .bold()
