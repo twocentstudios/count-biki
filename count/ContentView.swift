@@ -35,7 +35,7 @@ struct ContentView: View {
                                         let barPairCount: Int = 10
                                         let barWidth: CGFloat = proxy.size.width / Double(barPairCount * 2)
                                         HStack(spacing: 0) {
-                                            ForEach(0..<barPairCount, id: \.self) { _ in
+                                            ForEach(0 ..< barPairCount, id: \.self) { _ in
                                                 Rectangle().fill(Color.white).frame(width: barWidth, height: proxy.size.width)
                                                 Rectangle().fill(Color.blue).frame(width: barWidth, height: proxy.size.width)
                                             }
@@ -44,6 +44,18 @@ struct ContentView: View {
                                         .frame(height: 10)
                                         .frame(maxWidth: .infinity, alignment: .leading)
                                     }
+                                }
+                                .overlay {
+                                    LinearGradient(
+                                        stops: [
+                                            .init(color: .primary.opacity(0.1), location: 0),
+                                            .init(color: .clear, location: 0.4),
+                                            .init(color: .clear, location: 0.6),
+                                            .init(color: .primary.opacity(0.1), location: 1.0),
+                                        ],
+                                        startPoint: .top,
+                                        endPoint: .bottom
+                                    )
                                 }
                                 .clipShape(Capsule(style: .continuous))
                             Image(systemName: "infinity")
