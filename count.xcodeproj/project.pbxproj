@@ -14,6 +14,7 @@
 		340A51DF2A78EC79007DCA0C /* countTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340A51DE2A78EC79007DCA0C /* countTests.swift */; };
 		340A51E92A78EC79007DCA0C /* countUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340A51E82A78EC79007DCA0C /* countUITests.swift */; };
 		340A51EB2A78EC79007DCA0C /* countUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340A51EA2A78EC79007DCA0C /* countUITestsLaunchTests.swift */; };
+		349802222A7BDDF200E352F5 /* IndeterminiteProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349802212A7BDDF200E352F5 /* IndeterminiteProgressView.swift */; };
 		34A9749A2A7AB0E600E6F672 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 34A974992A7AB0E600E6F672 /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
@@ -47,6 +48,7 @@
 		340A51E82A78EC79007DCA0C /* countUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = countUITests.swift; sourceTree = "<group>"; };
 		340A51EA2A78EC79007DCA0C /* countUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = countUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		340A51F72A790356007DCA0C /* count.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = count.playground; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
+		349802212A7BDDF200E352F5 /* IndeterminiteProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndeterminiteProgressView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +103,7 @@
 				340A51F72A790356007DCA0C /* count.playground */,
 				340A51CC2A78EC78007DCA0C /* countApp.swift */,
 				340A51CE2A78EC78007DCA0C /* ContentView.swift */,
+				349802212A7BDDF200E352F5 /* IndeterminiteProgressView.swift */,
 				340A51D02A78EC79007DCA0C /* Assets.xcassets */,
 				340A51D22A78EC79007DCA0C /* count.entitlements */,
 				340A51D32A78EC79007DCA0C /* Preview Content */,
@@ -270,6 +273,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				340A51CF2A78EC78007DCA0C /* ContentView.swift in Sources */,
+				349802222A7BDDF200E352F5 /* IndeterminiteProgressView.swift in Sources */,
 				340A51CD2A78EC78007DCA0C /* countApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
