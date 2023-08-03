@@ -29,16 +29,23 @@ struct ContentView: View {
                                 .foregroundStyle(Color(.secondaryLabel))
                         }
                         HStack(spacing: 6) {
-                            HStack(spacing: 0) {
-                                ForEach(0 ..< 18) { _ in
-                                    Rectangle().fill(Color.white).frame(width: 6, height: 300)
-                                    Rectangle().fill(Color.blue).frame(width: 6, height: 300)
+                            Color.clear.frame(height: 10)
+                                .overlay {
+                                    GeometryReader { proxy in
+                                        let barPairCount: Int = 10
+                                        let barWidth: CGFloat = proxy.size.width / Double(barPairCount * 2)
+                                        HStack(spacing: 0) {
+                                            ForEach(0..<barPairCount, id: \.self) { _ in
+                                                Rectangle().fill(Color.white).frame(width: barWidth, height: proxy.size.width)
+                                                Rectangle().fill(Color.blue).frame(width: barWidth, height: proxy.size.width)
+                                            }
+                                        }
+                                        .rotationEffect(.degrees(50))
+                                        .frame(height: 10)
+                                        .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
                                 }
-                            }
-                            .rotationEffect(.degrees(60))
-                            .frame(height: 10)
-                            .clipShape(Capsule(style: .continuous))
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                                .clipShape(Capsule(style: .continuous))
                             Image(systemName: "infinity")
                                 .font(.caption)
                                 .bold()
