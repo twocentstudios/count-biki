@@ -37,12 +37,21 @@ struct ListeningQuizFeature: Reducer {
         Reduce { state, action in
             switch action {
             case .answerSubmitButtonTapped:
+                if state.question == state.answer {
+                    state.answer = ""
+                    generateQuestion(state: &state)
+                    // TODO: speak question
+                } else {
+                    state.lastSubmittedIncorrectAnswer = state.answer
+                    // TODO: speak question
+                }
                 return .none
 
             case .binding:
                 return .none
 
             case .onTask:
+                generateQuestion(state: &state)
                 return .none
 
             case .playbackButtonTapped:
