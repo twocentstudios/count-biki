@@ -16,3 +16,4 @@ DerivedData
 *.xcuserstate
 exports/
 progress/
+*.xcschememanagement.plist
