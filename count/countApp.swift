@@ -1,10 +1,15 @@
 import SwiftUI
+import ComposableArchitecture
 
 @main
 struct countApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ListeningQuizView(
+                store: Store(initialState: ListeningQuizFeature.State()) {
+                    ListeningQuizFeature()
+                }
+            )
         }
     }
 }
