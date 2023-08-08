@@ -6,16 +6,15 @@ struct ContentView: View {
     @State var question: String = ""
     @State var text: String = ""
     @State var wrongText: String?
-    @State var isCheating: Bool = false
+    @State var isShowingDebug: Bool = false
     let synthesizer = AVSpeechSynthesizer() // must be retained
     @State var voice: AVSpeechSynthesisVoice = .init(language: "ja-JP")!
-    let japaneseVoices = AVSpeechSynthesisVoice.speechVoices().filter { $0.language == "ja-JP" }
 
     var body: some View {
         VStack {
             HStack(alignment: .top, spacing: 16) {
                 Button {
-                    // TODO: settings
+                    isShowingDebug = true
                 } label: {
                     VStack(alignment: .leading, spacing: 6) {
                         HStack(alignment: .firstTextBaseline, spacing: 4) {
@@ -62,18 +61,6 @@ struct ContentView: View {
             }
             Spacer()
             Button {
-                isCheating.toggle()
-            } label: {
-                Text(question)
-                    .font(.caption)
-                    .padding()
-                    .redacted(reason: isCheating ? [] : .placeholder)
-                    .onTapGesture {
-                        isCheating.toggle()
-                    }
-            }
-            .buttonStyle(.plain)
-            Button {
                 speak(string: question)
             } label: {
                 Image(systemName: "speaker.fill") // TODO: playing state
@@ -98,12 +85,6 @@ struct ContentView: View {
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .overlay(alignment: .topTrailing) {
-            Picker("Voice", selection: $voice) {
-                ForEach(japaneseVoices, id: \.identifier) { voiceOption in
-                    Text(voiceOption.name)
-                        .tag(voiceOption)
-                }
-            }
         }
         .background {
             if isShowingIncorrect {
@@ -149,6 +130,10 @@ struct ContentView: View {
         .onAppear {
             generateQuestion()
         }
+        .sheet(isPresented: $isShowingDebug) {
+            DebugView(question: question, voice: $voice)
+                .presentationDetents([.medium])
+        }
     }
 
     var isShowingIncorrect: Bool {
@@ -171,4 +156,25 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+}
+
+struct DebugView: View {
+    let question: String
+    @Binding var voice: AVSpeechSynthesisVoice
+    let japaneseVoices = AVSpeechSynthesisVoice.speechVoices().filter { $0.language == "ja-JP" }
+    
+    var body: some View {
+        VStack {
+            Text(question)
+                .font(.caption)
+                .padding()
+            
+            Picker("Voice", selection: $voice) {
+                ForEach(japaneseVoices, id: \.identifier) { voiceOption in
+                    Text(voiceOption.name)
+                        .tag(voiceOption)
+                }
+            }
+        }
+    }
 }
