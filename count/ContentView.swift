@@ -81,7 +81,7 @@ struct ContentView: View {
                     .padding(70)
                     .overlay(alignment: .bottom) {
                         Text("Tap to replay")
-                            .font(.caption)
+                            .font(.system(.caption, design: .rounded))
                             .foregroundStyle(Color.secondary)
                             .padding(.vertical, 10)
                     }
@@ -116,9 +116,9 @@ struct ContentView: View {
             HStack(spacing: 16) {
                 TextField("Answer", text: $text)
                     .foregroundStyle(Color.primary)
-                    .font(.largeTitle)
+                    .font(.system(.largeTitle, design: .rounded))
                     .bold()
-                    .textFieldStyle(.roundedBorder)
+                    .textFieldStyle(.plain)
                     .keyboardType(.numberPad)
                     .onChange(of: text) { _ in
                         wrongText = nil
@@ -140,6 +140,11 @@ struct ContentView: View {
                 .disabled(text.isEmpty)
             }
             .padding()
+            .background {
+                Color(.secondarySystemBackground)
+                    .ignoresSafeArea(.all, edges: .bottom)
+                    .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
+            }
         }
         .onAppear {
             generateQuestion()
