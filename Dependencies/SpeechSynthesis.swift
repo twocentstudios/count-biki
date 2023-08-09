@@ -42,23 +42,27 @@ extension SpeechSynthesisClient: DependencyKey {
             },
             speak: { utterance in
                 let synthesizer = AVSpeechSynthesizer()
-                try await withCheckedThrowingContinuation { continuation in
-                    do {
-                        let avSpeechUtterance = try utterance.avSpeechUtterance()
-                        let delegate = SpeechSynthesisDelegate(
-                            didStart: {
-                                // TODO: check didStart?
-                            }, didFinish: {
-                                continuation.resume()
-                            }, didCancel: {
-                                continuation.resume()
-                            }
-                        )
-                        synthesizer.delegate = delegate
-                        synthesizer.speak(avSpeechUtterance)
-                    } catch {
-                        continuation.resume(throwing: error)
+                try await withTaskCancellationHandler {
+                    try await withCheckedThrowingContinuation { continuation in
+                        do {
+                            let avSpeechUtterance = try utterance.avSpeechUtterance()
+                            let delegate = SpeechSynthesisDelegate(
+                                didStart: {
+                                    // TODO: check didStart?
+                                }, didFinish: {
+                                    continuation.resume()
+                                }, didCancel: {
+                                    continuation.resume()
+                                }
+                            )
+                            synthesizer.delegate = delegate
+                            synthesizer.speak(avSpeechUtterance)
+                        } catch {
+                            continuation.resume(throwing: error)
+                        }
                     }
+                } onCancel: {
+                    synthesizer.stopSpeaking(at: .immediate)
                 }
             }
         )

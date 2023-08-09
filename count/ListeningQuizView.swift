@@ -79,8 +79,13 @@ struct ListeningQuizFeature: Reducer {
                 return playBackEffect(utterance, state: &state)
 
             case .playbackButtonTapped:
-                let utterance = SpeechSynthesisUtterance(speechString: state.question, settings: .init()) // TODO: settings
-                return playBackEffect(utterance, state: &state)
+                if state.isSpeaking {
+                    state.isSpeaking = false
+                    return .cancel(id: CancelID.speakAction)
+                } else {
+                    let utterance = SpeechSynthesisUtterance(speechString: state.question, settings: .init()) // TODO: settings
+                    return playBackEffect(utterance, state: &state)
+                }
 
             case .titleButtonTapped:
                 return .none
@@ -96,11 +101,13 @@ struct ListeningQuizFeature: Reducer {
     private func playBackEffect(_ utterance: SpeechSynthesisUtterance, state: inout State) -> Effect<Self.Action> {
         state.isSpeaking = true
         return .run { send in
-            do {
-                try await speechClient.speak(utterance)
-                await send(.onPlaybackFinished)
-            } catch {
-                await send(.onPlaybackError)
+            await withTaskCancellation(id: CancelID.speakAction, cancelInFlight: true) {
+                do {
+                    try await speechClient.speak(utterance)
+                    await send(.onPlaybackFinished)
+                } catch {
+                    await send(.onPlaybackError)
+                }
             }
         }
     }
