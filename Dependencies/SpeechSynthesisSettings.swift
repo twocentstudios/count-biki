@@ -1,4 +1,4 @@
-import Dependencies
+import DependenciesAdditions
 import Foundation
 
 struct SpeechSynthesisSettingsClient {
@@ -6,12 +6,27 @@ struct SpeechSynthesisSettingsClient {
     var set: @Sendable (SpeechSynthesisSettings) throws -> Void
 }
 
+extension SpeechSynthesisSettingsClient {
+    enum Error: Swift.Error {
+        case settingsUnset
+    }
+}
+
 extension SpeechSynthesisSettingsClient: DependencyKey {
+    static let settingsKey = "SpeechSynthesisSettingsClient.Settings"
     static var liveValue: Self {
-        // TODO: store somewhere (user defaults?) (use dependency additions)
-        .init(
-            get: { .init() },
+        @Dependency(\.userDefaults) var userDefaults
+        @Dependency(\.encode) var encode
+        @Dependency(\.decode) var decode
+        return .init(
+            get: {
+                guard let data = userDefaults.data(forKey: settingsKey) else { throw Error.settingsUnset }
+                let value = try decode(SpeechSynthesisSettings.self, from: data)
+                return value
+            },
             set: { newSettings in
+                let data = try encode(newSettings)
+                userDefaults.set(data, forKey: settingsKey)
             }
         )
     }
