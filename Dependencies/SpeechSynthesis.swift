@@ -6,9 +6,11 @@ struct SpeechSynthesisClient {
     var speak: @Sendable (SpeechSynthesisUtterance) async throws -> Void
 }
 
-enum SpeechSynthesisClientError: Error {
-    case noVoiceSet
-    case voiceIdentifierNotAvailable
+extension SpeechSynthesisClient {
+    enum Error: Swift.Error {
+        case noVoiceSet
+        case voiceIdentifierNotAvailable
+    }
 }
 
 extension DependencyValues {
@@ -116,8 +118,8 @@ struct SpeechSynthesisUtterance {
 
 extension SpeechSynthesisUtterance {
     func avSpeechUtterance() throws -> AVSpeechUtterance {
-        guard let voice = settings.voice else { throw SpeechSynthesisClientError.noVoiceSet }
-        guard let avSpeechSynthesisVoice = AVSpeechSynthesisVoice(identifier: voice.voiceIdentifier) else { throw SpeechSynthesisClientError.voiceIdentifierNotAvailable }
+        guard let voice = settings.voice else { throw SpeechSynthesisClient.Error.noVoiceSet }
+        guard let avSpeechSynthesisVoice = AVSpeechSynthesisVoice(identifier: voice.voiceIdentifier) else { throw SpeechSynthesisClient.Error.voiceIdentifierNotAvailable }
 
         let utterance = AVSpeechUtterance(string: speechString)
         utterance.voice = avSpeechSynthesisVoice
