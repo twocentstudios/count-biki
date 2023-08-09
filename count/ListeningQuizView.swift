@@ -30,7 +30,7 @@ struct ListeningQuizFeature: Reducer {
     }
 
     @Dependency(\.continuousClock) var clock
-//    @Dependency(\.featureClient) var featureClient
+    @Dependency(\.speechSynthesisClient) var speechClient
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -40,7 +40,15 @@ struct ListeningQuizFeature: Reducer {
                 if state.question == state.answer {
                     state.answer = ""
                     generateQuestion(state: &state)
-                    // TODO: speak question
+                    let utterance = SpeechSynthesisUtterance(speechString: state.question, settings: .init())
+                    return .run { send in
+                        // TODO: handle error
+                        do {
+                            try await speechClient.speak(utterance)
+                        } catch {
+                            print(error)
+                        }
+                    }
                 } else {
                     state.lastSubmittedIncorrectAnswer = state.answer
                     // TODO: speak question

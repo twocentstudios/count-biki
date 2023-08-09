@@ -11,6 +11,29 @@ enum SpeechSynthesisClientError: Error {
     case voiceIdentifierNotAvailable
 }
 
+extension DependencyValues {
+    var speechSynthesisClient: SpeechSynthesisClient {
+        get { self[SpeechSynthesisClient.self] }
+        set { self[SpeechSynthesisClient.self] = newValue }
+    }
+}
+
+extension SpeechSynthesisClient: TestDependencyKey {
+    static var previewValue: Self {
+        Self(
+            availableVoices: { [.init(voiceIdentifier: "com.twocentstudios.preview", name: "Preview", quality: .default, gender: .unspecified, languageCode: "ja-JP")] },
+            speak: { _ in
+                try? await Task.sleep(for: .seconds(2))
+            }
+        )
+    }
+
+    static let testValue = Self(
+        availableVoices: unimplemented(""),
+        speak: unimplemented("")
+    )
+}
+
 extension SpeechSynthesisClient: DependencyKey {
     static var liveValue: Self {
         Self(
