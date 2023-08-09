@@ -143,7 +143,7 @@ extension SpeechSynthesisUtterance {
     }
 }
 
-struct SpeechSynthesisSettings {
+struct SpeechSynthesisSettings: Codable {
     var voice: SpeechSynthesisVoice?
     var pitchMultiplier: Float?
     var volume: Float?
@@ -152,7 +152,7 @@ struct SpeechSynthesisSettings {
     var postUtteranceDelay: TimeInterval?
 }
 
-struct SpeechSynthesisVoice: Identifiable {
+struct SpeechSynthesisVoice: Identifiable, Codable {
     var id: String { voiceIdentifier }
     let voiceIdentifier: String
     let name: String
@@ -160,6 +160,10 @@ struct SpeechSynthesisVoice: Identifiable {
     let gender: AVSpeechSynthesisVoiceGender
     let languageCode: String
 }
+
+// TODO: double check this works as expected
+extension AVSpeechSynthesisVoiceQuality: Codable {}
+extension AVSpeechSynthesisVoiceGender: Codable {}
 
 extension SpeechSynthesisVoice {
     init(_ voice: AVSpeechSynthesisVoice) {
