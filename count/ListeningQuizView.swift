@@ -11,6 +11,7 @@ struct ListeningQuizFeature: Reducer {
         var question: String = ""
         @BindingState var answer: String = ""
         var lastSubmittedIncorrectAnswer: String?
+        var isShowingPlaybackError: Bool = false
 
         var isShowingIncorrect: Bool {
             lastSubmittedIncorrectAnswer == answer
@@ -23,6 +24,8 @@ struct ListeningQuizFeature: Reducer {
         case playbackButtonTapped
         case onTask
         case titleButtonTapped
+        case onPlaybackError
+        case onPlaybackErrorTimeout
     }
 
     private enum CancelID {
@@ -42,11 +45,10 @@ struct ListeningQuizFeature: Reducer {
                     generateQuestion(state: &state)
                     let utterance = SpeechSynthesisUtterance(speechString: state.question, settings: .init())
                     return .run { send in
-                        // TODO: handle error
                         do {
                             try await speechClient.speak(utterance)
                         } catch {
-                            print(error)
+                            await send(.onPlaybackError)
                         }
                     }
                 } else {
@@ -56,6 +58,19 @@ struct ListeningQuizFeature: Reducer {
                 return .none
 
             case .binding:
+                return .none
+
+            case .onPlaybackError:
+                guard !state.isShowingPlaybackError else { return .none }
+                state.isShowingPlaybackError = true
+                return .run { send in
+                    try? await clock.sleep(for: .seconds(2))
+                    await send(.onPlaybackErrorTimeout)
+                }
+
+            case .onPlaybackErrorTimeout:
+                guard state.isShowingPlaybackError else { return .none }
+                state.isShowingPlaybackError = false
                 return .none
 
             case .onTask:
@@ -169,6 +184,19 @@ struct ListeningQuizView: View {
                         }
                 }
                 .buttonStyle(.plain)
+                .background(alignment: .bottom) {
+                    ZStack {
+                        if viewStore.isShowingPlaybackError {
+                            Text("There was an error playing your question")
+                                .font(.system(.caption, design: .rounded))
+                                .multilineTextAlignment(.center)
+                                .foregroundStyle(Color(.red))
+                                .offset(x: 0, y: 40)
+                                .transition(.move(edge: .top).combined(with: .opacity))
+                        }
+                    }
+                    .animation(.bouncy, value: viewStore.isShowingPlaybackError)
+                }
                 Spacer()
             }
             .padding()

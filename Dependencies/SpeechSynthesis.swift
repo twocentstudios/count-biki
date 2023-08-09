@@ -23,6 +23,8 @@ extension SpeechSynthesisClient: TestDependencyKey {
         Self(
             availableVoices: { [.init(voiceIdentifier: "com.twocentstudios.preview", name: "Preview", quality: .default, gender: .unspecified, languageCode: "ja-JP")] },
             speak: { _ in
+                struct MockError: Error { }
+                throw MockError()
                 try? await Task.sleep(for: .seconds(2))
             }
         )
