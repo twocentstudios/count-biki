@@ -24,6 +24,7 @@ struct ListeningQuizFeature: Reducer {
         case playbackButtonTapped
         case onTask
         case titleButtonTapped
+        case onPlaybackFinished
         case onPlaybackError
         case onPlaybackErrorTimeout
     }
@@ -34,7 +35,6 @@ struct ListeningQuizFeature: Reducer {
 
     @Dependency(\.continuousClock) var clock
     @Dependency(\.speechSynthesisClient) var speechClient
-
     var body: some ReducerOf<Self> {
         BindingReducer()
         Reduce { state, action in
@@ -43,24 +43,24 @@ struct ListeningQuizFeature: Reducer {
                 if state.question == state.answer {
                     state.answer = ""
                     generateQuestion(state: &state)
-                    let utterance = SpeechSynthesisUtterance(speechString: state.question, settings: .init())
-                    return .run { send in
-                        do {
-                            try await speechClient.speak(utterance)
-                        } catch {
-                            await send(.onPlaybackError)
-                        }
-                    }
+                    let utterance = SpeechSynthesisUtterance(speechString: state.question, settings: .init()) // TODO: settings
+                    return playBackEffect(utterance, state: &state)
                 } else {
                     state.lastSubmittedIncorrectAnswer = state.answer
-                    // TODO: speak question
+                    let utterance = SpeechSynthesisUtterance(speechString: state.question, settings: .init()) // TODO: settings
+                    return playBackEffect(utterance, state: &state)
                 }
-                return .none
 
             case .binding:
                 return .none
 
+            case .onPlaybackFinished:
+                guard state.isSpeaking else { return .none }
+                state.isSpeaking = false
+                return .none
+
             case .onPlaybackError:
+                state.isSpeaking = false
                 guard !state.isShowingPlaybackError else { return .none }
                 state.isShowingPlaybackError = true
                 return .run { send in
@@ -75,10 +75,12 @@ struct ListeningQuizFeature: Reducer {
 
             case .onTask:
                 generateQuestion(state: &state)
-                return .none
+                let utterance = SpeechSynthesisUtterance(speechString: state.question, settings: .init()) // TODO: settings
+                return playBackEffect(utterance, state: &state)
 
             case .playbackButtonTapped:
-                return .none
+                let utterance = SpeechSynthesisUtterance(speechString: state.question, settings: .init()) // TODO: settings
+                return playBackEffect(utterance, state: &state)
 
             case .titleButtonTapped:
                 return .none
@@ -91,13 +93,17 @@ struct ListeningQuizFeature: Reducer {
         state.questionNumber += 1
     }
 
-//    func speak(string: String) {
-//        let utterance = AVSpeechUtterance(string: string)
-//        utterance.voice = voice
-//        #if !targetEnvironment(simulator) // iOS17b5 console has a meltdown on simulator
-//            synthesizer.speak(utterance)
-//        #endif
-//    }
+    private func playBackEffect(_ utterance: SpeechSynthesisUtterance, state: inout State) -> Effect<Self.Action> {
+        state.isSpeaking = true
+        return .run { send in
+            do {
+                try await speechClient.speak(utterance)
+                await send(.onPlaybackFinished)
+            } catch {
+                await send(.onPlaybackError)
+            }
+        }
+    }
 }
 
 #Preview {
@@ -170,7 +176,7 @@ struct ListeningQuizView: View {
                 } label: {
                     Image(systemName: viewStore.isSpeaking ? "speaker.wave.3.fill" : "speaker.fill")
                         .font(.title)
-                        .padding(70)
+                        .frame(width: 170, height: 170)
                         .overlay(alignment: .bottom) {
                             Text(viewStore.isSpeaking ? "Tap to stop" : "Tap to replay")
                                 .font(.system(.caption, design: .rounded))
@@ -182,6 +188,7 @@ struct ListeningQuizView: View {
                                 .fill(Color(.secondarySystemBackground))
                                 .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
                         }
+                        .animation(.bouncy, value: viewStore.isSpeaking)
                 }
                 .buttonStyle(.plain)
                 .background(alignment: .bottom) {
