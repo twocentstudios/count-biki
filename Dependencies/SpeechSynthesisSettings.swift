@@ -33,7 +33,7 @@ extension SpeechSynthesisSettingsClient: TestDependencyKey {
 }
 
 extension DependencyValues {
-    var feature: SpeechSynthesisSettingsClient {
+    var speechSynthesisClientSettings: SpeechSynthesisSettingsClient {
         get { self[SpeechSynthesisSettingsClient.self] }
         set { self[SpeechSynthesisSettingsClient.self] = newValue }
     }

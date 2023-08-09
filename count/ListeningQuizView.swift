@@ -35,6 +35,8 @@ struct ListeningQuizFeature: Reducer {
 
     @Dependency(\.continuousClock) var clock
     @Dependency(\.speechSynthesisClient) var speechClient
+    @Dependency(\.speechSynthesisClientSettings) var speechSettings
+    
     var body: some ReducerOf<Self> {
         BindingReducer()
         Reduce { state, action in
@@ -43,12 +45,10 @@ struct ListeningQuizFeature: Reducer {
                 if state.question == state.answer {
                     state.answer = ""
                     generateQuestion(state: &state)
-                    let utterance = SpeechSynthesisUtterance(speechString: state.question, settings: .init()) // TODO: settings
-                    return playBackEffect(utterance, state: &state)
+                    return playBackEffect(state: &state)
                 } else {
                     state.lastSubmittedIncorrectAnswer = state.answer
-                    let utterance = SpeechSynthesisUtterance(speechString: state.question, settings: .init()) // TODO: settings
-                    return playBackEffect(utterance, state: &state)
+                    return playBackEffect(state: &state)
                 }
 
             case .binding:
@@ -75,16 +75,14 @@ struct ListeningQuizFeature: Reducer {
 
             case .onTask:
                 generateQuestion(state: &state)
-                let utterance = SpeechSynthesisUtterance(speechString: state.question, settings: .init()) // TODO: settings
-                return playBackEffect(utterance, state: &state)
+                return playBackEffect(state: &state)
 
             case .playbackButtonTapped:
                 if state.isSpeaking {
                     state.isSpeaking = false
                     return .cancel(id: CancelID.speakAction)
                 } else {
-                    let utterance = SpeechSynthesisUtterance(speechString: state.question, settings: .init()) // TODO: settings
-                    return playBackEffect(utterance, state: &state)
+                    return playBackEffect(state: &state)
                 }
 
             case .titleButtonTapped:
@@ -98,11 +96,13 @@ struct ListeningQuizFeature: Reducer {
         state.questionNumber += 1
     }
 
-    private func playBackEffect(_ utterance: SpeechSynthesisUtterance, state: inout State) -> Effect<Self.Action> {
+    private func playBackEffect(state: inout State) -> Effect<Self.Action> {
         state.isSpeaking = true
-        return .run { send in
+        return .run { [question = state.question] send in
             await withTaskCancellation(id: CancelID.speakAction, cancelInFlight: true) {
                 do {
+                    let settings = try speechSettings.get()
+                    let utterance = SpeechSynthesisUtterance(speechString: question, settings: settings)
                     try await speechClient.speak(utterance)
                     await send(.onPlaybackFinished)
                 } catch {
