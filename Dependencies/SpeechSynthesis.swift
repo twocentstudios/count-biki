@@ -21,7 +21,7 @@ extension DependencyValues {
 extension SpeechSynthesisClient: TestDependencyKey {
     static var previewValue: Self {
         Self(
-            availableVoices: { [.init(voiceIdentifier: "com.twocentstudios.preview", name: "Preview", quality: .default, gender: .unspecified, languageCode: "ja-JP")] },
+            availableVoices: { [.mock] },
             speak: { _ in
                 try? await Task.sleep(for: .seconds(2))
             }
@@ -166,5 +166,17 @@ extension SpeechSynthesisVoice {
         quality = voice.quality
         gender = voice.gender
         languageCode = voice.language
+    }
+}
+
+extension SpeechSynthesisVoice {
+    static var mock: Self {
+        .init(voiceIdentifier: "com.twocentstudios.preview", name: "Preview", quality: .default, gender: .unspecified, languageCode: "ja-JP")
+    }
+}
+
+extension SpeechSynthesisSettings {
+    static var mock: Self {
+        .init(voice: .mock, pitchMultiplier: 0.5, volume: 0.5, rate: 0.8, preUtteranceDelay: 0.5, postUtteranceDelay: 1.0)
     }
 }

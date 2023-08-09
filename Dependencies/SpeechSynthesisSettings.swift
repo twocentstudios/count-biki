@@ -8,6 +8,7 @@ struct SpeechSynthesisSettingsClient {
 
 extension SpeechSynthesisSettingsClient: DependencyKey {
     static var liveValue: Self {
+        // TODO: store somewhere (user defaults?) (use dependency additions)
         .init(
             get: { .init() },
             set: { newSettings in
@@ -17,19 +18,24 @@ extension SpeechSynthesisSettingsClient: DependencyKey {
 }
 
 extension SpeechSynthesisSettingsClient: TestDependencyKey {
+    private final class MockStorage {
+        var value: SpeechSynthesisSettings = .mock
+    }
     static var previewValue: Self {
-        .init(
-            get: { .init() },
-            set: { newSettings in
-            }
+        let storage = MockStorage()
+        return .init(
+            get: { storage.value },
+            set: { storage.value = $0 }
         )
     }
 
-    static let testValue = Self(
-        get: { .init() },
-        set: { newSettings in
-        }
-    )
+    static var testValue: Self {
+        let storage = MockStorage()
+        return .init(
+            get: { storage.value },
+            set: { storage.value = $0 }
+        )
+    }
 }
 
 extension DependencyValues {
