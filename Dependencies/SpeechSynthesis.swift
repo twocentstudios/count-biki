@@ -37,38 +37,42 @@ extension SpeechSynthesisClient: TestDependencyKey {
 }
 
 extension SpeechSynthesisClient: DependencyKey {
-    static var liveValue: Self {
-        Self(
-            availableVoices: {
-                AVSpeechSynthesisVoice.speechVoices().map(SpeechSynthesisVoice.init(_:))
-            },
-            speak: { utterance in
-                let synthesizer = AVSpeechSynthesizer()
-                try await withTaskCancellationHandler {
-                    try await withCheckedThrowingContinuation { continuation in
-                        do {
-                            let avSpeechUtterance = try utterance.avSpeechUtterance()
-                            let delegate = SpeechSynthesisDelegate(
-                                didStart: {
-                                    // TODO: check didStart?
-                                }, didFinish: {
-                                    continuation.resume()
-                                }, didCancel: {
-                                    continuation.resume()
-                                }
-                            )
-                            synthesizer.delegate = delegate
-                            synthesizer.speak(avSpeechUtterance)
-                        } catch {
-                            continuation.resume(throwing: error)
+    #if !targetEnvironment(simulator)
+        static var liveValue: Self {
+            Self(
+                availableVoices: {
+                    AVSpeechSynthesisVoice.speechVoices().map(SpeechSynthesisVoice.init(_:))
+                },
+                speak: { utterance in
+                    let synthesizer = AVSpeechSynthesizer()
+                    try await withTaskCancellationHandler {
+                        try await withCheckedThrowingContinuation { continuation in
+                            do {
+                                let avSpeechUtterance = try utterance.avSpeechUtterance()
+                                let delegate = SpeechSynthesisDelegate(
+                                    didStart: {
+                                        // TODO: check didStart?
+                                    }, didFinish: {
+                                        continuation.resume()
+                                    }, didCancel: {
+                                        continuation.resume()
+                                    }
+                                )
+                                synthesizer.delegate = delegate
+                                synthesizer.speak(avSpeechUtterance)
+                            } catch {
+                                continuation.resume(throwing: error)
+                            }
                         }
+                    } onCancel: {
+                        synthesizer.stopSpeaking(at: .immediate)
                     }
-                } onCancel: {
-                    synthesizer.stopSpeaking(at: .immediate)
                 }
-            }
-        )
-    }
+            )
+        }
+    #else
+        static let liveValue = previewValue
+    #endif
 }
 
 private final class SpeechSynthesisDelegate: NSObject, AVSpeechSynthesizerDelegate, Sendable {
