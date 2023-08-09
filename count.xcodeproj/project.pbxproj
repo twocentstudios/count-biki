@@ -16,6 +16,7 @@
 		340A51EB2A78EC79007DCA0C /* countUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340A51EA2A78EC79007DCA0C /* countUITestsLaunchTests.swift */; };
 		340E70532A820E73004B124B /* SpeechSynthesis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340E70522A820E73004B124B /* SpeechSynthesis.swift */; };
 		340E70582A83738F004B124B /* SpeechSynthesisSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340E70572A83738F004B124B /* SpeechSynthesisSettings.swift */; };
+		340E705B2A83D396004B124B /* DependenciesAdditions in Frameworks */ = {isa = PBXBuildFile; productRef = 340E705A2A83D396004B124B /* DependenciesAdditions */; };
 		349802222A7BDDF200E352F5 /* IndeterminiteProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349802212A7BDDF200E352F5 /* IndeterminiteProgressView.swift */; };
 		34A9749A2A7AB0E600E6F672 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 34A974992A7AB0E600E6F672 /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
@@ -61,6 +62,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				34A9749A2A7AB0E600E6F672 /* ComposableArchitecture in Frameworks */,
+				340E705B2A83D396004B124B /* DependenciesAdditions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -168,6 +170,7 @@
 			name = count;
 			packageProductDependencies = (
 				34A974992A7AB0E600E6F672 /* ComposableArchitecture */,
+				340E705A2A83D396004B124B /* DependenciesAdditions */,
 			);
 			productName = count;
 			productReference = 340A51C92A78EC78007DCA0C /* count.app */;
@@ -243,6 +246,7 @@
 			mainGroup = 340A51C02A78EC78007DCA0C;
 			packageReferences = (
 				34A974982A7AB0E600E6F672 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
+				340E70592A83D396004B124B /* XCRemoteSwiftPackageReference "swift-dependencies-additions" */,
 			);
 			productRefGroup = 340A51CA2A78EC78007DCA0C /* Products */;
 			projectDirPath = "";
@@ -646,6 +650,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		340E70592A83D396004B124B /* XCRemoteSwiftPackageReference "swift-dependencies-additions" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tgrapperon/swift-dependencies-additions";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		34A974982A7AB0E600E6F672 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
@@ -657,6 +669,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		340E705A2A83D396004B124B /* DependenciesAdditions */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 340E70592A83D396004B124B /* XCRemoteSwiftPackageReference "swift-dependencies-additions" */;
+			productName = DependenciesAdditions;
+		};
 		34A974992A7AB0E600E6F672 /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 34A974982A7AB0E600E6F672 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
