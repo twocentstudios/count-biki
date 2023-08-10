@@ -22,10 +22,11 @@ extension DependencyValues {
 
 extension SpeechSynthesisClient: TestDependencyKey {
     static var previewValue: Self {
-        Self(
+        @Dependency(\.continuousClock) var clock
+        return Self(
             availableVoices: { [.mock] },
             speak: { _ in
-                try? await Task.sleep(for: .seconds(2))
+                try? await clock.sleep(for: .seconds(2))
             }
         )
     }
