@@ -2,7 +2,7 @@ import ComposableArchitecture
 import SwiftUI
 
 @main
-struct countApp: App {
+struct CountApp: App {
     var body: some Scene {
         WindowGroup {
             ListeningQuizView(
