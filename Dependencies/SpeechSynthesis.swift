@@ -157,7 +157,7 @@ struct SpeechSynthesisSettings: Equatable, Codable {
     var postUtteranceDelay: TimeInterval?
 }
 
-struct SpeechSynthesisVoice: Identifiable, Equatable, Codable {
+struct SpeechSynthesisVoice: Identifiable, Equatable {
     var id: String { voiceIdentifier }
     let voiceIdentifier: String
     let name: String
@@ -165,10 +165,6 @@ struct SpeechSynthesisVoice: Identifiable, Equatable, Codable {
     let gender: AVSpeechSynthesisVoiceGender
     let languageCode: String
 }
-
-// TODO: double check this works as expected
-extension AVSpeechSynthesisVoiceQuality: Codable {}
-extension AVSpeechSynthesisVoiceGender: Codable {}
 
 extension SpeechSynthesisVoice {
     init(_ voice: AVSpeechSynthesisVoice) {
