@@ -15,14 +15,7 @@ struct SettingsFeature: Reducer {
     }
 
     enum Action: BindableAction, Equatable {
-        case asyncButtonTapped
         case binding(BindingAction<State>)
-        case asyncResponse(Bool)
-        case asyncActionCancelButtonTapped
-    }
-
-    private enum CancelID {
-        case asyncAction
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -32,16 +25,6 @@ struct SettingsFeature: Reducer {
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .asyncButtonTapped:
-                return .run { send in
-                    // async
-                    await send(.asyncResponse(true))
-                }
-                .cancellable(id: CancelID.asyncAction)
-            case let .asyncResponse(value):
-                return .none
-            case .asyncActionCancelButtonTapped:
-                return .cancel(id: CancelID.asyncAction)
             case .binding:
                 try? speechSettingsClient.set(state.speechSettings) // TODO: handle error
                 return .none
