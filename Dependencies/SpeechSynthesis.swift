@@ -42,7 +42,7 @@ extension SpeechSynthesisClient: DependencyKey {
         static var liveValue: Self {
             Self(
                 availableVoices: {
-                    AVSpeechSynthesisVoice.speechVoices().map(SpeechSynthesisVoice.init(_:))
+                    AVSpeechSynthesisVoice.speechVoices().filter({ $0.language == "ja-JP" }).map(SpeechSynthesisVoice.init(_:))
                 },
                 speak: { utterance in
                     let synthesizer = AVSpeechSynthesizer()
