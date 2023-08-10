@@ -4,6 +4,7 @@ import SwiftUI
 
 struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
+        @PresentationState var destination: Destination.State?
         var topicTitle: String = ""
         var topicSubtitle: String = ""
         var isSpeaking: Bool = false
@@ -21,12 +22,29 @@ struct ListeningQuizFeature: Reducer {
     enum Action: BindableAction, Equatable {
         case answerSubmitButtonTapped
         case binding(BindingAction<State>)
+        case destination(PresentationAction<Destination.Action>)
         case playbackButtonTapped
         case onTask
         case titleButtonTapped
         case onPlaybackFinished
         case onPlaybackError
         case onPlaybackErrorTimeout
+    }
+
+    struct Destination: Reducer {
+        enum State: Equatable {
+            case settings(SettingsFeature.State)
+        }
+
+        enum Action: Equatable {
+            case settings(SettingsFeature.Action)
+        }
+
+        var body: some ReducerOf<Self> {
+            Scope(state: /State.settings, action: /Action.settings) {
+                SettingsFeature()
+            }
+        }
     }
 
     private enum CancelID {
@@ -53,6 +71,9 @@ struct ListeningQuizFeature: Reducer {
                 }
 
             case .binding:
+                return .none
+
+            case .destination:
                 return .none
 
             case .onPlaybackFinished:
@@ -87,8 +108,12 @@ struct ListeningQuizFeature: Reducer {
                 }
 
             case .titleButtonTapped:
+                state.destination = .settings(.init())
                 return .none
             }
+        }
+        .ifLet(\.$destination, action: /Action.destination) {
+            Destination()
         }
     }
 
@@ -128,14 +153,12 @@ struct ListeningQuizFeature: Reducer {
 struct ListeningQuizView: View {
     let store: StoreOf<ListeningQuizFeature>
 
-    @State var isShowingDebug: Bool = false
-
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
                 HStack(alignment: .top, spacing: 16) {
                     Button {
-                        isShowingDebug = true
+                        viewStore.send(.titleButtonTapped)
                     } label: {
                         VStack(alignment: .leading, spacing: 6) {
                             HStack(alignment: .firstTextBaseline, spacing: 4) {
@@ -253,26 +276,12 @@ struct ListeningQuizView: View {
             .task {
                 await viewStore.send(.onTask).finish()
             }
-        }
-    }
-}
-
-struct DebugView: View {
-    let question: String
-    @Binding var voice: AVSpeechSynthesisVoice
-    let japaneseVoices = AVSpeechSynthesisVoice.speechVoices().filter { $0.language == "ja-JP" }
-
-    var body: some View {
-        VStack {
-            Text(question)
-                .font(.caption)
-                .padding()
-
-            Picker("Voice", selection: $voice) {
-                ForEach(japaneseVoices, id: \.identifier) { voiceOption in
-                    Text(voiceOption.name)
-                        .tag(voiceOption)
-                }
+            .sheet(
+                store: store.scope(state: \.$destination, action: { .destination($0) }),
+                state: /ListeningQuizFeature.Destination.State.settings,
+                action: ListeningQuizFeature.Destination.Action.settings
+            ) { store in
+                SettingsView(store: store)
             }
         }
     }
