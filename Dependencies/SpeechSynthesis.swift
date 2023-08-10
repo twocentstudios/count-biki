@@ -24,7 +24,7 @@ extension SpeechSynthesisClient: TestDependencyKey {
     static var previewValue: Self {
         @Dependency(\.continuousClock) var clock
         return Self(
-            availableVoices: { [.mock] },
+            availableVoices: { [.mock1, .mock2] },
             speak: { _ in
                 try? await clock.sleep(for: .seconds(2))
             }
@@ -177,13 +177,16 @@ extension SpeechSynthesisVoice {
 }
 
 extension SpeechSynthesisVoice {
-    static var mock: Self {
-        .init(voiceIdentifier: "com.twocentstudios.preview", name: "Preview", quality: .default, gender: .unspecified, languageCode: "ja-JP")
+    static var mock1: Self {
+        .init(voiceIdentifier: "com.twocentstudios.preview.spike", name: "Spike", quality: .default, gender: .male, languageCode: "ja-JP")
+    }
+    static var mock2: Self {
+        .init(voiceIdentifier: "com.twocentstudios.preview.faye", name: "Faye", quality: .default, gender: .female, languageCode: "ja-JP")
     }
 }
 
 extension SpeechSynthesisSettings {
     static var mock: Self {
-        .init(voiceIdentifier: SpeechSynthesisVoice.mock.voiceIdentifier, pitchMultiplier: 0.5, volume: 0.5, rate: 0.8, preUtteranceDelay: 0.5, postUtteranceDelay: 1.0)
+        .init(voiceIdentifier: SpeechSynthesisVoice.mock1.voiceIdentifier, pitchMultiplier: 0.5, volume: 0.5, rate: 0.8, preUtteranceDelay: 0.5, postUtteranceDelay: 1.0)
     }
 }
