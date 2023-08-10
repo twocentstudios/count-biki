@@ -148,8 +148,8 @@ extension SpeechSynthesisUtterance {
     }
 }
 
-struct SpeechSynthesisSettings: Codable {
-    var voice: SpeechSynthesisVoice?
+struct SpeechSynthesisSettings: Equatable, Codable {
+    var voice: SpeechSynthesisVoice? // TODO: use ID only
     var pitchMultiplier: Float?
     var volume: Float?
     var rate: Float?
@@ -157,7 +157,7 @@ struct SpeechSynthesisSettings: Codable {
     var postUtteranceDelay: TimeInterval?
 }
 
-struct SpeechSynthesisVoice: Identifiable, Codable {
+struct SpeechSynthesisVoice: Identifiable, Hashable, Equatable, Codable { // TODO: remove hashable
     var id: String { voiceIdentifier }
     let voiceIdentifier: String
     let name: String
