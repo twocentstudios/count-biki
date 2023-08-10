@@ -36,7 +36,8 @@ struct ListeningQuizFeature: Reducer {
     @Dependency(\.continuousClock) var clock
     @Dependency(\.speechSynthesisClient) var speechClient
     @Dependency(\.speechSynthesisClientSettings) var speechSettings
-    
+    @Dependency(\.withRandomNumberGenerator) var randomNumberGenerator
+
     var body: some ReducerOf<Self> {
         BindingReducer()
         Reduce { state, action in
@@ -92,7 +93,9 @@ struct ListeningQuizFeature: Reducer {
     }
 
     func generateQuestion(state: inout State) {
-        state.question = String(Int.random(in: 0 ... 10000))
+        randomNumberGenerator {
+            state.question = String(Int.random(in: 0 ... 10000, using: &$0))
+        }
         state.questionNumber += 1
     }
 
