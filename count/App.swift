@@ -20,7 +20,7 @@ struct CountApp: App {
                             .sorted(by: { $0.quality.rawValue > $1.quality.rawValue })
                             .first
                         guard let bestVoice else { assertionFailure("No voice available"); return }
-                        let settings = SpeechSynthesisSettings(voice: .init(bestVoice))
+                        let settings = SpeechSynthesisSettings(voiceIdentifier: bestVoice.voiceIdentifier)
                         do {
                             try $0.speechSynthesisSettingsClient.set(settings)
                         } catch {

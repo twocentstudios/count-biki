@@ -56,10 +56,10 @@ struct SettingsView: View {
             NavigationStack {
                 Form {
                     Section("Voice") {
-                        Picker("Voice Name", selection: viewStore.$speechSettings.voice) {
+                        Picker("Voice Name", selection: viewStore.$speechSettings.voiceIdentifier) {
                             ForEach(viewStore.availableVoices) { voice in
                                 Text(voice.name)
-                                    .tag(voice)
+                                    .tag(Optional(voice.voiceIdentifier))
                             }
                         }
                         .pickerStyle(.navigationLink)

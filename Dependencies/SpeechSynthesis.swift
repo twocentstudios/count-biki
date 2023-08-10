@@ -123,8 +123,8 @@ struct SpeechSynthesisUtterance {
 
 extension SpeechSynthesisUtterance {
     func avSpeechUtterance() throws -> AVSpeechUtterance {
-        guard let voice = settings.voice else { throw SpeechSynthesisClient.Error.noVoiceSet }
-        guard let avSpeechSynthesisVoice = AVSpeechSynthesisVoice(identifier: voice.voiceIdentifier) else { throw SpeechSynthesisClient.Error.voiceIdentifierNotAvailable }
+        guard let voiceIdentifier = settings.voiceIdentifier else { throw SpeechSynthesisClient.Error.noVoiceSet }
+        guard let avSpeechSynthesisVoice = AVSpeechSynthesisVoice(identifier: voiceIdentifier) else { throw SpeechSynthesisClient.Error.voiceIdentifierNotAvailable }
 
         let utterance = AVSpeechUtterance(string: speechString)
         utterance.voice = avSpeechSynthesisVoice
@@ -149,7 +149,7 @@ extension SpeechSynthesisUtterance {
 }
 
 struct SpeechSynthesisSettings: Equatable, Codable {
-    var voice: SpeechSynthesisVoice? // TODO: use ID only
+    var voiceIdentifier: String?
     var pitchMultiplier: Float?
     var volume: Float?
     var rate: Float?
@@ -157,7 +157,7 @@ struct SpeechSynthesisSettings: Equatable, Codable {
     var postUtteranceDelay: TimeInterval?
 }
 
-struct SpeechSynthesisVoice: Identifiable, Hashable, Equatable, Codable { // TODO: remove hashable
+struct SpeechSynthesisVoice: Identifiable, Equatable, Codable {
     var id: String { voiceIdentifier }
     let voiceIdentifier: String
     let name: String
@@ -188,6 +188,6 @@ extension SpeechSynthesisVoice {
 
 extension SpeechSynthesisSettings {
     static var mock: Self {
-        .init(voice: .mock, pitchMultiplier: 0.5, volume: 0.5, rate: 0.8, preUtteranceDelay: 0.5, postUtteranceDelay: 1.0)
+        .init(voiceIdentifier: SpeechSynthesisVoice.mock.voiceIdentifier, pitchMultiplier: 0.5, volume: 0.5, rate: 0.8, preUtteranceDelay: 0.5, postUtteranceDelay: 1.0)
     }
 }
