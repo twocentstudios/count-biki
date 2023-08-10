@@ -16,6 +16,7 @@ struct SettingsFeature: Reducer {
 
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case doneButtonTapped
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -28,6 +29,10 @@ struct SettingsFeature: Reducer {
             case .binding:
                 try? speechSettingsClient.set(state.speechSettings) // TODO: handle error
                 return .none
+            case .doneButtonTapped:
+                return .run { send in
+                    await dismiss()
+                }
             }
         }
     }
@@ -54,6 +59,13 @@ struct SettingsView: View {
                     }
                 }
                 .navigationBarTitle("Settings")
+                .toolbar {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button("Done") {
+                            viewStore.send(.doneButtonTapped)
+                        }
+                    }
+                }
             }
         }
     }
