@@ -29,6 +29,7 @@ struct SettingsFeature: Reducer {
     @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
 
     var body: some ReducerOf<Self> {
+        BindingReducer()
         Reduce { state, action in
             switch action {
             case .asyncButtonTapped:
@@ -42,6 +43,7 @@ struct SettingsFeature: Reducer {
             case .asyncActionCancelButtonTapped:
                 return .cancel(id: CancelID.asyncAction)
             case .binding:
+                try? speechSettingsClient.set(state.speechSettings) // TODO: handle error
                 return .none
             }
         }
