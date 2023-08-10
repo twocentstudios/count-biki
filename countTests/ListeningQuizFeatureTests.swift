@@ -21,7 +21,6 @@ struct RandomNumberGeneratorWithSeed: RandomNumberGenerator {
         let store = TestStore(initialState: ListeningQuizFeature.State()) {
             ListeningQuizFeature()
         } withDependencies: {
-            $0.continuousClock = ImmediateClock()
             $0.speechSynthesisClient.speak = { _ in speechExpectation.fulfill() }
             $0.withRandomNumberGenerator = .init(RandomNumberGeneratorWithSeed(seed: 0))
         }
