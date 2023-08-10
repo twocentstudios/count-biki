@@ -45,24 +45,42 @@ struct SettingsView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             NavigationStack {
                 Form {
-                    Section("Voice") {
-                        Picker("Voice Name", selection: viewStore.$speechSettings.voiceIdentifier) {
+                    Section {
+                        Picker(selection: viewStore.$speechSettings.voiceIdentifier) {
                             ForEach(viewStore.availableVoices) { voice in
                                 Text(voice.name)
+                                    .font(.system(.body, design: .rounded))
                                     .tag(Optional(voice.voiceIdentifier))
                             }
+                        } label: {
+                            Text("Voice Name")
+                                .font(.system(.body, design: .rounded))
                         }
                         .pickerStyle(.navigationLink)
-                        NavigationLink("Get more voices") {
+                        NavigationLink {
                             Text("TODO")
+                                .font(.system(.body, design: .rounded))
+                        } label: {
+                            Text("Get more voices")
+                                .font(.system(.body, design: .rounded))
                         }
+                    } header: {
+                        Text("Voice")
+                            .font(.system(.subheadline, design: .rounded))
                     }
                 }
-                .navigationBarTitle("Settings")
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
+                    ToolbarItem(placement: .principal) {
+                        Text("Settings")
+                            .font(.system(.headline, design: .rounded))
+                    }
                     ToolbarItem(placement: .primaryAction) {
-                        Button("Done") {
+                        Button {
                             viewStore.send(.doneButtonTapped)
+                        } label: {
+                            Text("Done")
+                                .font(.system(.headline, design: .rounded))
                         }
                     }
                 }
