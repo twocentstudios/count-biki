@@ -40,7 +40,8 @@ extension SpeechSynthesisClient: TestDependencyKey {
 extension SpeechSynthesisClient: DependencyKey {
     #if !targetEnvironment(simulator)
         static var liveValue: Self {
-            Self(
+            try? AVAudioSession.sharedInstance().setCategory(.playback, options: [.duckOthers])
+            return Self(
                 availableVoices: {
                     AVSpeechSynthesisVoice.speechVoices().filter({ $0.language == "ja-JP" }).map(SpeechSynthesisVoice.init(_:))
                 },
