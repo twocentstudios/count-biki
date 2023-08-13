@@ -162,9 +162,9 @@ struct ListeningQuizView: View {
                     } label: {
                         VStack(alignment: .leading, spacing: 6) {
                             HStack(alignment: .firstTextBaseline, spacing: 4) {
-                                Text("Numbers")
+                                Text(viewStore.settings.topic.title)
                                     .font(.system(.title, design: .rounded, weight: .semibold))
-                                Text("1-10k")
+                                Text(viewStore.settings.topic.subtitle)
                                     .font(.system(.subheadline, design: .rounded, weight: .semibold))
                                     .foregroundStyle(Color(.secondaryLabel))
                                 Spacer()
