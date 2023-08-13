@@ -13,13 +13,19 @@ struct SettingsFeature: Reducer {
         init() {
             @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
             @Dependency(\.speechSynthesisClient) var speechClient
+            @Dependency(\.topicSettingsClient) var topicSettingsClient
             @Dependency(\.topicClient) var topicClient
 
             speechSettings = try! speechSettingsClient.get() // TODO: error handling
             availableVoices = speechClient.availableVoices()
 
             availableTopics = topicClient.allTopics()
-            topicID = availableTopics.first!.id // TODO: load
+
+            if let loadedID = try? topicSettingsClient.get() {
+                topicID = loadedID
+            } else {
+                topicID = availableTopics.first!.id
+            }
         }
     }
 
@@ -30,6 +36,7 @@ struct SettingsFeature: Reducer {
 
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
+    @Dependency(\.topicSettingsClient) var topicSettingsClient
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -38,6 +45,7 @@ struct SettingsFeature: Reducer {
             case .binding:
                 // TODO: should persistence happen in child or parent reducer?
                 try? speechSettingsClient.set(state.speechSettings) // TODO: handle error
+                try? topicSettingsClient.set(state.topicID) // TODO: handle error
                 return .none
             case .doneButtonTapped:
                 return .run { send in
