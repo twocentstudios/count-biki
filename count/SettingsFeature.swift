@@ -27,6 +27,7 @@ struct SettingsFeature: Reducer {
         Reduce { state, action in
             switch action {
             case .binding:
+                // TODO: should persistence happen in child or parent reducer?
                 try? speechSettingsClient.set(state.speechSettings) // TODO: handle error
                 return .none
             case .doneButtonTapped:
