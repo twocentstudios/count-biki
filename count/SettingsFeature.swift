@@ -78,6 +78,28 @@ struct SettingsView: View {
                         Text("Voice")
                             .font(.system(.subheadline, design: .rounded))
                     }
+
+                    Section {
+                        Picker(selection: viewStore.$topicID) {
+                            ForEach(viewStore.availableTopics) { topic in
+                                VStack(alignment: .leading) {
+                                    Text(topic.title)
+                                        .font(.system(.headline, design: .rounded))
+                                    Text(topic.subtitle)
+                                        .font(.system(.subheadline, design: .rounded))
+                                    Text(topic.description)
+                                        .font(.system(.caption, design: .rounded))
+                                }
+                                .tag(topic.id)
+                            }
+                        } label: {
+                            EmptyView()
+                        }
+                        .pickerStyle(.inline)
+                    } header: {
+                        Text("Topics")
+                            .font(.system(.subheadline, design: .rounded))
+                    }
                 }
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
