@@ -19,6 +19,8 @@
 		349D047A2A84EB3A008AFD0A /* SettingsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D04792A84EB3A008AFD0A /* SettingsFeature.swift */; };
 		349D047D2A88E569008AFD0A /* Topic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D047C2A88E569008AFD0A /* Topic.swift */; };
 		349D047E2A88E569008AFD0A /* Topic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D047C2A88E569008AFD0A /* Topic.swift */; };
+		349D04802A88F23F008AFD0A /* TopicSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D047F2A88F23F008AFD0A /* TopicSettings.swift */; };
+		349D04812A88F23F008AFD0A /* TopicSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D047F2A88F23F008AFD0A /* TopicSettings.swift */; };
 		34A9749A2A7AB0E600E6F672 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 34A974992A7AB0E600E6F672 /* ComposableArchitecture */; };
 /* End PBXBuildFile section */
 
@@ -47,6 +49,7 @@
 		349802212A7BDDF200E352F5 /* IndeterminiteProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndeterminiteProgressView.swift; sourceTree = "<group>"; };
 		349D04792A84EB3A008AFD0A /* SettingsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFeature.swift; sourceTree = "<group>"; };
 		349D047C2A88E569008AFD0A /* Topic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Topic.swift; sourceTree = "<group>"; };
+		349D047F2A88F23F008AFD0A /* TopicSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicSettings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -124,6 +127,7 @@
 			children = (
 				340E70522A820E73004B124B /* SpeechSynthesis.swift */,
 				340E70572A83738F004B124B /* SpeechSynthesisSettings.swift */,
+				349D047F2A88F23F008AFD0A /* TopicSettings.swift */,
 				349D047C2A88E569008AFD0A /* Topic.swift */,
 			);
 			path = Dependencies;
@@ -239,6 +243,7 @@
 			files = (
 				340A51CF2A78EC78007DCA0C /* ListeningQuizView.swift in Sources */,
 				340E70582A83738F004B124B /* SpeechSynthesisSettings.swift in Sources */,
+				349D04802A88F23F008AFD0A /* TopicSettings.swift in Sources */,
 				349802222A7BDDF200E352F5 /* IndeterminiteProgressView.swift in Sources */,
 				349D047A2A84EB3A008AFD0A /* SettingsFeature.swift in Sources */,
 				340E70532A820E73004B124B /* SpeechSynthesis.swift in Sources */,
@@ -252,6 +257,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				340A51DF2A78EC79007DCA0C /* ListeningQuizFeatureTests.swift in Sources */,
+				349D04812A88F23F008AFD0A /* TopicSettings.swift in Sources */,
 				349D047E2A88E569008AFD0A /* Topic.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
