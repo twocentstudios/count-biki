@@ -23,7 +23,7 @@ struct TopicClient {
 extension TopicClient: DependencyKey {
     static var liveValue: TopicClient {
         @Dependency(\.withRandomNumberGenerator) var rng
-        var uuidGenerator = UUIDGenerator.incrementing
+        let uuidGenerator = UUIDGenerator.incrementing
         let allTopicGenerators: IdentifiedArrayOf<TopicGenerator> = [
             TopicGenerator(
                 topic: Topic(
@@ -74,7 +74,7 @@ extension TopicClient: DependencyKey {
 
 extension TopicClient: TestDependencyKey {
     static let previewValue: TopicClient = .liveValue
-    
+
     static var testValue: TopicClient {
         Self(
             allTopics: unimplemented("allTopics"),
