@@ -6,8 +6,6 @@ struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
         @PresentationState var destination: Destination.State?
         var settings: SettingsFeature.State = .init()
-        var topicTitle: String = ""
-        var topicSubtitle: String = ""
         var isSpeaking: Bool = false
         var questionNumber: Int = 0
         var question: String = ""
@@ -54,7 +52,7 @@ struct ListeningQuizFeature: Reducer {
 
     @Dependency(\.continuousClock) var clock
     @Dependency(\.speechSynthesisClient) var speechClient
-    @Dependency(\.withRandomNumberGenerator) var randomNumberGenerator
+    @Dependency(\.topicClient) var topicClient
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -123,9 +121,7 @@ struct ListeningQuizFeature: Reducer {
     }
 
     func generateQuestion(state: inout State) {
-        randomNumberGenerator {
-            state.question = String(Int.random(in: 0 ... 10000, using: &$0))
-        }
+        state.question = try! topicClient.generateQuestion(state.settings.topic.id) // TODO: handle error
         state.questionNumber += 1
     }
 
