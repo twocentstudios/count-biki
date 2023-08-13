@@ -113,7 +113,7 @@ struct ListeningQuizFeature: Reducer {
                 }
 
             case .titleButtonTapped:
-                state.destination = .settings(.init())
+                state.destination = .settings(state.settings)
                 return .none
             }
         }
