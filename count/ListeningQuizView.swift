@@ -282,7 +282,6 @@ struct ListeningQuizView: View {
                 action: ListeningQuizFeature.Destination.Action.settings
             ) { store in
                 SettingsView(store: store)
-                    .presentationDetents([.medium])
             }
         }
     }
