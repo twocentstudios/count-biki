@@ -16,7 +16,7 @@ struct Topic: Identifiable, Equatable {
 }
 
 struct TopicClient {
-    var allTopics: @Sendable () -> [Topic]
+    var allTopics: @Sendable () -> IdentifiedArrayOf<Topic>
     var generateQuestion: @Sendable (UUID) throws -> (String)
 }
 
@@ -61,7 +61,7 @@ extension TopicClient: DependencyKey {
         ]
         return TopicClient(
             allTopics: {
-                allTopicGenerators.map(\.topic)
+                IdentifiedArray(uniqueElements: allTopicGenerators.map(\.topic))
             },
             generateQuestion: { topicID in
                 struct NoTopicForIDError: Error {}
