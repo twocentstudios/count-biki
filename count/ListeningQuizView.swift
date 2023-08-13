@@ -72,8 +72,12 @@ struct ListeningQuizFeature: Reducer {
                 return .none
 
             case .destination(.presented(.settings(.binding))):
-                guard case let .settings(action) = state.destination else { return .none }
-                state.settings = action
+                guard case let .settings(newValue) = state.destination else { return .none }
+                let oldValue = state.settings
+                state.settings = newValue
+                if oldValue.topicID != newValue.topicID {
+                    generateQuestion(state: &state)
+                }
                 return .none
 
             case .destination:
