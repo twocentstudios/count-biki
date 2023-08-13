@@ -255,13 +255,28 @@ struct ListeningQuizView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) {
-                HStack(spacing: 16) {
+                HStack(spacing: 0) {
+                    if let prefix = viewStore.question?.answerPrefix {
+                        Text(prefix)
+                            .font(.system(.title, design: .rounded))
+                            .foregroundStyle(Color.secondary)
+                    }
                     TextField("Answer", text: viewStore.$answer)
                         .foregroundStyle(Color.primary)
                         .font(.system(.largeTitle, design: .rounded))
                         .bold()
                         .textFieldStyle(.plain)
                         .keyboardType(.numberPad)
+                        .padding(.horizontal, 4)
+                    
+                    if let postfix = viewStore.question?.answerPostfix {
+                        Text(postfix)
+                            .font(.system(.title, design: .rounded))
+                            .foregroundStyle(Color.secondary)
+                    }
+                    
+                    Spacer().frame(width: 16)
+                    
                     Button {
                         viewStore.send(.answerSubmitButtonTapped)
                     } label: {
