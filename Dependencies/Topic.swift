@@ -84,7 +84,7 @@ extension TopicClient: TestDependencyKey {
 }
 
 extension DependencyValues {
-    var feature: TopicClient {
+    var topicClient: TopicClient {
         get { self[TopicClient.self] }
         set { self[TopicClient.self] = newValue }
     }

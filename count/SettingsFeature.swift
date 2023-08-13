@@ -6,11 +6,20 @@ struct SettingsFeature: Reducer {
         @BindingState var speechSettings: SpeechSynthesisSettings // TODO: nil is error
         let availableVoices: [SpeechSynthesisVoice]
 
+        @BindingState var topicID: UUID
+        var topic: Topic { availableTopics[id: topicID]! }
+        let availableTopics: IdentifiedArrayOf<Topic>
+
         init() {
             @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
             @Dependency(\.speechSynthesisClient) var speechClient
+            @Dependency(\.topicClient) var topicClient
+
             speechSettings = try! speechSettingsClient.get() // TODO: error handling
             availableVoices = speechClient.availableVoices()
+
+            availableTopics = topicClient.allTopics()
+            topicID = availableTopics.first!.id // TODO: load
         }
     }
 
