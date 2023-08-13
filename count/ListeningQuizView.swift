@@ -5,6 +5,7 @@ import SwiftUI
 struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
         @PresentationState var destination: Destination.State?
+        var settings: SettingsFeature.State = .init()
         var topicTitle: String = ""
         var topicSubtitle: String = ""
         var isSpeaking: Bool = false
@@ -53,7 +54,6 @@ struct ListeningQuizFeature: Reducer {
 
     @Dependency(\.continuousClock) var clock
     @Dependency(\.speechSynthesisClient) var speechClient
-    @Dependency(\.speechSynthesisSettingsClient) var speechSettings
     @Dependency(\.withRandomNumberGenerator) var randomNumberGenerator
 
     var body: some ReducerOf<Self> {
@@ -71,6 +71,11 @@ struct ListeningQuizFeature: Reducer {
                 }
 
             case .binding:
+                return .none
+
+            case .destination(.presented(.settings(.binding))):
+                guard case let .settings(action) = state.destination else { return .none }
+                state.settings = action
                 return .none
 
             case .destination:
@@ -126,10 +131,9 @@ struct ListeningQuizFeature: Reducer {
 
     private func playBackEffect(state: inout State) -> Effect<Self.Action> {
         state.isSpeaking = true
-        return .run { [question = state.question] send in
+        return .run { [question = state.question, settings = state.settings.speechSettings] send in
             await withTaskCancellation(id: CancelID.speakAction, cancelInFlight: true) {
                 do {
-                    let settings = try speechSettings.get()
                     let utterance = SpeechSynthesisUtterance(speechString: question, settings: settings)
                     try await speechClient.speak(utterance)
                     await send(.onPlaybackFinished)
