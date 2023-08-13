@@ -161,6 +161,7 @@ struct ListeningQuizFeature: Reducer {
 
 struct ListeningQuizView: View {
     let store: StoreOf<ListeningQuizFeature>
+    @FocusState private var answerFieldFocused: Bool
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
@@ -272,6 +273,7 @@ struct ListeningQuizView: View {
                         .textFieldStyle(.plain)
                         .keyboardType(.numberPad)
                         .padding(.horizontal, 4)
+                        .focused($answerFieldFocused)
                     
                     if let postfix = viewStore.question?.answerPostfix {
                         Text(postfix)
@@ -299,6 +301,9 @@ struct ListeningQuizView: View {
             }
             .task {
                 await viewStore.send(.onTask).finish()
+            }
+            .onAppear {
+                answerFieldFocused = true
             }
             .sheet(
                 store: store.scope(state: \.$destination, action: { .destination($0) }),
