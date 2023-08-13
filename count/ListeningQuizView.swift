@@ -8,7 +8,7 @@ struct ListeningQuizFeature: Reducer {
         var settings: SettingsFeature.State = .init()
         var isSpeaking: Bool = false
         var questionNumber: Int = 0
-        var question: String = ""
+        var question: Question?
         @BindingState var answer: String = ""
         var lastSubmittedIncorrectAnswer: String?
         var isShowingPlaybackError: Bool = false
@@ -59,7 +59,7 @@ struct ListeningQuizFeature: Reducer {
         Reduce { state, action in
             switch action {
             case .answerSubmitButtonTapped:
-                if state.question == state.answer {
+                if state.question?.acceptedAnswer == state.answer {
                     state.answer = ""
                     generateQuestion(state: &state)
                     return playBackEffect(state: &state)
@@ -126,11 +126,16 @@ struct ListeningQuizFeature: Reducer {
     }
 
     private func playBackEffect(state: inout State) -> Effect<Self.Action> {
+        guard let displayText = state.question?.displayText else {
+            assertionFailure("Tried to play before question set")
+            return .none
+        }
+
         state.isSpeaking = true
-        return .run { [question = state.question, settings = state.settings.speechSettings] send in
+        return .run { [settings = state.settings.speechSettings] send in
             await withTaskCancellation(id: CancelID.speakAction, cancelInFlight: true) {
                 do {
-                    let utterance = SpeechSynthesisUtterance(speechString: question, settings: settings)
+                    let utterance = SpeechSynthesisUtterance(speechString: displayText, settings: settings)
                     try await speechClient.speak(utterance)
                     await send(.onPlaybackFinished)
                 } catch {

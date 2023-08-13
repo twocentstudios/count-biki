@@ -5,7 +5,7 @@ import IdentifiedCollections
 private struct TopicGenerator: Identifiable {
     var id: UUID { topic.id }
     let topic: Topic
-    var generateQuestion: @Sendable (WithRandomNumberGenerator) throws -> (String)
+    var generateQuestion: @Sendable (WithRandomNumberGenerator) throws -> (Question)
 }
 
 struct Topic: Identifiable, Equatable {
@@ -15,9 +15,16 @@ struct Topic: Identifiable, Equatable {
     let description: String
 }
 
+struct Question: Equatable {
+    let displayText: String
+    let answerPrefix: String?
+    let answerPostfix: String?
+    let acceptedAnswer: String
+}
+
 struct TopicClient {
     var allTopics: @Sendable () -> IdentifiedArrayOf<Topic>
-    var generateQuestion: @Sendable (UUID) throws -> (String)
+    var generateQuestion: @Sendable (UUID) throws -> (Question)
 }
 
 extension TopicClient: DependencyKey {
@@ -33,7 +40,14 @@ extension TopicClient: DependencyKey {
                     description: "Integers between 1-999"
                 ),
                 generateQuestion: { rng in
-                    rng { String(Int.random(in: 1 ... 999, using: &$0)) }
+                    let answer = rng { String(Int.random(in: 1 ... 999, using: &$0)) }
+                    let question = Question(
+                        displayText: answer,
+                        answerPrefix: nil,
+                        answerPostfix: nil,
+                        acceptedAnswer: answer
+                    )
+                    return question
                 }
             ),
             TopicGenerator(
@@ -44,7 +58,14 @@ extension TopicClient: DependencyKey {
                     description: "Yen amounts between 100-1500"
                 ),
                 generateQuestion: { rng in
-                    rng { "￥\(Int.random(in: 100 ... 1500, using: &$0))" }
+                    let answer = rng { String(Int.random(in: 100 ... 1500, using: &$0)) }
+                    let question = Question(
+                        displayText: answer,
+                        answerPrefix: "￥",
+                        answerPostfix: nil,
+                        acceptedAnswer: answer
+                    )
+                    return question
                 }
             ),
             TopicGenerator(
@@ -55,7 +76,14 @@ extension TopicClient: DependencyKey {
                     description: "Yen amounts between 800-6000 by 10s"
                 ),
                 generateQuestion: { rng in
-                    rng { "￥\(Int.random(in: 80 ... 600, using: &$0) * 10)" }
+                    let answer = rng { String(Int.random(in: 80 ... 600, using: &$0) * 10) }
+                    let question = Question(
+                        displayText: answer,
+                        answerPrefix: "￥",
+                        answerPostfix: nil,
+                        acceptedAnswer: answer
+                    )
+                    return question
                 }
             ),
         ]
