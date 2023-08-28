@@ -59,9 +59,11 @@ extension TopicClient: DependencyKey {
                 ),
                 generateQuestion: { rng in
                     let answer = rng { String(Int.random(in: 100 ... 1500, using: &$0)) }
+                    let prefix = "￥"
+                    let displayText = "\(prefix)\(answer)"
                     let question = Question(
-                        displayText: answer,
-                        answerPrefix: "￥",
+                        displayText: displayText,
+                        answerPrefix: prefix,
                         answerPostfix: nil,
                         acceptedAnswer: answer
                     )
@@ -77,9 +79,11 @@ extension TopicClient: DependencyKey {
                 ),
                 generateQuestion: { rng in
                     let answer = rng { String(Int.random(in: 80 ... 600, using: &$0) * 10) }
+                    let prefix = "￥"
+                    let displayText = "\(prefix)\(answer)"
                     let question = Question(
-                        displayText: answer,
-                        answerPrefix: "￥",
+                        displayText: displayText,
+                        answerPrefix: prefix,
                         answerPostfix: nil,
                         acceptedAnswer: answer
                     )
