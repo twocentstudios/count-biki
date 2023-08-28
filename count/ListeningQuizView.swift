@@ -208,10 +208,9 @@ struct ListeningQuizView: View {
                         }
                     }
                     .buttonStyle(.plain)
-                    Circle() // TODO: avatar
-                        .fill(Color(.secondarySystemBackground))
-                        .frame(width: 100, height: 100)
-                        .hidden()
+                    CountBikiView()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(maxWidth: 100)
                 }
                 Spacer()
                 Button {
