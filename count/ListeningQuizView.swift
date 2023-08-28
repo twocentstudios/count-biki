@@ -2,6 +2,11 @@ import AVFoundation
 import ComposableArchitecture
 import SwiftUI
 
+enum BikiAnimation {
+    case correct
+    case incorrect
+}
+
 struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
         @PresentationState var destination: Destination.State?
@@ -12,6 +17,7 @@ struct ListeningQuizFeature: Reducer {
         @BindingState var answer: String = ""
         var lastSubmittedIncorrectAnswer: String?
         var isShowingPlaybackError: Bool = false
+        var bikiAnimation: BikiAnimation?
 
         var isShowingIncorrect: Bool {
             lastSubmittedIncorrectAnswer == answer
@@ -273,15 +279,15 @@ struct ListeningQuizView: View {
                         .keyboardType(.numberPad)
                         .padding(.horizontal, 4)
                         .focused($answerFieldFocused)
-                    
+
                     if let postfix = viewStore.question?.answerPostfix {
                         Text(postfix)
                             .font(.system(.title, design: .rounded))
                             .foregroundStyle(Color.secondary)
                     }
-                    
+
                     Spacer().frame(width: 16)
-                    
+
                     Button {
                         viewStore.send(.answerSubmitButtonTapped)
                     } label: {
