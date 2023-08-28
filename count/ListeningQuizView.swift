@@ -30,6 +30,7 @@ struct ListeningQuizFeature: Reducer {
         case destination(PresentationAction<Destination.Action>)
         case playbackButtonTapped
         case onTask
+        case resetBikiAnimation
         case titleButtonTapped
         case onPlaybackFinished
         case onPlaybackError
@@ -66,12 +67,16 @@ struct ListeningQuizFeature: Reducer {
             switch action {
             case .answerSubmitButtonTapped:
                 if state.question?.acceptedAnswer == state.answer {
+                    state.bikiAnimation = .correct
                     state.answer = ""
                     generateQuestion(state: &state)
-                    return playBackEffect(state: &state)
+                    return .send(.resetBikiAnimation)
+                        .concatenate(with: playBackEffect(state: &state))
                 } else {
+                    state.bikiAnimation = .incorrect
                     state.lastSubmittedIncorrectAnswer = state.answer
-                    return playBackEffect(state: &state)
+                    return .send(.resetBikiAnimation)
+                        .concatenate(with: playBackEffect(state: &state))
                 }
 
             case .binding:
@@ -87,6 +92,10 @@ struct ListeningQuizFeature: Reducer {
                 return .none
 
             case .destination:
+                return .none
+
+            case .resetBikiAnimation:
+                state.bikiAnimation = nil
                 return .none
 
             case .onPlaybackFinished:

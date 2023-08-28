@@ -4,26 +4,32 @@ import SwiftUI
 @MainActor struct CountBikiView: View {
     @MainActor struct SceneState {
         let scene: SCNScene
-        let idlePlayer: SCNAnimationPlayer
-        let correctPlayer: SCNAnimationPlayer
-        let incorrectPlayer: SCNAnimationPlayer
+        let catalogName = "CountBiki.scnassets"
 
         init() {
-            let catalogName = "CountBiki.scnassets"
             scene = .init(named: "\(catalogName)/count_biki_rig.scn")!
-            idlePlayer = Self.playerForAnimation(scene: scene, resourceName: "\(catalogName)/count_biki_anim_idle", isLooped: true)
-            correctPlayer = Self.playerForAnimation(scene: scene, resourceName: "\(catalogName)/count_biki_anim_correct", isLooped: false)
-            incorrectPlayer = Self.playerForAnimation(scene: scene, resourceName: "\(catalogName)/count_biki_anim_incorrect", isLooped: false)
         }
 
-        static func playerForAnimation(scene: SCNScene, resourceName: String, isLooped: Bool = false) -> SCNAnimationPlayer {
+        func playIdle() {
+            Self.playAnimation(scene: scene, resourceName: "\(catalogName)/count_biki_anim_idle", isLooped: true)
+        }
+
+        func playCorrect() {
+            Self.playAnimation(scene: scene, resourceName: "\(catalogName)/count_biki_anim_correct", isLooped: false)
+        }
+
+        func playIncorrect() {
+            Self.playAnimation(scene: scene, resourceName: "\(catalogName)/count_biki_anim_incorrect", isLooped: false)
+        }
+
+        static func playAnimation(scene: SCNScene, resourceName: String, isLooped: Bool = false) {
             guard let sceneURL = Bundle.main.url(forResource: resourceName, withExtension: "dae") else {
                 assertionFailure("\(resourceName).dae file not found")
-                return SCNAnimationPlayer()
+                return
             }
             guard let sceneSource = SCNSceneSource(url: sceneURL, options: nil) else {
                 assertionFailure("Scene for \(sceneURL) could not be loaded")
-                return SCNAnimationPlayer()
+                return
             }
 
             guard let animationKey = sceneSource.identifiersOfEntries(withClass: CAAnimation.self).first,
@@ -31,25 +37,24 @@ import SwiftUI
                   animationGroup.isKind(of: CAAnimationGroup.self)
             else {
                 assertionFailure("Animation not found in \(resourceName)")
-                return SCNAnimationPlayer()
+                return
             }
 
             guard let targetNode = scene.rootNode.childNode(withName: "Armature", recursively: true) else {
                 assertionFailure("Armature node not found in scene")
-                return SCNAnimationPlayer()
+                return
             }
 
-            animationGroup.repeatCount = isLooped ? .infinity : 1
+            animationGroup.repeatCount = isLooped ? .greatestFiniteMagnitude : 1
             animationGroup.fadeInDuration = 0.5
             animationGroup.fadeOutDuration = 0.5
+            animationGroup.isRemovedOnCompletion = true
 
-            let player = SCNAnimationPlayer(animation: SCNAnimation(caAnimation: animationGroup))
-            targetNode.addAnimationPlayer(player, forKey: resourceName)
-            return player
+            targetNode.addAnimation(animationGroup, forKey: resourceName)
         }
     }
-    
-    let sceneState: SceneState = .init()
+
+    @State var sceneState: SceneState = .init()
     var bikiAnimation: BikiAnimation?
 
     var body: some View {
@@ -65,7 +70,17 @@ import SwiftUI
         .clipShape(Circle())
         .aspectRatio(contentMode: .fit)
         .onAppear {
-            sceneState.idlePlayer.play()
+            sceneState.playIdle()
+        }
+        .onChange(of: bikiAnimation) { newValue in
+            switch newValue {
+            case .correct:
+                sceneState.playCorrect()
+            case .incorrect:
+                sceneState.playIncorrect()
+            case nil:
+                break
+            }
         }
     }
 }
