@@ -56,6 +56,7 @@ import SwiftUI
 
     @State var sceneState: SceneState = .init()
     var bikiAnimation: BikiAnimation?
+    @Environment(\.colorScheme) var colorScheme: ColorScheme
 
     var body: some View {
         SceneView(
@@ -70,8 +71,10 @@ import SwiftUI
         .clipShape(Circle())
         .aspectRatio(contentMode: .fit)
         .onAppear {
+            updateSceneBackground(colorScheme)
             sceneState.playIdle()
         }
+        .onChange(of: colorScheme, perform: updateSceneBackground)
         .onChange(of: bikiAnimation) { newValue in
             switch newValue?.kind {
             case .correct:
@@ -82,6 +85,10 @@ import SwiftUI
                 break
             }
         }
+    }
+
+    private func updateSceneBackground(_ colorScheme: ColorScheme) {
+        sceneState.scene.background.contents = colorScheme == .dark ? UIColor.black : UIColor.white
     }
 }
 
