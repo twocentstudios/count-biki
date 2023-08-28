@@ -73,7 +73,7 @@ import SwiftUI
             sceneState.playIdle()
         }
         .onChange(of: bikiAnimation) { newValue in
-            switch newValue {
+            switch newValue?.kind {
             case .correct:
                 sceneState.playCorrect()
             case .incorrect:

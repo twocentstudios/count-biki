@@ -2,9 +2,14 @@ import AVFoundation
 import ComposableArchitecture
 import SwiftUI
 
-enum BikiAnimation {
-    case correct
-    case incorrect
+struct BikiAnimation: Equatable {
+    enum Kind {
+        case correct
+        case incorrect
+    }
+
+    let id: UUID
+    let kind: Kind
 }
 
 struct ListeningQuizFeature: Reducer {
@@ -30,7 +35,6 @@ struct ListeningQuizFeature: Reducer {
         case destination(PresentationAction<Destination.Action>)
         case playbackButtonTapped
         case onTask
-        case resetBikiAnimation
         case titleButtonTapped
         case onPlaybackFinished
         case onPlaybackError
@@ -60,6 +64,7 @@ struct ListeningQuizFeature: Reducer {
     @Dependency(\.continuousClock) var clock
     @Dependency(\.speechSynthesisClient) var speechClient
     @Dependency(\.topicClient) var topicClient
+    @Dependency(\.uuid) var uuid
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -67,16 +72,14 @@ struct ListeningQuizFeature: Reducer {
             switch action {
             case .answerSubmitButtonTapped:
                 if state.question?.acceptedAnswer == state.answer {
-                    state.bikiAnimation = .correct
+                    state.bikiAnimation = .init(id: uuid(), kind: .correct)
                     state.answer = ""
                     generateQuestion(state: &state)
-                    return .send(.resetBikiAnimation)
-                        .concatenate(with: playBackEffect(state: &state))
+                    return playBackEffect(state: &state)
                 } else {
-                    state.bikiAnimation = .incorrect
+                    state.bikiAnimation = .init(id: uuid(), kind: .incorrect)
                     state.lastSubmittedIncorrectAnswer = state.answer
-                    return .send(.resetBikiAnimation)
-                        .concatenate(with: playBackEffect(state: &state))
+                    return playBackEffect(state: &state)
                 }
 
             case .binding:
@@ -92,10 +95,6 @@ struct ListeningQuizFeature: Reducer {
                 return .none
 
             case .destination:
-                return .none
-
-            case .resetBikiAnimation:
-                state.bikiAnimation = nil
                 return .none
 
             case .onPlaybackFinished:
@@ -223,7 +222,8 @@ struct ListeningQuizView: View {
                         }
                     }
                     .buttonStyle(.plain)
-                    CountBikiView()
+
+                    CountBikiView(bikiAnimation: viewStore.bikiAnimation)
                         .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: 100)
                 }
