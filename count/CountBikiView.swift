@@ -69,6 +69,8 @@ import SwiftUI
             technique: nil
         )
         .clipShape(Circle())
+        .padding(2)
+        .background { Circle().fill(Color(.secondarySystemBackground)) }
         .aspectRatio(contentMode: .fit)
         .onAppear {
             updateSceneBackground(colorScheme)
