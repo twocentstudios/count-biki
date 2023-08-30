@@ -279,13 +279,6 @@ struct ListeningQuizView: View {
             .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .overlay(alignment: .topTrailing) {}
-            .background {
-                if viewStore.isShowingIncorrect {
-                    Color(.red).saturation(0.9).brightness(0.6).ignoresSafeArea()
-                } else {
-                    Color(.systemBackground).ignoresSafeArea()
-                }
-            }
             .safeAreaInset(edge: .bottom) {
                 HStack(spacing: 0) {
                     if let prefix = viewStore.question?.answerPrefix {
@@ -324,6 +317,16 @@ struct ListeningQuizView: View {
                     Color(.secondarySystemBackground)
                         .ignoresSafeArea(.all, edges: .bottom)
                         .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
+                }
+                .background(alignment: .top) {
+                    ZStack {
+                        if viewStore.isShowingIncorrect {
+                            Color(hue: 0.0, saturation: 0.88, brightness: 0.96).frame(height: 10)
+                                .offset(y: -10)
+                                .transition(.scale.combined(with: .opacity))
+                        }
+                    }
+                    .animation(.snappy(duration: 0.1), value: viewStore.isShowingIncorrect)
                 }
             }
             .task {
