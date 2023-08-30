@@ -63,7 +63,7 @@ import SwiftUI
             scene: sceneState.scene,
             pointOfView: nil,
             options: [],
-            preferredFramesPerSecond: 24,
+            preferredFramesPerSecond: 48,
             antialiasingMode: .multisampling4X,
             delegate: nil,
             technique: nil
