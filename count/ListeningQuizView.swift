@@ -185,16 +185,21 @@ struct ListeningQuizView: View {
                         viewStore.send(.titleButtonTapped)
                     } label: {
                         VStack(alignment: .leading, spacing: 6) {
-                            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                                Text(viewStore.settings.topic.title)
-                                    .font(.system(.title, design: .rounded, weight: .semibold))
-                                Text(viewStore.settings.topic.subtitle)
-                                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                                    .foregroundStyle(Color(.secondaryLabel))
-                                Spacer()
-                                Image(systemName: "gearshape.fill")
-                                    .font(.title3)
-                                    .foregroundStyle(Color(.secondaryLabel))
+                            ViewThatFits(in: .horizontal) {
+                                HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                    Text(viewStore.settings.topic.title)
+                                        .font(.system(.title, design: .rounded, weight: .semibold))
+                                    Text(viewStore.settings.topic.subtitle)
+                                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                        .foregroundStyle(Color(.secondaryLabel))
+                                }
+                                VStack(alignment: .leading, spacing: 0) {
+                                    Text(viewStore.settings.topic.title)
+                                        .font(.system(.title, design: .rounded, weight: .semibold))
+                                    Text(viewStore.settings.topic.subtitle)
+                                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                        .foregroundStyle(Color(.secondaryLabel))
+                                }
                             }
                             HStack(spacing: 6) {
                                 IndeterminateProgressView(
@@ -213,8 +218,15 @@ struct ListeningQuizView: View {
                                     .foregroundColor(Color(.label))
                             }
                         }
-                        .padding(.vertical, 16)
-                        .padding(.horizontal, 16)
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 6)
+                        .overlay(alignment: .topTrailing) {
+                            Image(systemName: "gearshape.fill")
+                                .font(.title3)
+                                .foregroundStyle(Color(.secondaryLabel))
+                        }
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 10)
                         .background {
                             RoundedRectangle(cornerRadius: 16.0, style: .continuous)
                                 .fill(Color(.secondarySystemBackground))
@@ -227,6 +239,7 @@ struct ListeningQuizView: View {
                         .aspectRatio(contentMode: .fit)
                         .frame(maxWidth: 100)
                 }
+                .frame(maxWidth: .infinity)
                 Spacer()
                 Button {
                     viewStore.send(.playbackButtonTapped)
