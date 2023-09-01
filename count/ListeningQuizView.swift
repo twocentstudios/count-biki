@@ -170,6 +170,8 @@ struct ListeningQuizFeature: Reducer {
         store: Store(initialState: ListeningQuizFeature.State()) {
             ListeningQuizFeature()
                 ._printChanges()
+        } withDependencies: {
+            $0.topicClient.generateQuestion = { _ in .init(displayText: "1", answerPrefix: nil, answerPostfix: nil, acceptedAnswer: "1") }
         }
     )
 }
