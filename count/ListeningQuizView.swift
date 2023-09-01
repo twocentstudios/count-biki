@@ -73,6 +73,7 @@ struct ListeningQuizFeature: Reducer {
             case .answerSubmitButtonTapped:
                 if state.question?.acceptedAnswer == state.answer {
                     state.bikiAnimation = .init(id: uuid(), kind: .correct)
+                    state.lastSubmittedIncorrectAnswer = nil
                     state.answer = ""
                     generateQuestion(state: &state)
                     return playBackEffect(state: &state)
