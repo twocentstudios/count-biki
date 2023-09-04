@@ -60,6 +60,7 @@ struct ListeningQuizFeature: Reducer {
     }
 
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.hapticsClient) var haptics
     @Dependency(\.speechSynthesisClient) var speechClient
     @Dependency(\.topicClient) var topicClient
     @Dependency(\.uuid) var uuid
@@ -80,11 +81,13 @@ struct ListeningQuizFeature: Reducer {
                     state.lastSubmittedIncorrectAnswer = nil
                     state.answer = ""
                     generateQuestion(state: &state)
-                    return playBackEffect(state: &state)
+                    return .run { _ in await haptics.success() }
+                        .merge(with: playBackEffect(state: &state))
                 } else {
                     state.bikiAnimation = .init(id: uuid(), kind: .incorrect)
                     state.lastSubmittedIncorrectAnswer = state.answer
-                    return playBackEffect(state: &state)
+                    return .run { _ in await haptics.error() }
+                        .merge(with: playBackEffect(state: &state))
                 }
 
             case .binding:
@@ -239,7 +242,6 @@ struct ListeningQuizView: View {
             .safeAreaInset(edge: .bottom) {
                 answerTextField(viewStore: viewStore)
             }
-            .sensoryFeedback(bikiAnimation: viewStore.bikiAnimation)
             .task {
                 await viewStore.send(.onTask).finish()
             }
@@ -436,34 +438,6 @@ struct ListeningQuizView: View {
                 }
             }
             .animation(.snappy(duration: 0.1), value: viewStore.isShowingIncorrect)
-        }
-    }
-}
-
-private extension View {
-    @MainActor @ViewBuilder func sensoryFeedback(bikiAnimation: BikiAnimation?) -> some View {
-        if #available(iOS 17, *) {
-            sensoryFeedback(trigger: bikiAnimation) { oldValue, newValue in
-                switch newValue?.kind {
-                case .correct:
-                    return .success
-                case .incorrect:
-                    return .error
-                case nil:
-                    return nil
-                }
-            }
-        } else {
-            onChange(of: bikiAnimation) { newValue in
-                switch newValue?.kind {
-                case .correct:
-                    UINotificationFeedbackGenerator().notificationOccurred(.success)
-                case .incorrect:
-                    UINotificationFeedbackGenerator().notificationOccurred(.error)
-                case nil:
-                    break
-                }
-            }
         }
     }
 }

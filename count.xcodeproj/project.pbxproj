@@ -25,6 +25,7 @@
 		349D04812A88F23F008AFD0A /* TopicSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D047F2A88F23F008AFD0A /* TopicSettings.swift */; };
 		34A9749A2A7AB0E600E6F672 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 34A974992A7AB0E600E6F672 /* ComposableArchitecture */; };
 		34BDC4952AA58A51001EF005 /* GetMoreVoicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BDC4942AA58A51001EF005 /* GetMoreVoicesView.swift */; };
+		34BDC4972AA5C2B6001EF005 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BDC4962AA5C2B6001EF005 /* Haptics.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +58,7 @@
 		349D047C2A88E569008AFD0A /* Topic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Topic.swift; sourceTree = "<group>"; };
 		349D047F2A88F23F008AFD0A /* TopicSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicSettings.swift; sourceTree = "<group>"; };
 		34BDC4942AA58A51001EF005 /* GetMoreVoicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetMoreVoicesView.swift; sourceTree = "<group>"; };
+		34BDC4962AA5C2B6001EF005 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -140,6 +142,7 @@
 				340E70572A83738F004B124B /* SpeechSynthesisSettings.swift */,
 				349D047F2A88F23F008AFD0A /* TopicSettings.swift */,
 				349D047C2A88E569008AFD0A /* Topic.swift */,
+				34BDC4962AA5C2B6001EF005 /* Haptics.swift */,
 			);
 			path = Dependencies;
 			sourceTree = "<group>";
@@ -255,6 +258,7 @@
 			files = (
 				340A51CF2A78EC78007DCA0C /* ListeningQuizView.swift in Sources */,
 				340E70582A83738F004B124B /* SpeechSynthesisSettings.swift in Sources */,
+				34BDC4972AA5C2B6001EF005 /* Haptics.swift in Sources */,
 				349D04802A88F23F008AFD0A /* TopicSettings.swift in Sources */,
 				34BDC4952AA58A51001EF005 /* GetMoreVoicesView.swift in Sources */,
 				349802222A7BDDF200E352F5 /* IndeterminiteProgressView.swift in Sources */,
