@@ -76,8 +76,7 @@ struct SettingsView: View {
                         }
                         .pickerStyle(.navigationLink)
                         NavigationLink {
-                            Text("TODO")
-                                .font(.system(.body, design: .rounded))
+                            GetMoreVoicesView()
                         } label: {
                             Text("Get more voices")
                                 .font(.system(.body, design: .rounded))
