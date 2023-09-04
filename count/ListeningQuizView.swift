@@ -183,154 +183,14 @@ struct ListeningQuizView: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack {
-                HStack(alignment: .top, spacing: 16) {
-                    Button {
-                        viewStore.send(.titleButtonTapped)
-                    } label: {
-                        VStack(alignment: .leading, spacing: 6) {
-                            ViewThatFits(in: .horizontal) {
-                                HStack(alignment: .firstTextBaseline, spacing: 4) {
-                                    Text(viewStore.settings.topic.title)
-                                        .font(.system(.title, design: .rounded, weight: .semibold))
-                                    Text(viewStore.settings.topic.subtitle)
-                                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                                        .foregroundStyle(Color(.secondaryLabel))
-                                }
-                                VStack(alignment: .leading, spacing: 0) {
-                                    Text(viewStore.settings.topic.title)
-                                        .font(.system(.title, design: .rounded, weight: .semibold))
-                                    Text(viewStore.settings.topic.subtitle)
-                                        .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                                        .foregroundStyle(Color(.secondaryLabel))
-                                }
-                            }
-                            HStack(spacing: 6) {
-                                IndeterminateProgressView(
-                                    animationCount: viewStore.questionNumber,
-                                    color1: Color(.tintColor),
-                                    color2: Color(.systemBackground),
-                                    barCount: 20,
-                                    rotation: .degrees(50),
-                                    animation: .snappy()
-                                )
-                                .clipShape(Capsule(style: .continuous))
-                                .frame(height: 10)
-                                Image(systemName: "infinity")
-                                    .font(.caption)
-                                    .bold()
-                                    .foregroundColor(Color(.label))
-                            }
-                        }
-                        .padding(.vertical, 6)
-                        .padding(.horizontal, 6)
-                        .overlay(alignment: .topTrailing) {
-                            Image(systemName: "gearshape.fill")
-                                .font(.title3)
-                                .foregroundStyle(Color(.secondaryLabel))
-                        }
-                        .padding(.vertical, 10)
-                        .padding(.horizontal, 10)
-                        .background {
-                            RoundedRectangle(cornerRadius: 16.0, style: .continuous)
-                                .fill(Color(.secondarySystemBackground))
-                                .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
-                        }
-                    }
-                    .buttonStyle(.plain)
-
-                    CountBikiView(bikiAnimation: viewStore.bikiAnimation)
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: 100)
-                }
-                .frame(maxWidth: .infinity)
+                header(viewStore: viewStore)
                 Spacer()
-                Button {
-                    viewStore.send(.playbackButtonTapped)
-                } label: {
-                    Image(systemName: viewStore.isSpeaking ? "speaker.wave.3.fill" : "speaker.fill")
-                        .font(.title)
-                        .frame(width: 170, height: 170)
-                        .overlay(alignment: .bottom) {
-                            Text(viewStore.isSpeaking ? "Tap to stop" : "Tap to replay")
-                                .font(.system(.caption, design: .rounded))
-                                .foregroundStyle(Color.secondary)
-                                .padding(.vertical, 10)
-                        }
-                        .background {
-                            RoundedRectangle(cornerRadius: 16.0, style: .continuous)
-                                .fill(Color(.secondarySystemBackground))
-                                .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
-                        }
-                        .animation(.bouncy, value: viewStore.isSpeaking)
-                }
-                .buttonStyle(.plain)
-                .background(alignment: .bottom) {
-                    ZStack {
-                        if viewStore.isShowingPlaybackError {
-                            Text("There was an error playing your question")
-                                .font(.system(.caption, design: .rounded))
-                                .multilineTextAlignment(.center)
-                                .foregroundStyle(Color(.red))
-                                .offset(x: 0, y: 40)
-                                .transition(.move(edge: .top).combined(with: .opacity))
-                        }
-                    }
-                    .animation(.bouncy, value: viewStore.isShowingPlaybackError)
-                }
+                playButton(viewStore: viewStore)
                 Spacer()
             }
             .padding()
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .overlay(alignment: .topTrailing) {}
             .safeAreaInset(edge: .bottom) {
-                HStack(spacing: 0) {
-                    if let prefix = viewStore.question?.answerPrefix {
-                        Text(prefix)
-                            .font(.system(.title, design: .rounded))
-                            .foregroundStyle(Color.secondary)
-                    }
-                    TextField("Answer", text: viewStore.$answer)
-                        .foregroundStyle(Color.primary)
-                        .font(.system(.largeTitle, design: .rounded))
-                        .bold()
-                        .textFieldStyle(.plain)
-                        .keyboardType(.numberPad)
-                        .padding(.horizontal, 4)
-                        .focused($answerFieldFocused)
-
-                    if let postfix = viewStore.question?.answerPostfix {
-                        Text(postfix)
-                            .font(.system(.title, design: .rounded))
-                            .foregroundStyle(Color.secondary)
-                    }
-
-                    Spacer().frame(width: 16)
-
-                    Button {
-                        viewStore.send(.answerSubmitButtonTapped)
-                    } label: {
-                        Image(systemName: "checkmark.circle")
-                            .font(.title)
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(viewStore.answer.isEmpty) // TODO: where should this calculation go
-                }
-                .padding()
-                .background {
-                    Color(.secondarySystemBackground)
-                        .ignoresSafeArea(.all, edges: .bottom)
-                        .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
-                }
-                .background(alignment: .top) {
-                    ZStack {
-                        if viewStore.isShowingIncorrect {
-                            Color(hue: 0.0, saturation: 0.88, brightness: 0.96).frame(height: 10)
-                                .offset(y: -10)
-                                .transition(.scale.combined(with: .opacity))
-                        }
-                    }
-                    .animation(.snappy(duration: 0.1), value: viewStore.isShowingIncorrect)
-                }
+                answerTextField(viewStore: viewStore)
             }
             .task {
                 await viewStore.send(.onTask).finish()
@@ -345,6 +205,156 @@ struct ListeningQuizView: View {
             ) { store in
                 SettingsView(store: store)
             }
+        }
+    }
+
+    @ViewBuilder func header(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
+        HStack(alignment: .top, spacing: 16) {
+            Button {
+                viewStore.send(.titleButtonTapped)
+            } label: {
+                VStack(alignment: .leading, spacing: 6) {
+                    ViewThatFits(in: .horizontal) {
+                        HStack(alignment: .firstTextBaseline, spacing: 4) {
+                            Text(viewStore.settings.topic.title)
+                                .font(.system(.title, design: .rounded, weight: .semibold))
+                            Text(viewStore.settings.topic.subtitle)
+                                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                .foregroundStyle(Color(.secondaryLabel))
+                        }
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text(viewStore.settings.topic.title)
+                                .font(.system(.title, design: .rounded, weight: .semibold))
+                            Text(viewStore.settings.topic.subtitle)
+                                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                .foregroundStyle(Color(.secondaryLabel))
+                        }
+                    }
+                    HStack(spacing: 6) {
+                        IndeterminateProgressView(
+                            animationCount: viewStore.questionNumber,
+                            color1: Color(.tintColor),
+                            color2: Color(.systemBackground),
+                            barCount: 20,
+                            rotation: .degrees(50),
+                            animation: .snappy()
+                        )
+                        .clipShape(Capsule(style: .continuous))
+                        .frame(height: 10)
+                        Image(systemName: "infinity")
+                            .font(.caption)
+                            .bold()
+                            .foregroundColor(Color(.label))
+                    }
+                }
+                .padding(.vertical, 6)
+                .padding(.horizontal, 6)
+                .overlay(alignment: .topTrailing) {
+                    Image(systemName: "gearshape.fill")
+                        .font(.title3)
+                        .foregroundStyle(Color(.secondaryLabel))
+                }
+                .padding(.vertical, 10)
+                .padding(.horizontal, 10)
+                .background {
+                    RoundedRectangle(cornerRadius: 16.0, style: .continuous)
+                        .fill(Color(.secondarySystemBackground))
+                        .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
+                }
+            }
+            .buttonStyle(.plain)
+
+            CountBikiView(bikiAnimation: viewStore.bikiAnimation)
+                .aspectRatio(contentMode: .fit)
+                .frame(maxWidth: 100)
+        }
+        .frame(maxWidth: .infinity)
+    }
+
+    @ViewBuilder func playButton(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
+        Button {
+            viewStore.send(.playbackButtonTapped)
+        } label: {
+            Image(systemName: viewStore.isSpeaking ? "speaker.wave.3.fill" : "speaker.fill")
+                .font(.title)
+                .frame(width: 170, height: 170)
+                .overlay(alignment: .bottom) {
+                    Text(viewStore.isSpeaking ? "Tap to stop" : "Tap to replay")
+                        .font(.system(.caption, design: .rounded))
+                        .foregroundStyle(Color.secondary)
+                        .padding(.vertical, 10)
+                }
+                .background {
+                    RoundedRectangle(cornerRadius: 16.0, style: .continuous)
+                        .fill(Color(.secondarySystemBackground))
+                        .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
+                }
+                .animation(.bouncy, value: viewStore.isSpeaking)
+        }
+        .buttonStyle(.plain)
+        .background(alignment: .bottom) {
+            ZStack {
+                if viewStore.isShowingPlaybackError {
+                    Text("There was an error playing your question")
+                        .font(.system(.caption, design: .rounded))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(Color(.red))
+                        .offset(x: 0, y: 40)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
+            .animation(.bouncy, value: viewStore.isShowingPlaybackError)
+        }
+    }
+
+    @MainActor @ViewBuilder func answerTextField(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
+        HStack(spacing: 0) {
+            if let prefix = viewStore.question?.answerPrefix {
+                Text(prefix)
+                    .font(.system(.title, design: .rounded))
+                    .foregroundStyle(Color.secondary)
+            }
+            TextField("Answer", text: viewStore.$answer)
+                .foregroundStyle(Color.primary)
+                .font(.system(.largeTitle, design: .rounded))
+                .bold()
+                .textFieldStyle(.plain)
+                .keyboardType(.numberPad)
+                .padding(.horizontal, 4)
+                .focused($answerFieldFocused)
+
+            if let postfix = viewStore.question?.answerPostfix {
+                Text(postfix)
+                    .font(.system(.title, design: .rounded))
+                    .foregroundStyle(Color.secondary)
+            }
+
+            Spacer().frame(width: 16)
+
+            Button {
+                viewStore.send(.answerSubmitButtonTapped)
+            } label: {
+                Image(systemName: "checkmark.circle")
+                    .font(.title)
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(viewStore.answer.isEmpty) // TODO: where should this calculation go
+        }
+        .padding()
+        .background {
+            Color(.secondarySystemBackground)
+                .ignoresSafeArea(.all, edges: .bottom)
+                .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
+        }
+        .background(alignment: .top) {
+            ZStack {
+                if viewStore.isShowingIncorrect {
+                    Color(hue: 0.0, saturation: 0.88, brightness: 0.96).frame(height: 10)
+                        .offset(y: -10)
+                        .transition(.scale.combined(with: .opacity))
+                }
+            }
+            .animation(.snappy(duration: 0.1), value: viewStore.isShowingIncorrect)
         }
     }
 }
