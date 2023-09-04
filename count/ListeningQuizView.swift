@@ -189,29 +189,27 @@ struct ListeningQuizView: View {
                     .font(.system(size: 80, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.secondary)
                     .blur(radius: 18)
-                    .padding(.bottom, 20)
-                Button {
-                    // TODO: reveal answer
-                } label: {
-                    VStack(spacing: 10) {
-                        Text("Show Answer")
-                            .multilineTextAlignment(.center)
-                            .lineLimit(2)
-                            .font(.system(.caption, design: .rounded))
-                            .foregroundStyle(Color.secondary)
+                    .overlay {
+                        Button {
+                            // TODO: reveal answer
+                        } label: {
+                            VStack(spacing: 10) {
+                                Text("Show Answer")
+                                    .multilineTextAlignment(.center)
+                                    .lineLimit(2)
+                                    .font(.system(.caption, design: .rounded))
+                                    .foregroundStyle(Color.secondary)
+                            }
+                            .padding(.vertical, 30)
+                            .padding(.horizontal, 24)
+                            .animation(.bouncy, value: viewStore.isSpeaking)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .padding(.vertical)
-                    .padding(.horizontal, 24)
-                    .background {
-                        RoundedRectangle(cornerRadius: 16.0, style: .continuous)
-                            .stroke(Color(.secondarySystemBackground))
-                    }
-                    .animation(.bouncy, value: viewStore.isSpeaking)
-                }
-                .buttonStyle(.plain)
+                    .padding(.bottom, 16)
 
-                Spacer()
                 playButton(viewStore: viewStore)
+                Spacer()
             }
             .padding()
             .safeAreaInset(edge: .bottom) {
