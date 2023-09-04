@@ -182,15 +182,33 @@ struct ListeningQuizView: View {
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack {
+            VStack(spacing: 0) {
                 header(viewStore: viewStore)
                 Spacer()
                 Text("00000")
-                    .font(.largeTitle)
+                    .font(.system(size: 80, weight: .bold, design: .rounded))
                     .foregroundStyle(Color.secondary)
-                    .fontWeight(.bold)
-                    .fontDesign(.rounded)
-                    .blur(radius: 10)
+                    .blur(radius: 18)
+                    .padding(.bottom, 20)
+                Button {
+                    // TODO: reveal answer
+                } label: {
+                    VStack(spacing: 10) {
+                        Text("Show Answer")
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                            .font(.system(.caption, design: .rounded))
+                            .foregroundStyle(Color.secondary)
+                    }
+                    .padding(.vertical)
+                    .padding(.horizontal, 24)
+                    .background {
+                        RoundedRectangle(cornerRadius: 16.0, style: .continuous)
+                            .stroke(Color(.secondarySystemBackground))
+                    }
+                    .animation(.bouncy, value: viewStore.isSpeaking)
+                }
+                .buttonStyle(.plain)
 
                 Spacer()
                 playButton(viewStore: viewStore)
@@ -279,65 +297,43 @@ struct ListeningQuizView: View {
     }
 
     @ViewBuilder func playButton(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
-        HStack(alignment: .bottom, spacing: 20) {
-            Button {
-                // TODO:
-            } label: {
-                VStack(spacing: 10) {
-                    Text("Show\nAnswer")
-                        .multilineTextAlignment(.center)
-                        .lineLimit(2)
-                        .font(.system(.caption, design: .rounded))
-                        .foregroundStyle(Color.secondary)
-                }
-                .padding()
-                .background {
-                    RoundedRectangle(cornerRadius: 16.0, style: .continuous)
-                        .fill(Color(.secondarySystemBackground))
-                        .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
-                }
-                .animation(.bouncy, value: viewStore.isSpeaking)
-            }
-            .buttonStyle(.plain)
-
-            Button {
-                viewStore.send(.playbackButtonTapped)
-            } label: {
-                VStack(spacing: 10) {
-                    Image(systemName: "speaker.wave.3.fill") // same height for different symbols
-                        .font(.title)
-                        .hidden()
-                        .overlay {
-                            Image(systemName: viewStore.isSpeaking ? "speaker.wave.3.fill" : "speaker.fill")
-                                .font(.title)
-                        }
-                    Text(viewStore.isSpeaking ? "Stop" : "Replay")
-                        .font(.system(.caption, design: .rounded))
-                        .foregroundStyle(Color.secondary)
-                }
-                .padding()
-                .frame(maxWidth: 300)
-                .background {
-                    RoundedRectangle(cornerRadius: 16.0, style: .continuous)
-                        .fill(Color(.secondarySystemBackground))
-                        .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
-                }
-                .animation(.bouncy, value: viewStore.isSpeaking)
-            }
-            .buttonStyle(.plain)
-            .background(alignment: .bottom) {
-                ZStack {
-                    if viewStore.isShowingPlaybackError {
-                        Text("There was an error playing your question")
-                            .font(.system(.caption, design: .rounded))
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(Color(.red))
-                            .offset(x: 0, y: 40)
-                            .transition(.move(edge: .top).combined(with: .opacity))
+        Button {
+            viewStore.send(.playbackButtonTapped)
+        } label: {
+            VStack(spacing: 10) {
+                Image(systemName: "speaker.wave.3.fill") // same height for different symbols
+                    .font(.title)
+                    .hidden()
+                    .overlay {
+                        Image(systemName: viewStore.isSpeaking ? "speaker.wave.3.fill" : "speaker.fill")
+                            .font(.title)
                     }
-                }
-                .animation(.bouncy, value: viewStore.isShowingPlaybackError)
+                Text(viewStore.isSpeaking ? "Stop" : "Play Question")
+                    .font(.system(.caption, design: .rounded))
+                    .foregroundStyle(Color.secondary)
             }
+            .padding()
+            .frame(maxWidth: 260)
+            .background {
+                RoundedRectangle(cornerRadius: 16.0, style: .continuous)
+                    .fill(Color(.secondarySystemBackground))
+                    .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
+            }
+            .animation(.bouncy, value: viewStore.isSpeaking)
+        }
+        .buttonStyle(.plain)
+        .background(alignment: .bottom) {
+            ZStack {
+                if viewStore.isShowingPlaybackError {
+                    Text("There was an error playing your question")
+                        .font(.system(.caption, design: .rounded))
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(Color(.red))
+                        .offset(x: 0, y: 40)
+                        .transition(.move(edge: .top).combined(with: .opacity))
+                }
+            }
+            .animation(.bouncy, value: viewStore.isShowingPlaybackError)
         }
     }
 
