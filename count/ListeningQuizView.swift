@@ -14,31 +14,29 @@ struct BikiAnimation: Equatable {
 
 struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
+        @BindingState var answer: String = ""
+        var bikiAnimation: BikiAnimation?
         @PresentationState var destination: Destination.State?
-        var settings: SettingsFeature.State = .init()
+        var isShowingPlaybackError: Bool = false
+        var isShowingAnswer: Bool = false
         var isSpeaking: Bool = false
+        var lastSubmittedIncorrectAnswer: String?
         var questionNumber: Int = 0
         var question: Question?
-        @BindingState var answer: String = ""
-        var lastSubmittedIncorrectAnswer: String?
-        var isShowingPlaybackError: Bool = false
-        var bikiAnimation: BikiAnimation?
-
-        var isShowingIncorrect: Bool {
-            lastSubmittedIncorrectAnswer == answer
-        }
+        var settings: SettingsFeature.State = .init()
     }
 
     enum Action: BindableAction, Equatable {
         case answerSubmitButtonTapped
         case binding(BindingAction<State>)
         case destination(PresentationAction<Destination.Action>)
-        case playbackButtonTapped
-        case onTask
-        case titleButtonTapped
-        case onPlaybackFinished
         case onPlaybackError
         case onPlaybackErrorTimeout
+        case onPlaybackFinished
+        case onTask
+        case playbackButtonTapped
+        case showAnswerButtonTapped
+        case titleButtonTapped
     }
 
     struct Destination: Reducer {
@@ -71,7 +69,13 @@ struct ListeningQuizFeature: Reducer {
         Reduce { state, action in
             switch action {
             case .answerSubmitButtonTapped:
-                if state.question?.acceptedAnswer == state.answer {
+                if state.isShowingAnswer {
+                    state.lastSubmittedIncorrectAnswer = nil
+                    state.answer = ""
+                    state.isShowingAnswer = false
+                    generateQuestion(state: &state)
+                    return playBackEffect(state: &state)
+                } else if state.question?.acceptedAnswer == state.answer {
                     state.bikiAnimation = .init(id: uuid(), kind: .correct)
                     state.lastSubmittedIncorrectAnswer = nil
                     state.answer = ""
@@ -129,6 +133,10 @@ struct ListeningQuizFeature: Reducer {
                     return playBackEffect(state: &state)
                 }
 
+            case .showAnswerButtonTapped:
+                state.isShowingAnswer = true
+                return .none
+
             case .titleButtonTapped:
                 state.destination = .settings(state.settings)
                 return .none
@@ -165,6 +173,40 @@ struct ListeningQuizFeature: Reducer {
     }
 }
 
+extension ListeningQuizFeature.State {
+    var isShowingIncorrect: Bool {
+        lastSubmittedIncorrectAnswer == answer
+    }
+
+    var isSubmitButtonDisabled: Bool {
+        if isShowingAnswer {
+            return false
+        } else {
+            return answer.isEmpty
+        }
+    }
+    
+    var answerText: String {
+        if isShowingAnswer {
+            return question?.acceptedAnswer ?? ""
+        } else {
+            return "00000"
+        }
+    }
+    
+    enum AnswerButton: String {
+        case checkmark = "checkmark.circle"
+        case arrow = "arrow.right.circle"
+    }
+    var answerButtonKind: AnswerButton {
+        if isShowingAnswer {
+            return .arrow
+        } else {
+            return .checkmark
+        }
+    }
+}
+
 #Preview {
     ListeningQuizView(
         store: Store(initialState: ListeningQuizFeature.State()) {
@@ -185,26 +227,30 @@ struct ListeningQuizView: View {
             VStack(spacing: 0) {
                 header(viewStore: viewStore)
                 Spacer()
-                Text("00000")
+                Text(viewStore.answerText)
                     .font(.system(size: 80, weight: .bold, design: .rounded))
-                    .foregroundStyle(Color.secondary)
-                    .blur(radius: 18)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.1)
+                    .foregroundStyle(viewStore.isShowingAnswer ? Color.primary : Color.secondary)
+                    .blur(radius: viewStore.isShowingAnswer ? 0 : 18)
                     .overlay {
-                        Button {
-                            // TODO: reveal answer
-                        } label: {
-                            VStack(spacing: 10) {
-                                Text("Show Answer")
-                                    .multilineTextAlignment(.center)
-                                    .lineLimit(2)
-                                    .font(.system(.caption, design: .rounded))
-                                    .foregroundStyle(Color.secondary)
+                        if !viewStore.isShowingAnswer {
+                            Button {
+                                viewStore.send(.showAnswerButtonTapped)
+                            } label: {
+                                VStack(spacing: 10) {
+                                    Text("Show Answer")
+                                        .multilineTextAlignment(.center)
+                                        .lineLimit(2)
+                                        .font(.system(.caption, design: .rounded))
+                                        .foregroundStyle(Color.secondary)
+                                }
+                                .padding(.vertical, 30)
+                                .padding(.horizontal, 24)
+                                .animation(.bouncy, value: viewStore.isSpeaking)
                             }
-                            .padding(.vertical, 30)
-                            .padding(.horizontal, 24)
-                            .animation(.bouncy, value: viewStore.isSpeaking)
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
                     .padding(.bottom, 16)
 
@@ -362,11 +408,11 @@ struct ListeningQuizView: View {
             Button {
                 viewStore.send(.answerSubmitButtonTapped)
             } label: {
-                Image(systemName: "checkmark.circle")
+                Image(systemName: viewStore.answerButtonKind.rawValue)
                     .font(.title)
             }
             .buttonStyle(.borderedProminent)
-            .disabled(viewStore.answer.isEmpty) // TODO: where should this calculation go
+            .disabled(viewStore.isSubmitButtonDisabled)
         }
         .padding()
         .background {
