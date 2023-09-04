@@ -29,6 +29,10 @@ struct CountApp: App {
                     } catch {
                         assertionFailure("Unknown error: \(error)")
                     }
+
+                    #if targetEnvironment(simulator)
+                        $0.topicClient.generateQuestion = { _ in .init(displayText: "1", answerPrefix: nil, answerPostfix: nil, acceptedAnswer: "1") }
+                    #endif
                 }
             )
         }
