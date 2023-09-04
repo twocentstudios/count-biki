@@ -185,7 +185,7 @@ extension ListeningQuizFeature.State {
             return answer.isEmpty
         }
     }
-    
+
     var answerText: String {
         if isShowingAnswer {
             return question?.acceptedAnswer ?? ""
@@ -193,7 +193,7 @@ extension ListeningQuizFeature.State {
             return "00000"
         }
     }
-    
+
     enum AnswerButton: String {
         case checkmark = "checkmark.circle"
         case arrow = "arrow.right.circle"
@@ -226,35 +226,13 @@ struct ListeningQuizView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(spacing: 0) {
                 header(viewStore: viewStore)
+                
                 Spacer()
-                Text(viewStore.answerText)
-                    .font(.system(size: 80, weight: .bold, design: .rounded))
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.1)
-                    .foregroundStyle(viewStore.isShowingAnswer ? Color.primary : Color.secondary)
-                    .blur(radius: viewStore.isShowingAnswer ? 0 : 18)
-                    .overlay {
-                        if !viewStore.isShowingAnswer {
-                            Button {
-                                viewStore.send(.showAnswerButtonTapped)
-                            } label: {
-                                VStack(spacing: 10) {
-                                    Text("Show Answer")
-                                        .multilineTextAlignment(.center)
-                                        .lineLimit(2)
-                                        .font(.system(.caption, design: .rounded))
-                                        .foregroundStyle(Color.secondary)
-                                }
-                                .padding(.vertical, 30)
-                                .padding(.horizontal, 24)
-                                .animation(.bouncy, value: viewStore.isSpeaking)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.bottom, 16)
 
+                answer(viewStore: viewStore)
+                    .padding(.bottom, 16)
                 playButton(viewStore: viewStore)
+                
                 Spacer()
             }
             .padding()
@@ -338,6 +316,34 @@ struct ListeningQuizView: View {
                 .frame(maxWidth: 100)
         }
         .frame(maxWidth: .infinity)
+    }
+
+    @ViewBuilder func answer(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
+        Text(viewStore.answerText)
+            .font(.system(size: 80, weight: .bold, design: .rounded))
+            .lineLimit(1)
+            .minimumScaleFactor(0.1)
+            .foregroundStyle(viewStore.isShowingAnswer ? Color.primary : Color.secondary)
+            .blur(radius: viewStore.isShowingAnswer ? 0 : 18)
+            .overlay {
+                if !viewStore.isShowingAnswer {
+                    Button {
+                        viewStore.send(.showAnswerButtonTapped)
+                    } label: {
+                        VStack(spacing: 10) {
+                            Text("Show Answer")
+                                .multilineTextAlignment(.center)
+                                .lineLimit(2)
+                                .font(.system(.caption, design: .rounded))
+                                .foregroundStyle(Color.secondary)
+                        }
+                        .padding(.vertical, 30)
+                        .padding(.horizontal, 24)
+                        .animation(.bouncy, value: viewStore.isSpeaking)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
     }
 
     @ViewBuilder func playButton(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
