@@ -98,6 +98,9 @@ struct ListeningQuizFeature: Reducer {
                 let oldValue = state.settings
                 state.settings = newValue
                 if oldValue.topicID != newValue.topicID {
+                    state.lastSubmittedIncorrectAnswer = nil
+                    state.answer = ""
+                    state.isShowingAnswer = false
                     generateQuestion(state: &state)
                 }
                 return .none
