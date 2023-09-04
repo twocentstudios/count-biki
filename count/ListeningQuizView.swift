@@ -226,19 +226,20 @@ struct ListeningQuizView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             VStack(spacing: 0) {
                 header(viewStore: viewStore)
-                
+
                 Spacer()
 
                 answer(viewStore: viewStore)
                     .padding(.bottom, 16)
                 playButton(viewStore: viewStore)
-                
+
                 Spacer()
             }
             .padding()
             .safeAreaInset(edge: .bottom) {
                 answerTextField(viewStore: viewStore)
             }
+            .sensoryFeedback(bikiAnimation: viewStore.bikiAnimation)
             .task {
                 await viewStore.send(.onTask).finish()
             }
@@ -435,6 +436,34 @@ struct ListeningQuizView: View {
                 }
             }
             .animation(.snappy(duration: 0.1), value: viewStore.isShowingIncorrect)
+        }
+    }
+}
+
+private extension View {
+    @MainActor @ViewBuilder func sensoryFeedback(bikiAnimation: BikiAnimation?) -> some View {
+        if #available(iOS 17, *) {
+            sensoryFeedback(trigger: bikiAnimation) { oldValue, newValue in
+                switch newValue?.kind {
+                case .correct:
+                    return .success
+                case .incorrect:
+                    return .error
+                case nil:
+                    return nil
+                }
+            }
+        } else {
+            onChange(of: bikiAnimation) { newValue in
+                switch newValue?.kind {
+                case .correct:
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
+                case .incorrect:
+                    UINotificationFeedbackGenerator().notificationOccurred(.error)
+                case nil:
+                    break
+                }
+            }
         }
     }
 }
