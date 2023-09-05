@@ -53,6 +53,24 @@ extension TopicClient: DependencyKey {
             TopicGenerator(
                 topic: Topic(
                     id: uuidGenerator(),
+                    title: "Numbers",
+                    subtitle: "Extreme mode",
+                    description: "Whole numbers between 0-100,000,000,000"
+                ),
+                generateQuestion: { rng in
+                    let answer = rng { String(Int.random(in: 0 ... 100_000_000_000, using: &$0)) }
+                    let question = Question(
+                        displayText: answer,
+                        answerPrefix: nil,
+                        answerPostfix: nil,
+                        acceptedAnswer: answer
+                    )
+                    return question
+                }
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: uuidGenerator(),
                     title: "Money",
                     subtitle: "Conbini",
                     description: "Yen amounts between 100-1500"
@@ -79,6 +97,46 @@ extension TopicClient: DependencyKey {
                 ),
                 generateQuestion: { rng in
                     let answer = rng { String(Int.random(in: 80 ... 600, using: &$0) * 10) }
+                    let prefix = "￥"
+                    let displayText = "\(prefix)\(answer)"
+                    let question = Question(
+                        displayText: displayText,
+                        answerPrefix: prefix,
+                        answerPostfix: nil,
+                        acceptedAnswer: answer
+                    )
+                    return question
+                }
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: uuidGenerator(),
+                    title: "Money",
+                    subtitle: "Monthly Rent",
+                    description: "Yen amounts between 50,000-200,000 by 1,000s"
+                ),
+                generateQuestion: { rng in
+                    let answer = rng { String(Int.random(in: 50 ... 200, using: &$0) * 1_000) }
+                    let prefix = "￥"
+                    let displayText = "\(prefix)\(answer)"
+                    let question = Question(
+                        displayText: displayText,
+                        answerPrefix: prefix,
+                        answerPostfix: nil,
+                        acceptedAnswer: answer
+                    )
+                    return question
+                }
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: uuidGenerator(),
+                    title: "Money",
+                    subtitle: "Annual Salary",
+                    description: "Yen amounts between 2,000,000-15,000,000 by 100,000s"
+                ),
+                generateQuestion: { rng in
+                    let answer = rng { String(Int.random(in: 20 ... 150, using: &$0) * 100_000) }
                     let prefix = "￥"
                     let displayText = "\(prefix)\(answer)"
                     let question = Question(
