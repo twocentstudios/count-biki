@@ -7,14 +7,13 @@ struct GetMoreVoicesView: View {
     var body: some View {
         List {
             Text("Download voices individually from the iOS Settings app.")
-                .font(.system(.headline, design: .rounded))
+                .font(.headline)
 
             Section {
                 Button {
                     openURL(URL(string: "app-settings:root=General")!)
                 } label: {
                     Text("Open Settings.app")
-                        .font(.system(.body, design: .rounded))
                         .padding(.vertical, 10)
                         .frame(maxWidth: .infinity)
                 }
@@ -25,7 +24,7 @@ struct GetMoreVoicesView: View {
                     .aspectRatio(contentMode: .fit)
             } header: {
                 Text("\(Image(systemName: "1.circle")) Tap this button to open Settings.app")
-                    .font(.system(.headline, design: .rounded))
+                    .font(.headline)
                     .foregroundStyle(.primary)
                     .textCase(nil)
             }
@@ -36,7 +35,7 @@ struct GetMoreVoicesView: View {
                     .aspectRatio(contentMode: .fit)
             } header: {
                 Text("\(Image(systemName: "2.circle")) Tap \"Accessibility\"")
-                    .font(.system(.headline, design: .rounded))
+                    .font(.headline)
                     .foregroundStyle(.primary)
                     .textCase(nil)
             }
@@ -47,7 +46,7 @@ struct GetMoreVoicesView: View {
                     .aspectRatio(contentMode: .fit)
             } header: {
                 Text("\(Image(systemName: "3.circle")) Tap \"Spoken Content\"")
-                    .font(.system(.headline, design: .rounded))
+                    .font(.headline)
                     .foregroundStyle(.primary)
                     .textCase(nil)
             }
@@ -58,7 +57,7 @@ struct GetMoreVoicesView: View {
                     .aspectRatio(contentMode: .fit)
             } header: {
                 Text("\(Image(systemName: "4.circle")) Tap \"Voices\"")
-                    .font(.system(.headline, design: .rounded))
+                    .font(.headline)
                     .foregroundStyle(.primary)
                     .textCase(nil)
             }
@@ -69,7 +68,7 @@ struct GetMoreVoicesView: View {
                     .aspectRatio(contentMode: .fit)
             } header: {
                 Text("\(Image(systemName: "5.circle")) Tap \"Japanese\"")
-                    .font(.system(.headline, design: .rounded))
+                    .font(.headline)
                     .foregroundStyle(.primary)
                     .textCase(nil)
             }
@@ -80,7 +79,7 @@ struct GetMoreVoicesView: View {
                     .aspectRatio(contentMode: .fit)
             } header: {
                 Text("\(Image(systemName: "6.circle")) Tap a name e.g. \"Kyoko\"")
-                    .font(.system(.headline, design: .rounded))
+                    .font(.headline)
                     .foregroundStyle(.primary)
                     .textCase(nil)
             }
@@ -93,7 +92,7 @@ struct GetMoreVoicesView: View {
                     .font(.caption)
             } header: {
                 Text("\(Image(systemName: "7.circle")) Tap the \(Image(systemName: "icloud.and.arrow.down")) button to download the voice")
-                    .font(.system(.headline, design: .rounded))
+                    .font(.headline)
                     .foregroundStyle(.primary)
                     .textCase(nil)
             }
@@ -102,7 +101,6 @@ struct GetMoreVoicesView: View {
                 dismiss()
             } label: {
                 Text("Done")
-                    .font(.system(.body, design: .rounded))
                     .padding(.vertical, 10)
                     .frame(maxWidth: .infinity)
             }
@@ -116,7 +114,7 @@ struct GetMoreVoicesView: View {
         .toolbar {
             ToolbarItem(placement: .principal) {
                 Text("Get More Voices")
-                    .font(.system(.headline, design: .rounded))
+                    .font(.headline)
             }
         }
     }

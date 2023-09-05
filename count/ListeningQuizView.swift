@@ -270,16 +270,20 @@ struct ListeningQuizView: View {
                     ViewThatFits(in: .horizontal) {
                         HStack(alignment: .firstTextBaseline, spacing: 4) {
                             Text(viewStore.settings.topic.title)
-                                .font(.system(.title, design: .rounded, weight: .semibold))
+                                .font(.title)
+                                .fontWeight(.semibold)
                             Text(viewStore.settings.topic.subtitle)
-                                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
                                 .foregroundStyle(Color(.secondaryLabel))
                         }
                         VStack(alignment: .leading, spacing: 0) {
                             Text(viewStore.settings.topic.title)
-                                .font(.system(.title, design: .rounded, weight: .semibold))
+                                .font(.title)
+                                .fontWeight(.semibold)
                             Text(viewStore.settings.topic.subtitle)
-                                .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                                .font(.subheadline)
+                                .fontWeight(.semibold)
                                 .foregroundStyle(Color(.secondaryLabel))
                         }
                     }
@@ -326,7 +330,7 @@ struct ListeningQuizView: View {
 
     @ViewBuilder func answer(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
         Text(viewStore.answerText)
-            .font(.system(size: 80, weight: .bold, design: .rounded))
+            .font(.system(size: 80, weight: .bold))
             .lineLimit(1)
             .minimumScaleFactor(0.1)
             .foregroundStyle(viewStore.isShowingAnswer ? Color.primary : Color.secondary)
@@ -340,7 +344,7 @@ struct ListeningQuizView: View {
                             Text("Show Answer")
                                 .multilineTextAlignment(.center)
                                 .lineLimit(2)
-                                .font(.system(.caption, design: .rounded))
+                                .font(.caption)
                                 .foregroundStyle(Color.secondary)
                         }
                         .padding(.vertical, 30)
@@ -365,7 +369,7 @@ struct ListeningQuizView: View {
                             .font(.title)
                     }
                 Text(viewStore.isSpeaking ? "Stop" : "Play Question")
-                    .font(.system(.caption, design: .rounded))
+                    .font(.caption)
                     .foregroundStyle(Color.secondary)
             }
             .padding()
@@ -382,7 +386,7 @@ struct ListeningQuizView: View {
             ZStack {
                 if viewStore.isShowingPlaybackError {
                     Text("There was an error playing your question")
-                        .font(.system(.caption, design: .rounded))
+                        .font(.caption)
                         .multilineTextAlignment(.center)
                         .foregroundStyle(Color(.red))
                         .offset(x: 0, y: 40)
@@ -397,12 +401,12 @@ struct ListeningQuizView: View {
         HStack(spacing: 0) {
             if let prefix = viewStore.question?.answerPrefix {
                 Text(prefix)
-                    .font(.system(.title, design: .rounded))
+                    .font(.title)
                     .foregroundStyle(Color.secondary)
             }
             TextField("Answer", text: viewStore.$answer)
                 .foregroundStyle(Color.primary)
-                .font(.system(.largeTitle, design: .rounded))
+                .font(.largeTitle)
                 .bold()
                 .textFieldStyle(.plain)
                 .keyboardType(.numberPad)
@@ -411,7 +415,7 @@ struct ListeningQuizView: View {
 
             if let postfix = viewStore.question?.answerPostfix {
                 Text(postfix)
-                    .font(.system(.title, design: .rounded))
+                    .font(.title)
                     .foregroundStyle(Color.secondary)
             }
 

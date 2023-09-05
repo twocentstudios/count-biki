@@ -67,35 +67,30 @@ struct SettingsView: View {
                         Picker(selection: viewStore.$speechSettings.voiceIdentifier) {
                             ForEach(viewStore.availableVoices) { voice in
                                 Text(voice.name)
-                                    .font(.system(.body, design: .rounded))
                                     .tag(Optional(voice.voiceIdentifier))
                             }
                         } label: {
                             Text("Voice Name")
-                                .font(.system(.body, design: .rounded))
                         }
                         .pickerStyle(.navigationLink)
                         NavigationLink {
                             GetMoreVoicesView()
                         } label: {
                             Text("Get more voices")
-                                .font(.system(.body, design: .rounded))
                         }
                     } header: {
                         Text("Voice")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.subheadline)
                     }
 
                     Section {
                         Picker(selection: viewStore.$topicID) {
                             ForEach(viewStore.availableTopics) { topic in
                                 VStack(alignment: .leading) {
-                                    Text(topic.title)
-                                        .font(.system(.headline, design: .rounded))
-                                    Text(topic.subtitle)
-                                        .font(.system(.subheadline, design: .rounded))
+                                    Text(topic.title).font(.headline) + Text(": ") + Text(topic.subtitle).font(.subheadline)
                                     Text(topic.description)
-                                        .font(.system(.caption, design: .rounded))
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
                                 }
                                 .tag(topic.id)
                             }
@@ -105,21 +100,21 @@ struct SettingsView: View {
                         .pickerStyle(.inline)
                     } header: {
                         Text("Topics")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.subheadline)
                     }
                 }
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .principal) {
                         Text("Settings")
-                            .font(.system(.headline, design: .rounded))
+                            .font(.headline)
                     }
                     ToolbarItem(placement: .primaryAction) {
                         Button {
                             viewStore.send(.doneButtonTapped)
                         } label: {
                             Text("Done")
-                                .font(.system(.headline, design: .rounded))
+                                .font(.headline)
                         }
                     }
                 }

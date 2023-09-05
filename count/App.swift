@@ -35,6 +35,7 @@ struct CountApp: App {
                     #endif
                 }
             )
+            .fontDesign(.rounded)
         }
     }
 }
