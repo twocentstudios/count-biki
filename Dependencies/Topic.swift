@@ -37,7 +37,7 @@ extension TopicClient: DependencyKey {
                     id: uuidGenerator(),
                     title: "Numbers",
                     subtitle: "1-999",
-                    description: "Integers between 1-999"
+                    description: "Whole numbers between 1-999"
                 ),
                 generateQuestion: { rng in
                     let answer = rng { String(Int.random(in: 1 ... 999, using: &$0)) }
