@@ -194,7 +194,7 @@ extension ListeningQuizFeature.State {
 
     var answerText: String {
         if isShowingAnswer {
-            return question?.acceptedAnswer ?? ""
+            return question?.displayText ?? ""
         } else {
             return "00000"
         }
