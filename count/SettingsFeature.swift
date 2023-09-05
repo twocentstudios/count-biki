@@ -92,6 +92,7 @@ struct SettingsView: View {
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }
+                                .padding(.vertical, 2)
                                 .tag(topic.id)
                             }
                         } label: {
