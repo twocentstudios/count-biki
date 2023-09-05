@@ -340,20 +340,18 @@ struct ListeningQuizView: View {
                     Button {
                         viewStore.send(.showAnswerButtonTapped)
                     } label: {
-                        VStack(spacing: 10) {
-                            Text("Show Answer")
-                                .multilineTextAlignment(.center)
-                                .lineLimit(2)
-                                .font(.caption)
-                                .foregroundStyle(Color.secondary)
-                        }
-                        .padding(.vertical, 30)
-                        .padding(.horizontal, 24)
-                        .animation(.bouncy, value: viewStore.isSpeaking)
+                        Text("Show Answer")
+                            .multilineTextAlignment(.center)
+                            .lineLimit(2)
+                            .font(.caption)
+                            .foregroundStyle(Color.secondary)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                 }
             }
+            .animation(.easeOut(duration: viewStore.isShowingAnswer ? 0.15 : 0.0), value: viewStore.isShowingAnswer)
     }
 
     @ViewBuilder func playButton(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
