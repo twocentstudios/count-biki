@@ -29,14 +29,20 @@ struct TopicsFeature: Reducer {
         }
     }
 
-    enum Action: Equatable {}
+    enum Action: Equatable {
+        case selectTopic(UUID)
+    }
 
     @Dependency(\.continuousClock) var clock
     @Dependency(\.topicClient) var topicClient
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
-            switch action {}
+            switch action {
+            case let .selectTopic(topicID):
+                print(topicID)
+                return .none
+            }
         }
     }
 }
@@ -48,7 +54,7 @@ struct TopicsView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             List {
                 Section {
-                    Text("No favorites yet. Add one?")
+                    Text("No favorites yet")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -59,21 +65,35 @@ struct TopicsView: View {
                         .font(.headline)
                         .foregroundStyle(.secondary)
                         .textCase(nil)
-                } footer: {
-                    Text("Tip: tap and hold a topic to add/remove a favorite")
                 }
 
                 Section {
                     ForEach(viewStore.listeningCategories) { category in
                         NavigationLink {
-                            List(category.topics) { topic in
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(topic.title).font(.headline)
-                                    Text(topic.description)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                            List {
+                                Section {
+                                    ForEach(category.topics) { topic in
+                                        Button {
+                                            viewStore.send(.selectTopic(topic.id))
+                                        } label: {
+                                            VStack(alignment: .leading, spacing: 2) {
+                                                Text(topic.title).font(.headline)
+                                                Text(topic.description)
+                                                    .font(.caption)
+                                                    .foregroundStyle(.secondary)
+                                            }
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .padding(.vertical, 2)
+                                            .contentShape(Rectangle())
+                                        }
+                                        .buttonStyle(.plain)
+                                        .contextMenu {
+                                            Button("Add Favorite") {}
+                                        }
+                                    }
+                                } footer: {
+                                    Text("Tip: tap and hold a topic to add/remove a favorite")
                                 }
-                                .padding(.vertical, 2)
                             }
                             .navigationBarTitleDisplayMode(.inline)
                             .navigationTitle(category.title)
