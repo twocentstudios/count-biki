@@ -89,8 +89,8 @@ struct SettingsView: View {
                         Picker(selection: viewStore.$topicID) {
                             ForEach(viewStore.availableTopics) { topic in
                                 VStack(alignment: .leading) {
-                                    Text(topic.title).font(.headline) + Text(": ") + Text(topic.subtitle).font(.subheadline)
-                                    Text(topic.description)
+                                    Text(topic.skill.title).font(.headline) + Text(": ") + Text(topic.category.title).font(.subheadline)
+                                    Text(topic.title)
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                 }

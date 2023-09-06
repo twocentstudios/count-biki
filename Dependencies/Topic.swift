@@ -9,13 +9,49 @@ private struct TopicGenerator: Identifiable {
 }
 
 struct Topic: Identifiable, Equatable {
+    enum Skill {
+        case listening
+        case reading
+    }
+
+    enum Category {
+        case number
+        case money
+        case duration
+        case dateTime
+        case counter
+    }
+
     let id: UUID
+    let skill: Skill
+    let category: Category
     let title: String
-    let subtitle: String
     let description: String
 }
 
+extension Topic.Skill {
+    var title: String {
+        switch self {
+        case .listening: "Listening"
+        case .reading: "Reading"
+        }
+    }
+}
+
+extension Topic.Category {
+    var title: String {
+        switch self {
+        case .number: "Numbers"
+        case .money: "Money"
+        case .dateTime: "Dates & Times"
+        case .duration: "Time Durations"
+        case .counter: "Counters"
+        }
+    }
+}
+
 struct Question: Equatable {
+    let topicID: UUID
     let displayText: String
     let answerPrefix: String?
     let answerPostfix: String?
@@ -27,134 +63,141 @@ struct TopicClient {
     var generateQuestion: @Sendable (UUID) throws -> (Question)
 }
 
+extension Topic {
+    static func id(for intValue: Int) -> UUID {
+        UUID(uuidString: "C27296D2-934F-42DD-9F48-\(String(format: "%012x", intValue))")!
+    }
+}
+
+func numberQuestionGenerator(for range: ClosedRange<Int>, topicID: UUID) -> @Sendable (WithRandomNumberGenerator) throws -> (Question) {
+    { rng in
+        let answer = rng { Int.random(in: range, using: &$0) }
+        let displayText = answer.formatted(.number.grouping(.automatic))
+        let acceptedAnswer = String(answer)
+        let question = Question(
+            topicID: topicID,
+            displayText: displayText,
+            answerPrefix: nil,
+            answerPostfix: nil,
+            acceptedAnswer: acceptedAnswer
+        )
+        return question
+    }
+}
+
+func moneyGenerator(for range: ClosedRange<Int>, by byValue: Int, topicID: UUID) -> @Sendable (WithRandomNumberGenerator) throws -> (Question) {
+    { rng in
+        let answer = rng { Int.random(in: range, using: &$0) * byValue }
+        let prefix = "￥"
+        let displayText = "\(prefix)\(answer.formatted(.number.grouping(.automatic)))"
+        let acceptedAnswer = String(answer)
+        let question = Question(
+            topicID: topicID,
+            displayText: displayText,
+            answerPrefix: prefix,
+            answerPostfix: nil,
+            acceptedAnswer: acceptedAnswer
+        )
+        return question
+    }
+}
+
 extension TopicClient: DependencyKey {
     static var liveValue: TopicClient {
         @Dependency(\.withRandomNumberGenerator) var rng
-        let uuidGenerator = UUIDGenerator.incrementing
         let allTopicGenerators: IdentifiedArrayOf<TopicGenerator> = [
+            /// Listening -> Number
             TopicGenerator(
                 topic: Topic(
-                    id: uuidGenerator(),
-                    title: "Numbers",
-                    subtitle: "1-999",
-                    description: "Whole numbers between 1-999"
+                    id: Topic.id(for: 001),
+                    skill: .listening,
+                    category: .number,
+                    title: "Absolute Beginner",
+                    description: "Whole numbers between 1-10"
                 ),
-                generateQuestion: { rng in
-                    let answer = rng { Int.random(in: 1 ... 999, using: &$0) }
-                    let displayText = answer.formatted(.number.grouping(.automatic))
-                    let acceptedAnswer = String(answer)
-                    let question = Question(
-                        displayText: displayText,
-                        answerPrefix: nil,
-                        answerPostfix: nil,
-                        acceptedAnswer: acceptedAnswer
-                    )
-                    return question
-                }
+                generateQuestion: numberQuestionGenerator(for: 1 ... 10, topicID: Topic.id(for: 001))
             ),
             TopicGenerator(
                 topic: Topic(
-                    id: uuidGenerator(),
-                    title: "Numbers",
-                    subtitle: "Extreme mode",
-                    description: "Whole numbers between 0-100,000,000,000"
+                    id: Topic.id(for: 002),
+                    skill: .listening,
+                    category: .number,
+                    title: "Beginner",
+                    description: "Whole numbers between 1-100"
                 ),
-                generateQuestion: { rng in
-                    let answer = rng { Int.random(in: 0 ... 100_000_000_000, using: &$0) }
-                    let displayText = answer.formatted(.number.grouping(.automatic))
-                    let acceptedAnswer = String(answer)
-                    let question = Question(
-                        displayText: displayText,
-                        answerPrefix: nil,
-                        answerPostfix: nil,
-                        acceptedAnswer: acceptedAnswer
-                    )
-                    return question
-                }
+                generateQuestion: numberQuestionGenerator(for: 1 ... 100, topicID: Topic.id(for: 002))
             ),
             TopicGenerator(
                 topic: Topic(
-                    id: uuidGenerator(),
-                    title: "Money",
-                    subtitle: "Conbini",
-                    description: "Yen amounts between 100-1500"
+                    id: Topic.id(for: 003),
+                    skill: .listening,
+                    category: .number,
+                    title: "Intermediate",
+                    description: "Whole numbers between 1-1,000"
                 ),
-                generateQuestion: { rng in
-                    let answer = rng { Int.random(in: 100 ... 1500, using: &$0) }
-                    let prefix = "￥"
-                    let displayText = "\(prefix)\(answer.formatted(.number.grouping(.automatic)))"
-                    let acceptedAnswer = String(answer)
-                    let question = Question(
-                        displayText: displayText,
-                        answerPrefix: prefix,
-                        answerPostfix: nil,
-                        acceptedAnswer: acceptedAnswer
-                    )
-                    return question
-                }
+                generateQuestion: numberQuestionGenerator(for: 1 ... 1_000, topicID: Topic.id(for: 003))
             ),
             TopicGenerator(
                 topic: Topic(
-                    id: uuidGenerator(),
-                    title: "Money",
-                    subtitle: "Restaurant",
-                    description: "Yen amounts between 800-6000 by 10s"
+                    id: Topic.id(for: 004),
+                    skill: .listening,
+                    category: .number,
+                    title: "Advanced",
+                    description: "Whole numbers between 1-10,000"
                 ),
-                generateQuestion: { rng in
-                    let answer = rng { Int.random(in: 80 ... 600, using: &$0) * 10 }
-                    let prefix = "￥"
-                    let displayText = "\(prefix)\(answer.formatted(.number.grouping(.automatic)))"
-                    let acceptedAnswer = String(answer)
-                    let question = Question(
-                        displayText: displayText,
-                        answerPrefix: prefix,
-                        answerPostfix: nil,
-                        acceptedAnswer: acceptedAnswer
-                    )
-                    return question
-                }
+                generateQuestion: numberQuestionGenerator(for: 1 ... 10_000, topicID: Topic.id(for: 004))
             ),
             TopicGenerator(
                 topic: Topic(
-                    id: uuidGenerator(),
-                    title: "Money",
-                    subtitle: "Monthly Rent",
-                    description: "Yen amounts between 50,000-200,000 by 1,000s"
+                    id: Topic.id(for: 005),
+                    skill: .listening,
+                    category: .number,
+                    title: "Extreme",
+                    description: "Whole numbers between 1-1,000,000,000"
                 ),
-                generateQuestion: { rng in
-                    let answer = rng { Int.random(in: 50 ... 200, using: &$0) * 1_000 }
-                    let prefix = "￥"
-                    let displayText = "\(prefix)\(answer.formatted(.number.grouping(.automatic)))"
-                    let acceptedAnswer = String(answer)
-                    let question = Question(
-                        displayText: displayText,
-                        answerPrefix: prefix,
-                        answerPostfix: nil,
-                        acceptedAnswer: acceptedAnswer
-                    )
-                    return question
-                }
+                generateQuestion: numberQuestionGenerator(for: 1 ... 1_000_000_000, topicID: Topic.id(for: 005))
+            ),
+
+            /// Listening -> Money
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 101),
+                    skill: .listening,
+                    category: .money,
+                    title: "Conbini",
+                    description: "Yen amounts between 100-1,500"
+                ),
+                generateQuestion: moneyGenerator(for: 100 ... 1500, by: 1, topicID: Topic.id(for: 101))
             ),
             TopicGenerator(
                 topic: Topic(
-                    id: uuidGenerator(),
-                    title: "Money",
-                    subtitle: "Annual Salary",
+                    id: Topic.id(for: 102),
+                    skill: .listening,
+                    category: .money,
+                    title: "Restaurant",
+                    description: "Yen amounts between 800-6,000 by 10s"
+                ),
+                generateQuestion: moneyGenerator(for: 800 ... 6_000, by: 10, topicID: Topic.id(for: 102))
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 103),
+                    skill: .listening,
+                    category: .money,
+                    title: "Monthly Rent",
+                    description: "Yen amounts between 30,000-200,000 by 1,000s"
+                ),
+                generateQuestion: moneyGenerator(for: 30_000 ... 200_000, by: 1_000, topicID: Topic.id(for: 103))
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 104),
+                    skill: .listening,
+                    category: .money,
+                    title: "Annual Salary",
                     description: "Yen amounts between 2,000,000-15,000,000 by 100,000s"
                 ),
-                generateQuestion: { rng in
-                    let answer = rng { Int.random(in: 20 ... 150, using: &$0) * 100_000 }
-                    let prefix = "￥"
-                    let displayText = "\(prefix)\(answer.formatted(.number.grouping(.automatic)))"
-                    let acceptedAnswer = String(answer)
-                    let question = Question(
-                        displayText: displayText,
-                        answerPrefix: prefix,
-                        answerPostfix: nil,
-                        acceptedAnswer: acceptedAnswer
-                    )
-                    return question
-                }
+                generateQuestion: moneyGenerator(for: 2_000_000 ... 15_000_000, by: 100_000, topicID: Topic.id(for: 104))
             ),
         ]
         return TopicClient(

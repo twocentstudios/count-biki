@@ -219,7 +219,7 @@ extension ListeningQuizFeature.State {
             ListeningQuizFeature()
                 ._printChanges()
         } withDependencies: {
-            $0.topicClient.generateQuestion = { _ in .init(displayText: "1", answerPrefix: nil, answerPostfix: nil, acceptedAnswer: "1") }
+            $0.topicClient.generateQuestion = { _ in .init(topicID: Topic.id(for: 000), displayText: "1", answerPrefix: nil, answerPostfix: nil, acceptedAnswer: "1") }
         }
     )
 }
@@ -269,19 +269,19 @@ struct ListeningQuizView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     ViewThatFits(in: .horizontal) {
                         HStack(alignment: .firstTextBaseline, spacing: 4) {
-                            Text(viewStore.settings.topic.title)
+                            Text(viewStore.settings.topic.category.title)
                                 .font(.title)
                                 .fontWeight(.semibold)
-                            Text(viewStore.settings.topic.subtitle)
+                            Text(viewStore.settings.topic.title)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundStyle(Color(.secondaryLabel))
                         }
                         VStack(alignment: .leading, spacing: 0) {
-                            Text(viewStore.settings.topic.title)
+                            Text(viewStore.settings.topic.category.title)
                                 .font(.title)
                                 .fontWeight(.semibold)
-                            Text(viewStore.settings.topic.subtitle)
+                            Text(viewStore.settings.topic.title)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundStyle(Color(.secondaryLabel))
