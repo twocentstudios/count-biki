@@ -27,6 +27,7 @@
 		34A9749A2A7AB0E600E6F672 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 34A974992A7AB0E600E6F672 /* ComposableArchitecture */; };
 		34BDC4952AA58A51001EF005 /* GetMoreVoicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BDC4942AA58A51001EF005 /* GetMoreVoicesView.swift */; };
 		34BDC4972AA5C2B6001EF005 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BDC4962AA5C2B6001EF005 /* Haptics.swift */; };
+		34E2E3EA2AA8C821002B511A /* TopicsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E2E3E92AA8C821002B511A /* TopicsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,7 @@
 		349D047F2A88F23F008AFD0A /* TopicSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicSettings.swift; sourceTree = "<group>"; };
 		34BDC4942AA58A51001EF005 /* GetMoreVoicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetMoreVoicesView.swift; sourceTree = "<group>"; };
 		34BDC4962AA5C2B6001EF005 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
+		34E2E3E92AA8C821002B511A /* TopicsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +111,7 @@
 				340A51F72A790356007DCA0C /* count.playground */,
 				340A51CC2A78EC78007DCA0C /* App.swift */,
 				340A51CE2A78EC78007DCA0C /* ListeningQuizView.swift */,
+				34E2E3E92AA8C821002B511A /* TopicsView.swift */,
 				3478331E2AA7343A005160DC /* PlanningTopicsView.swift */,
 				348000E42A9CCD4700E7CCEE /* CountBikiView.swift */,
 				349D04792A84EB3A008AFD0A /* SettingsFeature.swift */,
@@ -259,6 +262,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				34E2E3EA2AA8C821002B511A /* TopicsView.swift in Sources */,
 				3478331F2AA7343A005160DC /* PlanningTopicsView.swift in Sources */,
 				340A51CF2A78EC78007DCA0C /* ListeningQuizView.swift in Sources */,
 				340E70582A83738F004B124B /* SpeechSynthesisSettings.swift in Sources */,

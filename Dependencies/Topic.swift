@@ -43,9 +43,19 @@ extension Topic.Category {
         switch self {
         case .number: "Numbers"
         case .money: "Money"
-        case .dateTime: "Dates & Times"
         case .duration: "Time Durations"
+        case .dateTime: "Dates & Times"
         case .counter: "Counters"
+        }
+    }
+    
+    var description: String {
+        switch self {
+        case .number: "Just whole numbers"
+        case .money: "Using money in common situations"
+        case .duration: "Lengths of time from seconds to years"
+        case .dateTime: "Dates on a calendar"
+        case .counter: "Objects and more: Objects and more: 個、枚、人、..."
         }
     }
 }
