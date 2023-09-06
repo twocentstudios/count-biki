@@ -4,6 +4,11 @@ import SwiftUI
 @main
 struct CountApp: App {
     var body: some Scene {
+//        WindowGroup {
+//            NavigationStack {
+//                TopicsView()
+//            }
+//        }
         WindowGroup {
             ListeningQuizView(
                 store: Store(initialState: ListeningQuizFeature.State()) {

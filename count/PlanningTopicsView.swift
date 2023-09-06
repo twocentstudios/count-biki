@@ -1,6 +1,6 @@
 import SwiftUI
 
-struct TopicsView: View {
+struct PlanningTopicsView: View {
     var body: some View {
         List {
             Section {
@@ -193,7 +193,7 @@ struct TopicsView: View {
     }
 }
 
-struct CellView: View {
+private struct CellView: View {
     let title: String
     let subtitle: String
     var isFavorite: Bool = false
@@ -227,7 +227,7 @@ struct CellView: View {
 
 #Preview {
     NavigationStack {
-        TopicsView()
+        PlanningTopicsView()
     }
     .fontDesign(.rounded)
 }

@@ -15,7 +15,7 @@
 		340E70532A820E73004B124B /* SpeechSynthesis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340E70522A820E73004B124B /* SpeechSynthesis.swift */; };
 		340E70582A83738F004B124B /* SpeechSynthesisSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340E70572A83738F004B124B /* SpeechSynthesisSettings.swift */; };
 		340E705B2A83D396004B124B /* DependenciesAdditions in Frameworks */ = {isa = PBXBuildFile; productRef = 340E705A2A83D396004B124B /* DependenciesAdditions */; };
-		3478331F2AA7343A005160DC /* TopicsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3478331E2AA7343A005160DC /* TopicsView.swift */; };
+		3478331F2AA7343A005160DC /* PlanningTopicsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3478331E2AA7343A005160DC /* PlanningTopicsView.swift */; };
 		348000E32A9CC0A800E7CCEE /* CountBiki.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */; };
 		348000E52A9CCD4700E7CCEE /* CountBikiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348000E42A9CCD4700E7CCEE /* CountBikiView.swift */; };
 		349802222A7BDDF200E352F5 /* IndeterminiteProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349802212A7BDDF200E352F5 /* IndeterminiteProgressView.swift */; };
@@ -52,7 +52,7 @@
 		340DDAE92A9F770B00E21308 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		340E70522A820E73004B124B /* SpeechSynthesis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSynthesis.swift; sourceTree = "<group>"; };
 		340E70572A83738F004B124B /* SpeechSynthesisSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSynthesisSettings.swift; sourceTree = "<group>"; };
-		3478331E2AA7343A005160DC /* TopicsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicsView.swift; sourceTree = "<group>"; };
+		3478331E2AA7343A005160DC /* PlanningTopicsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTopicsView.swift; sourceTree = "<group>"; };
 		348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = CountBiki.scnassets; sourceTree = "<group>"; };
 		348000E42A9CCD4700E7CCEE /* CountBikiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountBikiView.swift; sourceTree = "<group>"; };
 		349802212A7BDDF200E352F5 /* IndeterminiteProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndeterminiteProgressView.swift; sourceTree = "<group>"; };
@@ -109,7 +109,7 @@
 				340A51F72A790356007DCA0C /* count.playground */,
 				340A51CC2A78EC78007DCA0C /* App.swift */,
 				340A51CE2A78EC78007DCA0C /* ListeningQuizView.swift */,
-				3478331E2AA7343A005160DC /* TopicsView.swift */,
+				3478331E2AA7343A005160DC /* PlanningTopicsView.swift */,
 				348000E42A9CCD4700E7CCEE /* CountBikiView.swift */,
 				349D04792A84EB3A008AFD0A /* SettingsFeature.swift */,
 				34BDC4942AA58A51001EF005 /* GetMoreVoicesView.swift */,
@@ -259,7 +259,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3478331F2AA7343A005160DC /* TopicsView.swift in Sources */,
+				3478331F2AA7343A005160DC /* PlanningTopicsView.swift in Sources */,
 				340A51CF2A78EC78007DCA0C /* ListeningQuizView.swift in Sources */,
 				340E70582A83738F004B124B /* SpeechSynthesisSettings.swift in Sources */,
 				34BDC4972AA5C2B6001EF005 /* Haptics.swift in Sources */,
