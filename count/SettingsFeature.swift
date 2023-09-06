@@ -131,4 +131,5 @@ struct SettingsView: View {
                 ._printChanges()
         }
     )
+    .fontDesign(.rounded)
 }
