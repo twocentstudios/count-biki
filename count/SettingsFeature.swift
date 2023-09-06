@@ -21,7 +21,9 @@ struct SettingsFeature: Reducer {
 
             availableTopics = topicClient.allTopics()
 
-            if let loadedID = try? topicSettingsClient.get() {
+            if let loadedID = try? topicSettingsClient.get(),
+               availableTopics[id: loadedID] != nil
+            {
                 topicID = loadedID
             } else {
                 topicID = availableTopics.first!.id
