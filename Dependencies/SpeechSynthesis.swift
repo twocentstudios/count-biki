@@ -105,11 +105,11 @@ private final class SpeechSynthesisDelegate: NSObject, AVSpeechSynthesizerDelega
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didPause utterance: AVSpeechUtterance) {
-        assertionFailure("Pausing is not supported")
+        XCTFail("Pausing is not supported")
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didContinue utterance: AVSpeechUtterance) {
-        assertionFailure("Continuing is not supported")
+        XCTFail("Continuing is not supported")
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, willSpeak marker: AVSpeechSynthesisMarker, utterance: AVSpeechUtterance) {}

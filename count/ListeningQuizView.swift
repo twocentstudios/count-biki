@@ -160,7 +160,7 @@ struct ListeningQuizFeature: Reducer {
 
     private func playBackEffect(state: inout State) -> Effect<Self.Action> {
         guard let displayText = state.question?.displayText else {
-            assertionFailure("Tried to play before question set")
+            XCTFail("Tried to play before question set")
             return .none
         }
 

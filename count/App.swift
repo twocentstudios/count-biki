@@ -19,15 +19,15 @@ struct CountApp: App {
                             .filter { $0.languageCode == "ja-JP" }
                             .sorted(by: { $0.quality.rawValue > $1.quality.rawValue })
                             .first
-                        guard let bestVoice else { assertionFailure("No voice available"); return }
+                        guard let bestVoice else { XCTFail("No voice available"); return }
                         let settings = SpeechSynthesisSettings(voiceIdentifier: bestVoice.voiceIdentifier)
                         do {
                             try $0.speechSynthesisSettingsClient.set(settings)
                         } catch {
-                            assertionFailure("Error creating initial speech settings: \(error)")
+                            XCTFail("Error creating initial speech settings: \(error)")
                         }
                     } catch {
-                        assertionFailure("Unknown error: \(error)")
+                        XCTFail("Unknown error: \(error)")
                     }
 
                     #if targetEnvironment(simulator)
