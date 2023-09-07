@@ -1,5 +1,6 @@
 import AVFoundation
 import ComposableArchitecture
+import ConfettiSwiftUI
 import SwiftUI
 
 struct BikiAnimation: Equatable {
@@ -14,10 +15,9 @@ struct BikiAnimation: Equatable {
 
 struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
-        let topicID: UUID
-        let topic: Topic
         @BindingState var answer: String = ""
         var bikiAnimation: BikiAnimation?
+        var confettiAnimation: Int = 0
         @PresentationState var destination: Destination.State?
         var isShowingPlaybackError: Bool = false
         var isShowingAnswer: Bool = false
@@ -26,7 +26,9 @@ struct ListeningQuizFeature: Reducer {
         var questionNumber: Int = 0
         var question: Question?
         var settings: SettingsFeature.State
-        
+        let topic: Topic
+        let topicID: UUID
+
         init(topicID: UUID) {
             @Dependency(\.topicClient.allTopics) var allTopics
             topic = allTopics()[id: topicID]!
@@ -90,6 +92,7 @@ struct ListeningQuizFeature: Reducer {
                     state.bikiAnimation = .init(id: uuid(), kind: .correct)
                     state.lastSubmittedIncorrectAnswer = nil
                     state.answer = ""
+                    state.confettiAnimation += 1
                     generateQuestion(state: &state)
                     return .run { _ in await haptics.success() }
                         .merge(with: playBackEffect(state: &state))
@@ -107,7 +110,7 @@ struct ListeningQuizFeature: Reducer {
                 guard case let .settings(newValue) = state.destination else { return .none }
                 state.settings = newValue
                 return .none
-                
+
             case .destination(.presented(.settings(.endSessionButtonTapped))):
                 return .run { _ in
                     await dismiss()
@@ -451,6 +454,7 @@ struct ListeningQuizView: View {
                 }
             }
             .animation(.snappy(duration: 0.1), value: viewStore.isShowingIncorrect)
+            .confettiCannon(counter: .constant(viewStore.confettiAnimation), num: 25, confettiSize: 7, rainHeight: 300, fadesOut: true, opacity: 1.0, openingAngle: .degrees(50), closingAngle: .degrees(130), radius: 120, repetitions: 0, repetitionInterval: 1.0)
         }
     }
 }

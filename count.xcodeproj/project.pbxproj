@@ -28,6 +28,7 @@
 		34BDC4952AA58A51001EF005 /* GetMoreVoicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BDC4942AA58A51001EF005 /* GetMoreVoicesView.swift */; };
 		34BDC4972AA5C2B6001EF005 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BDC4962AA5C2B6001EF005 /* Haptics.swift */; };
 		34E2E3EA2AA8C821002B511A /* TopicsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E2E3E92AA8C821002B511A /* TopicsView.swift */; };
+		34E2E3EE2AA9C86A002B511A /* ConfettiSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 34E2E3ED2AA9C86A002B511A /* ConfettiSwiftUI */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,6 +71,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				34E2E3EE2AA9C86A002B511A /* ConfettiSwiftUI in Frameworks */,
 				34A9749A2A7AB0E600E6F672 /* ComposableArchitecture in Frameworks */,
 				340E705B2A83D396004B124B /* DependenciesAdditions in Frameworks */,
 			);
@@ -172,6 +174,7 @@
 			packageProductDependencies = (
 				34A974992A7AB0E600E6F672 /* ComposableArchitecture */,
 				340E705A2A83D396004B124B /* DependenciesAdditions */,
+				34E2E3ED2AA9C86A002B511A /* ConfettiSwiftUI */,
 			);
 			productName = count;
 			productReference = 340A51C92A78EC78007DCA0C /* count.app */;
@@ -226,6 +229,7 @@
 			packageReferences = (
 				34A974982A7AB0E600E6F672 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				340E70592A83D396004B124B /* XCRemoteSwiftPackageReference "swift-dependencies-additions" */,
+				34E2E3EC2AA9C86A002B511A /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */,
 			);
 			productRefGroup = 340A51CA2A78EC78007DCA0C /* Products */;
 			projectDirPath = "";
@@ -597,6 +601,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		34E2E3EC2AA9C86A002B511A /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/simibac/ConfettiSwiftUI.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -609,6 +621,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 34A974982A7AB0E600E6F672 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */;
 			productName = ComposableArchitecture;
+		};
+		34E2E3ED2AA9C86A002B511A /* ConfettiSwiftUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 34E2E3EC2AA9C86A002B511A /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */;
+			productName = ConfettiSwiftUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
