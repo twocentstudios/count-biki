@@ -4,15 +4,10 @@ import SwiftUI
 @main
 struct CountApp: App {
     var body: some Scene {
-//        WindowGroup {
-//            NavigationStack {
-//                TopicsView()
-//            }
-//        }
         WindowGroup {
-            ListeningQuizView(
-                store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.id(for: 001))) {
-                    ListeningQuizFeature()
+            TopicsView(
+                store: Store(initialState: .init()) {
+                    TopicsFeature()
                 } withDependencies: {
                     // TODO: perhaps move this into SpeechSynthesisClient due to performance warning in `transformDependency` docs.
                     //       see: https://github.com/pointfreeco/swift-composable-architecture/discussions/1713#discussioncomment-6681618
