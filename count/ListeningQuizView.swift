@@ -73,6 +73,7 @@ struct ListeningQuizFeature: Reducer {
     @Dependency(\.speechSynthesisClient) var speechClient
     @Dependency(\.topicClient) var topicClient
     @Dependency(\.uuid) var uuid
+    @Dependency(\.dismiss) var dismiss
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -106,6 +107,11 @@ struct ListeningQuizFeature: Reducer {
                 guard case let .settings(newValue) = state.destination else { return .none }
                 state.settings = newValue
                 return .none
+                
+            case .destination(.presented(.settings(.endSessionButtonTapped))):
+                return .run { _ in
+                    await dismiss()
+                }
 
             case .destination:
                 return .none

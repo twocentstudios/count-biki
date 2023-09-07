@@ -22,6 +22,7 @@ struct SettingsFeature: Reducer {
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
         case doneButtonTapped
+        case endSessionButtonTapped
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -39,6 +40,8 @@ struct SettingsFeature: Reducer {
                 return .run { send in
                     await dismiss()
                 }
+            case .endSessionButtonTapped:
+                return .none
             }
         }
     }
@@ -65,7 +68,7 @@ struct SettingsView: View {
                         .padding(.vertical, 2)
 
                         Button {
-                            // TODO:
+                            viewStore.send(.endSessionButtonTapped)
                         } label: {
                             HStack(spacing: 10) {
                                 Image(systemName: "door.right.hand.open")
