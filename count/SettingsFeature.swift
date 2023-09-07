@@ -102,6 +102,7 @@ struct SettingsView: View {
                     }
                 }
                 .navigationBarTitleDisplayMode(.inline)
+                .navigationTitle("Settings")
                 .toolbar {
                     ToolbarItem(placement: .principal) {
                         Text("Settings")
