@@ -15,19 +15,29 @@ struct BikiAnimation: Equatable {
 
 struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
-        @BindingState var pendingSubmissionValue: String = ""
         var bikiAnimation: BikiAnimation?
         var confettiAnimation: Int = 0
         @PresentationState var destination: Destination.State?
         var isShowingPlaybackError: Bool = false
-        var isShowingAnswer: Bool = false
         var isSpeaking: Bool = false
-        var lastSubmittedIncorrectValue: String?
-        var questionNumber: Int = 0
-        var question: Question?
+        @BindingState var pendingSubmissionValue: String = ""
         var settings: SettingsFeature.State
         let topic: Topic
         let topicID: UUID
+        
+        var completedChallenges: [Challenge] = []
+        var challenge: Challenge? // TODO: this can be non-nil?
+        
+        var challengeCount: Int { completedChallenges.count }
+        var lastSubmittedIncorrectValue: String? {
+            challenge?.submissions.last(where: { $0.kind == .incorrect })?.value
+        }
+        var isShowingAnswer: Bool {
+            challenge?.submissions.last?.kind == .skip
+        }
+        var question: Question? {
+            challenge?.question
+        }
 
         init(topicID: UUID) {
             @Dependency(\.topicClient.allTopics) var allTopics
@@ -76,6 +86,7 @@ struct ListeningQuizFeature: Reducer {
     @Dependency(\.topicClient) var topicClient
     @Dependency(\.uuid) var uuid
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.date.now) var now
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -83,22 +94,25 @@ struct ListeningQuizFeature: Reducer {
             switch action {
             case .answerSubmitButtonTapped:
                 if state.isShowingAnswer {
-                    state.lastSubmittedIncorrectValue = nil
                     state.pendingSubmissionValue = ""
-                    state.isShowingAnswer = false
-                    generateQuestion(state: &state)
-                    return playBackEffect(state: &state)
+                    state.completedChallenges.append(state.challenge!)
+                    generateChallenge(state: &state)
+                    return .run { _ in await haptics.error() }
+                        .merge(with: playBackEffect(state: &state))
                 } else if state.question?.acceptedAnswer == state.pendingSubmissionValue {
-                    state.bikiAnimation = .init(id: uuid(), kind: .correct)
-                    state.lastSubmittedIncorrectValue = nil
+                    let submission = Submission(id: uuid(), date: now, kind: .correct, value: state.pendingSubmissionValue)
+                    state.challenge?.submissions.append(submission)
+                    state.completedChallenges.append(state.challenge!)
                     state.pendingSubmissionValue = ""
+                    state.bikiAnimation = .init(id: uuid(), kind: .correct)
                     state.confettiAnimation += 1
-                    generateQuestion(state: &state)
+                    generateChallenge(state: &state)
                     return .run { _ in await haptics.success() }
                         .merge(with: playBackEffect(state: &state))
                 } else {
+                    let submission = Submission(id: uuid(), date: now, kind: .incorrect, value: state.pendingSubmissionValue)
+                    state.challenge?.submissions.append(submission)
                     state.bikiAnimation = .init(id: uuid(), kind: .incorrect)
-                    state.lastSubmittedIncorrectValue = state.pendingSubmissionValue
                     return .run { _ in await haptics.error() }
                         .merge(with: playBackEffect(state: &state))
                 }
@@ -139,7 +153,7 @@ struct ListeningQuizFeature: Reducer {
                 return .none
 
             case .onTask:
-                generateQuestion(state: &state)
+                generateChallenge(state: &state)
                 return playBackEffect(state: &state)
 
             case .playbackButtonTapped:
@@ -151,7 +165,8 @@ struct ListeningQuizFeature: Reducer {
                 }
 
             case .showAnswerButtonTapped:
-                state.isShowingAnswer = true
+                let submission = Submission(id: uuid(), date: now, kind: .skip, value: nil)
+                state.challenge?.submissions.append(submission)
                 return .none
 
             case .titleButtonTapped:
@@ -164,9 +179,10 @@ struct ListeningQuizFeature: Reducer {
         }
     }
 
-    func generateQuestion(state: inout State) {
-        state.question = try! topicClient.generateQuestion(state.topicID) // TODO: handle error
-        state.questionNumber += 1
+    func generateChallenge(state: inout State) {
+        let question = try! topicClient.generateQuestion(state.topicID) // TODO: handle error
+        let challenge = Challenge(id: uuid(), startDate: now, question: question, submissions: [])
+        state.challenge = challenge
     }
 
     private func playBackEffect(state: inout State) -> Effect<Self.Action> {
@@ -300,7 +316,7 @@ struct ListeningQuizView: View {
                     }
                     HStack(spacing: 6) {
                         IndeterminateProgressView(
-                            animationCount: viewStore.questionNumber,
+                            animationCount: viewStore.challengeCount,
                             color1: Color(.tintColor),
                             color2: Color(.systemBackground),
                             barCount: 20,

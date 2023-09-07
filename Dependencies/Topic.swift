@@ -48,7 +48,7 @@ extension Topic.Category {
         case .counter: "Counters"
         }
     }
-    
+
     var description: String {
         switch self {
         case .number: "Just whole numbers"
@@ -66,6 +66,26 @@ struct Question: Equatable {
     let answerPrefix: String?
     let answerPostfix: String?
     let acceptedAnswer: String
+}
+
+struct Submission: Identifiable, Equatable {
+    enum Kind: Equatable {
+        case correct
+        case incorrect
+        case skip
+    }
+    
+    let id: UUID
+    let date: Date
+    let kind: Kind
+    let value: String?
+}
+
+struct Challenge: Identifiable, Equatable {
+    let id: UUID
+    let startDate: Date
+    let question: Question
+    var submissions: [Submission]
 }
 
 struct TopicClient {
