@@ -57,25 +57,28 @@ struct TopicsFeature: Reducer {
 
 struct TopicsView: View {
     let store: StoreOf<TopicsFeature>
+    let isFavoritesEnabled: Bool = false
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             NavigationStack {
                 List {
-                    Section {
-                        Text("No favorites yet")
-                            .font(.footnote)
-                            .foregroundStyle(.secondary)
-                            .multilineTextAlignment(.center)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                            .padding(.vertical, 20)
-                    } header: {
-                        Text("Favorites \(Image(systemName: "star"))")
-                            .font(.headline)
-                            .foregroundStyle(.secondary)
-                            .textCase(nil)
+                    if isFavoritesEnabled {
+                        Section {
+                            Text("No favorites yet")
+                                .font(.footnote)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                                .frame(maxWidth: .infinity, alignment: .center)
+                                .padding(.vertical, 20)
+                        } header: {
+                            Text("Favorites \(Image(systemName: "star"))")
+                                .font(.headline)
+                                .foregroundStyle(.secondary)
+                                .textCase(nil)
+                        }
                     }
-                    
+
                     Section {
                         ForEach(viewStore.listeningCategories) { category in
                             NavigationLink {
@@ -91,7 +94,9 @@ struct TopicsView: View {
                                             )
                                         }
                                     } footer: {
-                                        Text("Tip: tap and hold a topic to add/remove a favorite")
+                                        if isFavoritesEnabled {
+                                            Text("Tip: tap and hold a topic to add/remove a favorite")
+                                        }
                                     }
                                 }
                                 .navigationBarTitleDisplayMode(.inline)
