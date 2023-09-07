@@ -24,10 +24,10 @@ struct ListeningQuizFeature: Reducer {
         var settings: SettingsFeature.State
         let topic: Topic
         let topicID: UUID
-        
+
         var completedChallenges: [Challenge] = []
         var challenge: Challenge? // TODO: this can be non-nil?
-        
+
         var challengeCount: Int { completedChallenges.count }
         var lastSubmittedIncorrectValue: String? {
             challenge?.submissions.last(where: { $0.kind == .incorrect })?.value
@@ -37,6 +37,16 @@ struct ListeningQuizFeature: Reducer {
         }
         var question: Question? {
             challenge?.question
+        }
+        var totalIncorrect: Int {
+            completedChallenges
+                .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
+                .count
+        }
+        var totalCorrect: Int {
+            completedChallenges
+                .filter { $0.submissions.allSatisfy { $0.kind == .correct } }
+                .count
         }
 
         init(topicID: UUID) {
@@ -314,7 +324,7 @@ struct ListeningQuizView: View {
                                 .foregroundStyle(Color(.secondaryLabel))
                         }
                     }
-                    HStack(spacing: 6) {
+                    HStack(spacing: 0) {
                         IndeterminateProgressView(
                             animationCount: viewStore.challengeCount,
                             color1: Color(.tintColor),
@@ -325,10 +335,35 @@ struct ListeningQuizView: View {
                         )
                         .clipShape(Capsule(style: .continuous))
                         .frame(height: 10)
+                        .padding(.trailing, 6)
                         Image(systemName: "infinity")
                             .font(.caption)
                             .bold()
                             .foregroundColor(Color(.label))
+                            .padding(.trailing, 10)
+
+                        HStack(spacing: 0) {
+                            Image(systemName: "checkmark.circle")
+                                .foregroundColor(Color.green)
+                            Spacer().frame(width: 2)
+                            Text(String(viewStore.totalCorrect))
+                                .contentTransition(.numericText())
+                                .fontDesign(.monospaced)
+                                .foregroundColor(Color.green)
+                                .animation(.default, value: viewStore.totalCorrect)
+                            Spacer().frame(width: 8)
+                            Image(systemName: "xmark.circle")
+                                .foregroundColor(Color.red)
+                            Spacer().frame(width: 2)
+                            Text(String(viewStore.totalIncorrect))
+                                .contentTransition(.numericText())
+                                .fontDesign(.monospaced)
+                                .foregroundColor(Color.red)
+                                .animation(.default, value: viewStore.totalIncorrect)
+                        }
+                        .bold()
+                        .font(.caption)
+                        .saturation(0.9)
                     }
                 }
                 .padding(.vertical, 6)
