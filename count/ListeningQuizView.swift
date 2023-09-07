@@ -14,6 +14,11 @@ struct BikiAnimation: Equatable {
 
 struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
+        let topicID: UUID
+        var topic: Topic {
+            @Dependency(\.topicClient.allTopics) var allTopics
+            return allTopics()[id: topicID]!
+        }
         @BindingState var answer: String = ""
         var bikiAnimation: BikiAnimation?
         @PresentationState var destination: Destination.State?
@@ -23,7 +28,12 @@ struct ListeningQuizFeature: Reducer {
         var lastSubmittedIncorrectAnswer: String?
         var questionNumber: Int = 0
         var question: Question?
-        var settings: SettingsFeature.State = .init()
+        var settings: SettingsFeature.State
+        
+        init(topicID: UUID) {
+            self.topicID = topicID
+            settings = .init(topicID: topicID)
+        }
     }
 
     enum Action: BindableAction, Equatable {
@@ -95,14 +105,7 @@ struct ListeningQuizFeature: Reducer {
 
             case .destination(.presented(.settings(.binding))):
                 guard case let .settings(newValue) = state.destination else { return .none }
-                let oldValue = state.settings
                 state.settings = newValue
-                if oldValue.topicID != newValue.topicID {
-                    state.lastSubmittedIncorrectAnswer = nil
-                    state.answer = ""
-                    state.isShowingAnswer = false
-                    generateQuestion(state: &state)
-                }
                 return .none
 
             case .destination:
@@ -154,7 +157,7 @@ struct ListeningQuizFeature: Reducer {
     }
 
     func generateQuestion(state: inout State) {
-        state.question = try! topicClient.generateQuestion(state.settings.topic.id) // TODO: handle error
+        state.question = try! topicClient.generateQuestion(state.topicID) // TODO: handle error
         state.questionNumber += 1
     }
 
@@ -215,11 +218,11 @@ extension ListeningQuizFeature.State {
 
 #Preview {
     ListeningQuizView(
-        store: Store(initialState: ListeningQuizFeature.State()) {
+        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID)) {
             ListeningQuizFeature()
                 ._printChanges()
         } withDependencies: {
-            $0.topicClient.generateQuestion = { _ in .init(topicID: Topic.id(for: 000), displayText: "1", answerPrefix: nil, answerPostfix: nil, acceptedAnswer: "1") }
+            $0.topicClient.generateQuestion = { _ in .init(topicID: Topic.mockID, displayText: "1", answerPrefix: nil, answerPostfix: nil, acceptedAnswer: "1") }
         }
     )
 }
@@ -269,19 +272,19 @@ struct ListeningQuizView: View {
                 VStack(alignment: .leading, spacing: 6) {
                     ViewThatFits(in: .horizontal) {
                         HStack(alignment: .firstTextBaseline, spacing: 4) {
-                            Text(viewStore.settings.topic.category.title)
+                            Text(viewStore.topic.category.title)
                                 .font(.title)
                                 .fontWeight(.semibold)
-                            Text(viewStore.settings.topic.title)
+                            Text(viewStore.topic.title)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundStyle(Color(.secondaryLabel))
                         }
                         VStack(alignment: .leading, spacing: 0) {
-                            Text(viewStore.settings.topic.category.title)
+                            Text(viewStore.topic.category.title)
                                 .font(.title)
                                 .fontWeight(.semibold)
-                            Text(viewStore.settings.topic.title)
+                            Text(viewStore.topic.title)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
                                 .foregroundStyle(Color(.secondaryLabel))

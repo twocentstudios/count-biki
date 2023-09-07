@@ -11,7 +11,7 @@ struct CountApp: App {
 //        }
         WindowGroup {
             ListeningQuizView(
-                store: Store(initialState: ListeningQuizFeature.State()) {
+                store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.id(for: 001))) {
                     ListeningQuizFeature()
                 } withDependencies: {
                     // TODO: perhaps move this into SpeechSynthesisClient due to performance warning in `transformDependency` docs.

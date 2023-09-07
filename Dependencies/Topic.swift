@@ -77,6 +77,7 @@ extension Topic {
     static func id(for intValue: Int) -> UUID {
         UUID(uuidString: "C27296D2-934F-42DD-9F48-\(String(format: "%012x", intValue))")!
     }
+    static let mockID: UUID = Topic.id(for: 001)
 }
 
 func numberQuestionGenerator(for range: ClosedRange<Int>, topicID: UUID) -> @Sendable (WithRandomNumberGenerator) throws -> (Question) {

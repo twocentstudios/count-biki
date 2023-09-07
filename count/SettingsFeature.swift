@@ -5,29 +5,17 @@ struct SettingsFeature: Reducer {
     struct State: Equatable {
         @BindingState var speechSettings: SpeechSynthesisSettings // TODO: nil is error
         let availableVoices: [SpeechSynthesisVoice]
+        
+        let topic: Topic
 
-        @BindingState var topicID: UUID
-        var topic: Topic { availableTopics[id: topicID]! }
-        let availableTopics: IdentifiedArrayOf<Topic>
-
-        init() {
+        init(topicID: UUID) {
             @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
             @Dependency(\.speechSynthesisClient) var speechClient
-            @Dependency(\.topicSettingsClient) var topicSettingsClient
-            @Dependency(\.topicClient) var topicClient
+            @Dependency(\.topicClient.allTopics) var allTopics
 
+            self.topic = allTopics()[id: topicID]!
             speechSettings = try! speechSettingsClient.get() // TODO: error handling
             availableVoices = speechClient.availableVoices()
-
-            availableTopics = topicClient.allTopics()
-
-            if let loadedID = try? topicSettingsClient.get(),
-               availableTopics[id: loadedID] != nil
-            {
-                topicID = loadedID
-            } else {
-                topicID = availableTopics.first!.id
-            }
         }
     }
 
@@ -38,7 +26,6 @@ struct SettingsFeature: Reducer {
 
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
-    @Dependency(\.topicSettingsClient) var topicSettingsClient
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -47,7 +34,6 @@ struct SettingsFeature: Reducer {
             case .binding:
                 // TODO: should persistence happen in child or parent reducer?
                 try? speechSettingsClient.set(state.speechSettings) // TODO: handle error
-                try? topicSettingsClient.set(state.topicID) // TODO: handle error
                 return .none
             case .doneButtonTapped:
                 return .run { send in
@@ -84,27 +70,6 @@ struct SettingsView: View {
                         Text("Voice")
                             .font(.subheadline)
                     }
-
-                    Section {
-                        Picker(selection: viewStore.$topicID) {
-                            ForEach(viewStore.availableTopics) { topic in
-                                VStack(alignment: .leading) {
-                                    Text(topic.skill.title).font(.headline) + Text(": ") + Text(topic.category.title).font(.subheadline)
-                                    Text(topic.title)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
-                                }
-                                .padding(.vertical, 2)
-                                .tag(topic.id)
-                            }
-                        } label: {
-                            EmptyView()
-                        }
-                        .pickerStyle(.inline)
-                    } header: {
-                        Text("Topics")
-                            .font(.subheadline)
-                    }
                 }
                 .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
@@ -128,7 +93,7 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView(
-        store: Store(initialState: SettingsFeature.State()) {
+        store: Store(initialState: SettingsFeature.State(topicID: Topic.mockID)) {
             SettingsFeature()
                 ._printChanges()
         }
