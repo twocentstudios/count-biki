@@ -15,14 +15,14 @@ struct BikiAnimation: Equatable {
 
 struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
-        @BindingState var answer: String = ""
+        @BindingState var pendingSubmissionValue: String = ""
         var bikiAnimation: BikiAnimation?
         var confettiAnimation: Int = 0
         @PresentationState var destination: Destination.State?
         var isShowingPlaybackError: Bool = false
         var isShowingAnswer: Bool = false
         var isSpeaking: Bool = false
-        var lastSubmittedIncorrectAnswer: String?
+        var lastSubmittedIncorrectValue: String?
         var questionNumber: Int = 0
         var question: Question?
         var settings: SettingsFeature.State
@@ -83,22 +83,22 @@ struct ListeningQuizFeature: Reducer {
             switch action {
             case .answerSubmitButtonTapped:
                 if state.isShowingAnswer {
-                    state.lastSubmittedIncorrectAnswer = nil
-                    state.answer = ""
+                    state.lastSubmittedIncorrectValue = nil
+                    state.pendingSubmissionValue = ""
                     state.isShowingAnswer = false
                     generateQuestion(state: &state)
                     return playBackEffect(state: &state)
-                } else if state.question?.acceptedAnswer == state.answer {
+                } else if state.question?.acceptedAnswer == state.pendingSubmissionValue {
                     state.bikiAnimation = .init(id: uuid(), kind: .correct)
-                    state.lastSubmittedIncorrectAnswer = nil
-                    state.answer = ""
+                    state.lastSubmittedIncorrectValue = nil
+                    state.pendingSubmissionValue = ""
                     state.confettiAnimation += 1
                     generateQuestion(state: &state)
                     return .run { _ in await haptics.success() }
                         .merge(with: playBackEffect(state: &state))
                 } else {
                     state.bikiAnimation = .init(id: uuid(), kind: .incorrect)
-                    state.lastSubmittedIncorrectAnswer = state.answer
+                    state.lastSubmittedIncorrectValue = state.pendingSubmissionValue
                     return .run { _ in await haptics.error() }
                         .merge(with: playBackEffect(state: &state))
                 }
@@ -192,14 +192,14 @@ struct ListeningQuizFeature: Reducer {
 
 extension ListeningQuizFeature.State {
     var isShowingIncorrect: Bool {
-        lastSubmittedIncorrectAnswer == answer
+        lastSubmittedIncorrectValue == pendingSubmissionValue
     }
 
     var isSubmitButtonDisabled: Bool {
         if isShowingAnswer {
             return false
         } else {
-            return answer.isEmpty
+            return pendingSubmissionValue.isEmpty
         }
     }
 
@@ -254,7 +254,7 @@ struct ListeningQuizView: View {
             }
             .padding()
             .safeAreaInset(edge: .bottom) {
-                answerTextField(viewStore: viewStore)
+                submissionTextField(viewStore: viewStore)
             }
             .task {
                 await viewStore.send(.onTask).finish()
@@ -406,14 +406,14 @@ struct ListeningQuizView: View {
         }
     }
 
-    @MainActor @ViewBuilder func answerTextField(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
+    @MainActor @ViewBuilder func submissionTextField(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
         HStack(spacing: 0) {
             if let prefix = viewStore.question?.answerPrefix {
                 Text(prefix)
                     .font(.title)
                     .foregroundStyle(Color.secondary)
             }
-            TextField("Answer", text: viewStore.$answer)
+            TextField("Answer", text: viewStore.$pendingSubmissionValue)
                 .foregroundStyle(Color.primary)
                 .font(.largeTitle)
                 .bold()
