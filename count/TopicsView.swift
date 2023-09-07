@@ -91,7 +91,6 @@ struct TopicsView: View {
                                     }
                                 } footer: {
                                     Text("Tip: tap and hold a topic to add/remove a favorite")
-                                        .font(.caption)
                                 }
                             }
                             .navigationBarTitleDisplayMode(.inline)
