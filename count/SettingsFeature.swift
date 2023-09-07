@@ -5,7 +5,7 @@ struct SettingsFeature: Reducer {
     struct State: Equatable {
         @BindingState var speechSettings: SpeechSynthesisSettings // TODO: nil is error
         let availableVoices: [SpeechSynthesisVoice]
-        
+
         let topic: Topic
 
         init(topicID: UUID) {
@@ -13,7 +13,7 @@ struct SettingsFeature: Reducer {
             @Dependency(\.speechSynthesisClient) var speechClient
             @Dependency(\.topicClient.allTopics) var allTopics
 
-            self.topic = allTopics()[id: topicID]!
+            topic = allTopics()[id: topicID]!
             speechSettings = try! speechSettingsClient.get() // TODO: error handling
             availableVoices = speechClient.availableVoices()
         }
@@ -51,6 +51,33 @@ struct SettingsView: View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             NavigationStack {
                 Form {
+                    Section {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("\(viewStore.topic.skill.title): \(viewStore.topic.category.title)")
+                                .font(.headline)
+                            Text(viewStore.topic.title)
+                                .font(.subheadline)
+                            Text(viewStore.topic.description)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .multilineTextAlignment(.leading)
+                        .padding(.vertical, 2)
+
+                        Button {
+                            // TODO:
+                        } label: {
+                            HStack(spacing: 10) {
+                                Image(systemName: "door.right.hand.open")
+                                Text("End Session")
+                            }
+                            .foregroundStyle(.red)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        }
+                    } header: {
+                        Text("Topic")
+                            .font(.subheadline)
+                    }
                     Section {
                         Picker(selection: viewStore.$speechSettings.voiceIdentifier) {
                             ForEach(viewStore.availableVoices) { voice in
