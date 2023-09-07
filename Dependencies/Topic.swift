@@ -98,7 +98,8 @@ func numberQuestionGenerator(for range: ClosedRange<Int>, topicID: UUID) -> @Sen
 
 func moneyGenerator(for range: ClosedRange<Int>, by byValue: Int, topicID: UUID) -> @Sendable (WithRandomNumberGenerator) throws -> (Question) {
     { rng in
-        let answer = rng { Int.random(in: range, using: &$0) * byValue }
+        let byRange = Int(Double(range.lowerBound) / Double(byValue)) ... Int(Double(range.upperBound) / Double(byValue))
+        let answer = rng { Int.random(in: byRange, using: &$0) * byValue }
         let prefix = "￥"
         let displayText = "\(prefix)\(answer.formatted(.number.grouping(.automatic)))"
         let acceptedAnswer = String(answer)
