@@ -73,26 +73,17 @@ struct TopicsView: View {
                             List {
                                 Section {
                                     ForEach(category.topics) { topic in
-                                        Button {
-                                            viewStore.send(.selectTopic(topic.id))
-                                        } label: {
-                                            VStack(alignment: .leading, spacing: 2) {
-                                                Text(topic.title).font(.headline)
-                                                Text(topic.description)
-                                                    .font(.caption)
-                                                    .foregroundStyle(.secondary)
-                                            }
-                                            .frame(maxWidth: .infinity, alignment: .leading)
-                                            .padding(.vertical, 2)
-                                            .contentShape(Rectangle())
-                                        }
-                                        .buttonStyle(.plain)
-                                        .contextMenu {
-                                            Button("Add Favorite") {}
-                                        }
+                                        TopicCell(
+                                            title: topic.title,
+                                            subtitle: topic.description,
+                                            isFavorite: false,
+                                            tapped: { viewStore.send(.selectTopic(topic.id)) },
+                                            toggleFavoriteTapped: {}
+                                        )
                                     }
                                 } footer: {
                                     Text("Tip: tap and hold a topic to add/remove a favorite")
+                                        .font(.caption)
                                 }
                             }
                             .navigationBarTitleDisplayMode(.inline)
@@ -130,6 +121,46 @@ struct TopicsView: View {
                     Text("Topics")
                         .font(.headline)
                 }
+            }
+        }
+    }
+}
+
+struct TopicCell: View {
+    let title: String
+    let subtitle: String
+    var isFavorite: Bool = false
+    var tapped: (() -> Void)?
+    var toggleFavoriteTapped: (() -> Void)?
+
+    var body: some View {
+        Button {
+            tapped?()
+        } label: {
+            HStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title).font(.headline)
+                    Text(subtitle)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                if isFavorite {
+                    Image(systemName: "star.fill")
+                        .font(.headline)
+                        .foregroundStyle(.yellow)
+                }
+            }
+            .padding(.vertical, 2)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .contextMenu {
+            Button {
+                toggleFavoriteTapped?()
+            }
+            label: {
+                Label(isFavorite ? "Remove Favorite" : "Add Favorite", systemImage: "star")
             }
         }
     }
