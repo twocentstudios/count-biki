@@ -15,10 +15,7 @@ struct BikiAnimation: Equatable {
 struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
         let topicID: UUID
-        var topic: Topic {
-            @Dependency(\.topicClient.allTopics) var allTopics
-            return allTopics()[id: topicID]!
-        }
+        let topic: Topic
         @BindingState var answer: String = ""
         var bikiAnimation: BikiAnimation?
         @PresentationState var destination: Destination.State?
@@ -31,6 +28,8 @@ struct ListeningQuizFeature: Reducer {
         var settings: SettingsFeature.State
         
         init(topicID: UUID) {
+            @Dependency(\.topicClient.allTopics) var allTopics
+            topic = allTopics()[id: topicID]!
             self.topicID = topicID
             settings = .init(topicID: topicID)
         }
