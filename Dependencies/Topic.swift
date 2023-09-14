@@ -253,6 +253,138 @@ extension TopicClient: DependencyKey {
                     )
                 }
             ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 202),
+                    skill: .listening,
+                    category: .duration,
+                    title: "Minutes",
+                    description: "1-100分間"
+                ),
+                generateQuestion: { rng in
+                    let answer = rng { Int.random(in: 1 ... 100, using: &$0) }
+                    let postfix = "分間"
+                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let acceptedAnswer = String(answer)
+                    return Question(
+                        topicID: Topic.id(for: 202),
+                        displayText: displayText,
+                        answerPrefix: nil,
+                        answerPostfix: postfix,
+                        acceptedAnswer: acceptedAnswer
+                    )
+                }
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 203),
+                    skill: .listening,
+                    category: .duration,
+                    title: "Seconds",
+                    description: "1-100秒間"
+                ),
+                generateQuestion: { rng in
+                    let answer = rng { Int.random(in: 1 ... 100, using: &$0) }
+                    let postfix = "秒間"
+                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let acceptedAnswer = String(answer)
+                    return Question(
+                        topicID: Topic.id(for: 203),
+                        displayText: displayText,
+                        answerPrefix: nil,
+                        answerPostfix: postfix,
+                        acceptedAnswer: acceptedAnswer
+                    )
+                }
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 205),
+                    skill: .listening,
+                    category: .duration,
+                    title: "Days",
+                    description: "1-100日(間)"
+                ),
+                generateQuestion: { rng in
+                    let answer = rng { Int.random(in: 1 ... 100, using: &$0) }
+                    let postfix = "日間"
+                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let acceptedAnswer = String(answer)
+                    return Question(
+                        topicID: Topic.id(for: 205),
+                        displayText: displayText,
+                        answerPrefix: nil,
+                        answerPostfix: postfix,
+                        acceptedAnswer: acceptedAnswer
+                    )
+                }
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 206),
+                    skill: .listening,
+                    category: .duration,
+                    title: "Weeks",
+                    description: "1-52週(間)"
+                ),
+                generateQuestion: { rng in
+                    let answer = rng { Int.random(in: 1 ... 52, using: &$0) }
+                    let postfix = "週間"
+                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let acceptedAnswer = String(answer)
+                    return Question(
+                        topicID: Topic.id(for: 206),
+                        displayText: displayText,
+                        answerPrefix: nil,
+                        answerPostfix: postfix,
+                        acceptedAnswer: acceptedAnswer
+                    )
+                }
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 207),
+                    skill: .listening,
+                    category: .duration,
+                    title: "Months",
+                    description: "1-18ヶ月"
+                ),
+                generateQuestion: { rng in
+                    let answer = rng { Int.random(in: 1 ... 18, using: &$0) }
+                    let postfix = "ヶ月"
+                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let acceptedAnswer = String(answer)
+                    return Question(
+                        topicID: Topic.id(for: 207),
+                        displayText: displayText,
+                        answerPrefix: nil,
+                        answerPostfix: postfix,
+                        acceptedAnswer: acceptedAnswer
+                    )
+                }
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 208),
+                    skill: .listening,
+                    category: .duration,
+                    title: "Years",
+                    description: "1-100年間"
+                ),
+                generateQuestion: { rng in
+                    let answer = rng { Int.random(in: 1 ... 100, using: &$0) }
+                    let postfix = "年間"
+                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let acceptedAnswer = String(answer)
+                    return Question(
+                        topicID: Topic.id(for: 208),
+                        displayText: displayText,
+                        answerPrefix: nil,
+                        answerPostfix: postfix,
+                        acceptedAnswer: acceptedAnswer
+                    )
+                }
+            ),
         ]
         return TopicClient(
             allTopics: {
