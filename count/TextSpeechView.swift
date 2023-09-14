@@ -5,11 +5,14 @@ import SwiftUI
 struct TextSpeechFeature: Reducer {
     struct State: Equatable {
         @BindingState var textValue: String = ""
-        var submissions: OrderedSet<String> = ["hello", "world"]
+        var submissions: OrderedSet<String> = []
     }
 
     enum Action: BindableAction, Equatable {
         case submitButtonTapped
+        case clearButtonTapped
+        case appendStringButtonTapped(String)
+        case submissionTapped(String)
         case playButtonTapped(String)
         case binding(BindingAction<State>)
         case onDelete(String)
@@ -23,6 +26,15 @@ struct TextSpeechFeature: Reducer {
         Reduce { state, action in
             switch action {
             case .binding:
+                return .none
+            case .clearButtonTapped:
+                state.textValue = ""
+                return .none
+            case let .appendStringButtonTapped(string):
+                state.textValue += string
+                return .none
+            case let .submissionTapped(string):
+                state.textValue = string
                 return .none
             case let .playButtonTapped(string):
                 return playBackEffect(text: string)
@@ -59,17 +71,19 @@ struct TextSpeechView: View {
             VStack {
                 List(viewStore.submissions, id: \.self) { submission in
                     Button {
-                        viewStore.send(.playButtonTapped(submission))
+                        viewStore.send(.submissionTapped(submission))
                     } label: {
                         HStack {
-                            Image(systemName: "play.fill")
-                                .font(.title3)
+                            Image(systemName: "chevron.right")
                                 .padding(.trailing)
                             Text(submission)
                                 .font(.headline)
                         }
                     }
                     .contextMenu {
+                        Button("Play") {
+                            viewStore.send(.playButtonTapped(submission))
+                        }
                         Button("Delete", role: .destructive) {
                             viewStore.send(.onDelete(submission))
                         }
@@ -78,25 +92,41 @@ struct TextSpeechView: View {
                 .listStyle(.plain)
             }
             .safeAreaInset(edge: .bottom) {
-                HStack {
-                    TextField("Text-to-speech", text: viewStore.$textValue)
-                        .foregroundStyle(Color.primary)
-                        .font(.largeTitle)
-                        .bold()
-                        .textFieldStyle(.plain)
-                        .keyboardType(.default)
-                        .padding(.horizontal, 4)
-                        .focused($textFieldFocused)
-
-                    Spacer().frame(width: 16)
-
-                    Button {
-                        viewStore.send(.submitButtonTapped)
-                    } label: {
-                        Image(systemName: "play.fill")
-                            .font(.title)
+                VStack(spacing: 16) {
+                    HStack {
+                        ForEach(["日", "月", "ヶ月", "年", "間"], id: \.self) { character in
+                            Button(character) {
+                                viewStore.send(.appendStringButtonTapped(character))
+                            }
+                        }
+                        Button {
+                            viewStore.send(.clearButtonTapped)
+                        } label: {
+                            Image(systemName: "xmark.circle")
+                        }
                     }
-                    .buttonStyle(.borderedProminent)
+                    .padding(.horizontal)
+                    .buttonStyle(.bordered)
+                    HStack {
+                        TextField("Text-to-speech", text: viewStore.$textValue)
+                            .foregroundStyle(Color.primary)
+                            .font(.largeTitle)
+                            .bold()
+                            .textFieldStyle(.plain)
+                            .keyboardType(.default)
+                            .padding(.horizontal, 4)
+                            .focused($textFieldFocused)
+
+                        Spacer().frame(width: 16)
+
+                        Button {
+                            viewStore.send(.submitButtonTapped)
+                        } label: {
+                            Image(systemName: "play.fill")
+                                .font(.title)
+                        }
+                        .buttonStyle(.borderedProminent)
+                    }
                 }
                 .padding()
                 .background {
