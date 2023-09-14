@@ -15,6 +15,7 @@
 		340E70532A820E73004B124B /* SpeechSynthesis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340E70522A820E73004B124B /* SpeechSynthesis.swift */; };
 		340E70582A83738F004B124B /* SpeechSynthesisSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340E70572A83738F004B124B /* SpeechSynthesisSettings.swift */; };
 		340E705B2A83D396004B124B /* DependenciesAdditions in Frameworks */ = {isa = PBXBuildFile; productRef = 340E705A2A83D396004B124B /* DependenciesAdditions */; };
+		34276FC22AB354D600647AE9 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 34276FC12AB354D600647AE9 /* Collections */; };
 		3478331F2AA7343A005160DC /* PlanningTopicsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3478331E2AA7343A005160DC /* PlanningTopicsView.swift */; };
 		348000E32A9CC0A800E7CCEE /* CountBiki.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */; };
 		348000E52A9CCD4700E7CCEE /* CountBikiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348000E42A9CCD4700E7CCEE /* CountBikiView.swift */; };
@@ -73,6 +74,7 @@
 			files = (
 				34E2E3EE2AA9C86A002B511A /* ConfettiSwiftUI in Frameworks */,
 				34A9749A2A7AB0E600E6F672 /* ComposableArchitecture in Frameworks */,
+				34276FC22AB354D600647AE9 /* Collections in Frameworks */,
 				340E705B2A83D396004B124B /* DependenciesAdditions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -175,6 +177,7 @@
 				34A974992A7AB0E600E6F672 /* ComposableArchitecture */,
 				340E705A2A83D396004B124B /* DependenciesAdditions */,
 				34E2E3ED2AA9C86A002B511A /* ConfettiSwiftUI */,
+				34276FC12AB354D600647AE9 /* Collections */,
 			);
 			productName = count;
 			productReference = 340A51C92A78EC78007DCA0C /* count.app */;
@@ -230,6 +233,7 @@
 				34A974982A7AB0E600E6F672 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
 				340E70592A83D396004B124B /* XCRemoteSwiftPackageReference "swift-dependencies-additions" */,
 				34E2E3EC2AA9C86A002B511A /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */,
+				34276FC02AB354D600647AE9 /* XCRemoteSwiftPackageReference "swift-collections" */,
 			);
 			productRefGroup = 340A51CA2A78EC78007DCA0C /* Products */;
 			projectDirPath = "";
@@ -593,6 +597,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		34276FC02AB354D600647AE9 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.4;
+			};
+		};
 		34A974982A7AB0E600E6F672 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-composable-architecture.git";
@@ -616,6 +628,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 340E70592A83D396004B124B /* XCRemoteSwiftPackageReference "swift-dependencies-additions" */;
 			productName = DependenciesAdditions;
+		};
+		34276FC12AB354D600647AE9 /* Collections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 34276FC02AB354D600647AE9 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = Collections;
 		};
 		34A974992A7AB0E600E6F672 /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
