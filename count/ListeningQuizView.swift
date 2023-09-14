@@ -171,7 +171,6 @@ struct ListeningQuizFeature: Reducer {
                 return .none
 
             case .onTask:
-                generateChallenge(state: &state)
                 return playBackEffect(state: &state)
 
             case .playbackButtonTapped:
