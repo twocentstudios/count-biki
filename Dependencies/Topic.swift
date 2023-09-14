@@ -74,7 +74,7 @@ struct Submission: Identifiable, Equatable {
         case incorrect
         case skip
     }
-    
+
     let id: UUID
     let date: Date
     let kind: Kind
@@ -230,6 +230,28 @@ extension TopicClient: DependencyKey {
                     description: "Yen amounts between 2,000,000-15,000,000 by 100,000s"
                 ),
                 generateQuestion: moneyGenerator(for: 2_000_000 ... 15_000_000, by: 100_000, topicID: Topic.id(for: 104))
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 201),
+                    skill: .listening,
+                    category: .duration,
+                    title: "Hours",
+                    description: "1-48時間"
+                ),
+                generateQuestion: { rng in
+                    let answer = rng { Int.random(in: 1 ... 48, using: &$0) }
+                    let postfix = "時間"
+                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let acceptedAnswer = String(answer)
+                    return Question(
+                        topicID: Topic.id(for: 201),
+                        displayText: displayText,
+                        answerPrefix: nil,
+                        answerPostfix: postfix,
+                        acceptedAnswer: acceptedAnswer
+                    )
+                }
             ),
         ]
         return TopicClient(
