@@ -430,6 +430,28 @@ extension TopicClient: DependencyKey {
                     )
                 }
             ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 302),
+                    skill: .listening,
+                    category: .dateTime,
+                    title: "Minute",
+                    description: "0-59分"
+                ),
+                generateQuestion: { rng in
+                    let answer = rng { Int.random(in: 0 ... 59, using: &$0) }
+                    let postfix = "分"
+                    let displayText = "\(answer.formatted(.number))\(postfix)"
+                    let acceptedAnswer = String(answer)
+                    return Question(
+                        topicID: Topic.id(for: 302),
+                        displayText: displayText,
+                        answerPrefix: nil,
+                        answerPostfix: postfix,
+                        acceptedAnswer: acceptedAnswer
+                    )
+                }
+            ),
         ]
         return TopicClient(
             allTopics: {
