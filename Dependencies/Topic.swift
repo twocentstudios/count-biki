@@ -601,6 +601,29 @@ extension TopicClient: DependencyKey {
                     )
                 }
             ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 308),
+                    skill: .listening,
+                    category: .dateTime,
+                    title: "Year (Recent)",
+                    description: "2010年-2025年"
+                ),
+                generateQuestion: { rng in
+                    let answer = rng { Int.random(in: 2010 ... 2025, using: &$0) }
+                    let postfix = "年"
+                    let displayText = "\(answer.formatted(.number))\(postfix)"
+                    let acceptedAnswer = String(answer)
+                    return Question(
+                        topicID: Topic.id(for: 308),
+                        displayText: displayText,
+                        spokenText: displayText,
+                        answerPrefix: nil,
+                        answerPostfix: postfix,
+                        acceptedAnswer: acceptedAnswer
+                    )
+                }
+            ),
         ]
         return TopicClient(
             allTopics: {
