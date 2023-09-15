@@ -306,8 +306,9 @@ extension TopicClient: DependencyKey {
                     description: "1-100日(間)"
                 ),
                 generateQuestion: { rng in
-                    let answer = rng { Int.random(in: 1 ... 100, using: &$0) }
-                    let postfix = "日間"
+                    let range = rng { [1 ... 10, 11 ... 100].randomElement(using: &$0)! }
+                    let answer = rng { Int.random(in: range, using: &$0) }
+                    let postfix = "日"
                     let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
