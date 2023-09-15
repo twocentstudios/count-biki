@@ -27,6 +27,7 @@ struct Topic: Identifiable, Equatable {
     let category: Category
     let title: String
     let description: String
+    var notesMarkdown: String = ""
 }
 
 extension Topic.Skill {
@@ -303,7 +304,14 @@ extension TopicClient: DependencyKey {
                     skill: .listening,
                     category: .duration,
                     title: "Days",
-                    description: "1-100日(間)"
+                    description: "1-100日(間)",
+                    notesMarkdown: """
+                    - This topic chooses durations in the range 1-10 in equal probability to 11-100.
+                    - 間 is optional after 日 except for 1日 where 間 cannot be appended.
+                    - 1日 is pronounced いちにち as a duration (as opposed to ついたち as a date).
+                    
+                    **Reference**: [A Guide to the Japanese Counter-ish Word: 日 (Days)](https://www.tofugu.com/japanese/japanese-counter-ka-nichi/)
+                    """
                 ),
                 generateQuestion: { rng in
                     let range = rng { [1 ... 10, 11 ... 100].randomElement(using: &$0)! }
