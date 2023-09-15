@@ -248,7 +248,7 @@ extension TopicClient: DependencyKey {
                 generateQuestion: { rng in
                     let answer = rng { Int.random(in: 1 ... 48, using: &$0) }
                     let postfix = "時間"
-                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let displayText = "\(answer)\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 201),
@@ -271,7 +271,7 @@ extension TopicClient: DependencyKey {
                 generateQuestion: { rng in
                     let answer = rng { Int.random(in: 1 ... 100, using: &$0) }
                     let postfix = "分間"
-                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let displayText = "\(answer)\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 202),
@@ -294,7 +294,7 @@ extension TopicClient: DependencyKey {
                 generateQuestion: { rng in
                     let answer = rng { Int.random(in: 1 ... 100, using: &$0) }
                     let postfix = "秒間"
-                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let displayText = "\(answer)\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 203),
@@ -328,7 +328,7 @@ extension TopicClient: DependencyKey {
                     let range = rng { [1 ... 10, 11 ... 100].randomElement(using: &$0)! }
                     let answer = rng { Int.random(in: range, using: &$0) }
                     let postfix = "日"
-                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let displayText = "\(answer)\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 206),
@@ -351,7 +351,7 @@ extension TopicClient: DependencyKey {
                 generateQuestion: { rng in
                     let answer = rng { Int.random(in: 1 ... 52, using: &$0) }
                     let postfix = "週間"
-                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let displayText = "\(answer)\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 207),
@@ -380,7 +380,7 @@ extension TopicClient: DependencyKey {
                 generateQuestion: { rng in
                     let answer = rng { Int.random(in: 1 ... 18, using: &$0) }
                     let postfix = "ヶ月"
-                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let displayText = "\(answer)\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 208),
@@ -403,7 +403,7 @@ extension TopicClient: DependencyKey {
                 generateQuestion: { rng in
                     let answer = rng { Int.random(in: 1 ... 100, using: &$0) }
                     let postfix = "年間"
-                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let displayText = "\(answer)\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 209),
@@ -429,7 +429,7 @@ extension TopicClient: DependencyKey {
                     let range = rng { [1 ... 12, 1 ... 12, 13 ... 24].randomElement(using: &$0)! }
                     let answer = rng { Int.random(in: range, using: &$0) }
                     let postfix = "時"
-                    let displayText = "\(answer.formatted(.number))\(postfix)"
+                    let displayText = "\(answer)\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 301),
@@ -453,7 +453,7 @@ extension TopicClient: DependencyKey {
                     let prefix = rng { ["午前", "午後"].randomElement(using: &$0)! }
                     let answer = rng { Int.random(in: 1 ... 12, using: &$0) }
                     let postfix = "時"
-                    let displayText = "\(prefix)\(answer.formatted(.number))\(postfix)"
+                    let displayText = "\(prefix)\(answer)\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 302),
@@ -489,7 +489,7 @@ extension TopicClient: DependencyKey {
                     let hour = rng { Int.random(in: 1 ... 12, using: &$0) }
                     let answer = hour + (prefix.rawValue * 12)
                     let postfix = "時"
-                    let displayText = "\(prefix.title)\(hour.formatted(.number))\(postfix)"
+                    let displayText = "\(prefix.title)\(hour)\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 303),
@@ -512,7 +512,7 @@ extension TopicClient: DependencyKey {
                 generateQuestion: { rng in
                     let answer = rng { Int.random(in: 0 ... 59, using: &$0) }
                     let postfix = "分"
-                    let displayText = "\(answer.formatted(.number))\(postfix)"
+                    let displayText = "\(answer)\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 304),
@@ -538,7 +538,7 @@ extension TopicClient: DependencyKey {
                     let exceptions: [Int: String] = [
                         1: "ついたち",
                     ]
-                    let displayText = "\(answer.formatted(.number))\(postfix)"
+                    let displayText = "\(answer)\(postfix)"
                     let spokenText = exceptions[answer] ?? displayText
                     let acceptedAnswer = String(answer)
                     return Question(
@@ -565,7 +565,7 @@ extension TopicClient: DependencyKey {
                     let exceptions: [Int: String] = [
                         1: "ついたち",
                     ]
-                    let displayText = "\(answer.formatted(.number))\(postfix)"
+                    let displayText = "\(answer)\(postfix)"
                     let spokenText = exceptions[answer] ?? displayText
                     let acceptedAnswer = String(answer)
                     return Question(
@@ -589,7 +589,7 @@ extension TopicClient: DependencyKey {
                 generateQuestion: { rng in
                     let answer = rng { Int.random(in: 1 ... 12, using: &$0) }
                     let postfix = "月"
-                    let displayText = "\(answer.formatted(.number))\(postfix)"
+                    let displayText = "\(answer)\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 307),
@@ -612,7 +612,7 @@ extension TopicClient: DependencyKey {
                 generateQuestion: { rng in
                     let answer = rng { Int.random(in: 2010 ... 2025, using: &$0) }
                     let postfix = "年"
-                    let displayText = "\(answer.formatted(.number))\(postfix)"
+                    let displayText = "\(answer)\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 308),
