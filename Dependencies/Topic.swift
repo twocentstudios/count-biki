@@ -304,7 +304,7 @@ extension TopicClient: DependencyKey {
             // TODO: Hours/Minutes/Seconds e.g. 24時間60分60秒
             TopicGenerator(
                 topic: Topic(
-                    id: Topic.id(for: 205),
+                    id: Topic.id(for: 206),
                     skill: .listening,
                     category: .duration,
                     title: "Days",
@@ -325,28 +325,6 @@ extension TopicClient: DependencyKey {
                     let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
-                        topicID: Topic.id(for: 205),
-                        displayText: displayText,
-                        answerPrefix: nil,
-                        answerPostfix: postfix,
-                        acceptedAnswer: acceptedAnswer
-                    )
-                }
-            ),
-            TopicGenerator(
-                topic: Topic(
-                    id: Topic.id(for: 206),
-                    skill: .listening,
-                    category: .duration,
-                    title: "Weeks",
-                    description: "1-52週間"
-                ),
-                generateQuestion: { rng in
-                    let answer = rng { Int.random(in: 1 ... 52, using: &$0) }
-                    let postfix = "週間"
-                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
-                    let acceptedAnswer = String(answer)
-                    return Question(
                         topicID: Topic.id(for: 206),
                         displayText: displayText,
                         answerPrefix: nil,
@@ -358,6 +336,28 @@ extension TopicClient: DependencyKey {
             TopicGenerator(
                 topic: Topic(
                     id: Topic.id(for: 207),
+                    skill: .listening,
+                    category: .duration,
+                    title: "Weeks",
+                    description: "1-52週間"
+                ),
+                generateQuestion: { rng in
+                    let answer = rng { Int.random(in: 1 ... 52, using: &$0) }
+                    let postfix = "週間"
+                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let acceptedAnswer = String(answer)
+                    return Question(
+                        topicID: Topic.id(for: 207),
+                        displayText: displayText,
+                        answerPrefix: nil,
+                        answerPostfix: postfix,
+                        acceptedAnswer: acceptedAnswer
+                    )
+                }
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 208),
                     skill: .listening,
                     category: .duration,
                     title: "Months",
@@ -375,7 +375,7 @@ extension TopicClient: DependencyKey {
                     let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
-                        topicID: Topic.id(for: 207),
+                        topicID: Topic.id(for: 208),
                         displayText: displayText,
                         answerPrefix: nil,
                         answerPostfix: postfix,
@@ -385,7 +385,7 @@ extension TopicClient: DependencyKey {
             ),
             TopicGenerator(
                 topic: Topic(
-                    id: Topic.id(for: 208),
+                    id: Topic.id(for: 209),
                     skill: .listening,
                     category: .duration,
                     title: "Years",
@@ -397,7 +397,7 @@ extension TopicClient: DependencyKey {
                     let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
-                        topicID: Topic.id(for: 208),
+                        topicID: Topic.id(for: 209),
                         displayText: displayText,
                         answerPrefix: nil,
                         answerPostfix: postfix,
