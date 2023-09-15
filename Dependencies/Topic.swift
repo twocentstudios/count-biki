@@ -309,7 +309,7 @@ extension TopicClient: DependencyKey {
                     - This topic chooses durations in the range 1-10 in equal probability to 11-100.
                     - 間 is optional after 日 except for 1日 where 間 cannot be appended.
                     - 1日 is pronounced いちにち as a duration (as opposed to ついたち as a date).
-                    
+
                     **Reference**: [A Guide to the Japanese Counter-ish Word: 日 (Days)](https://www.tofugu.com/japanese/japanese-counter-ka-nichi/)
                     """
                 ),
@@ -357,7 +357,13 @@ extension TopicClient: DependencyKey {
                     skill: .listening,
                     category: .duration,
                     title: "Months",
-                    description: "1-18ヶ月"
+                    description: "1-18ヶ月",
+                    notesMarkdown: """
+                    - This topic only tests on the ヶ月 reading for counting month durations.
+                    - However, ひとつき (1月) and ふたつき (2月) readings are also common.
+
+                    **Reference**: [A Guide to the Japanese Counter-ish Word: 月 (Months)](https://www.tofugu.com/japanese/japanese-counter-tsuki-gatsu-getsu/)
+                    """
                 ),
                 generateQuestion: { rng in
                     let answer = rng { Int.random(in: 1 ... 18, using: &$0) }
