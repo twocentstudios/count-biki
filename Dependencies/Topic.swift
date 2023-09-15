@@ -314,6 +314,7 @@ extension TopicClient: DependencyKey {
                     """
                 ),
                 generateQuestion: { rng in
+                    // 1 ... 10 range is emphasized
                     let range = rng { [1 ... 10, 11 ... 100].randomElement(using: &$0)! }
                     let answer = rng { Int.random(in: range, using: &$0) }
                     let postfix = "日"
