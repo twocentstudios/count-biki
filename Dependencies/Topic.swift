@@ -64,6 +64,7 @@ extension Topic.Category {
 struct Question: Equatable {
     let topicID: UUID
     let displayText: String
+    let spokenText: String
     let answerPrefix: String?
     let answerPostfix: String?
     let acceptedAnswer: String
@@ -109,6 +110,7 @@ func numberQuestionGenerator(for range: ClosedRange<Int>, topicID: UUID) -> @Sen
         let question = Question(
             topicID: topicID,
             displayText: displayText,
+            spokenText: displayText,
             answerPrefix: nil,
             answerPostfix: nil,
             acceptedAnswer: acceptedAnswer
@@ -127,6 +129,7 @@ func moneyGenerator(for range: ClosedRange<Int>, by byValue: Int, topicID: UUID)
         let question = Question(
             topicID: topicID,
             displayText: displayText,
+            spokenText: displayText,
             answerPrefix: prefix,
             answerPostfix: nil,
             acceptedAnswer: acceptedAnswer
@@ -250,6 +253,7 @@ extension TopicClient: DependencyKey {
                     return Question(
                         topicID: Topic.id(for: 201),
                         displayText: displayText,
+                        spokenText: displayText,
                         answerPrefix: nil,
                         answerPostfix: postfix,
                         acceptedAnswer: acceptedAnswer
@@ -272,6 +276,7 @@ extension TopicClient: DependencyKey {
                     return Question(
                         topicID: Topic.id(for: 202),
                         displayText: displayText,
+                        spokenText: displayText,
                         answerPrefix: nil,
                         answerPostfix: postfix,
                         acceptedAnswer: acceptedAnswer
@@ -294,6 +299,7 @@ extension TopicClient: DependencyKey {
                     return Question(
                         topicID: Topic.id(for: 203),
                         displayText: displayText,
+                        spokenText: displayText,
                         answerPrefix: nil,
                         answerPostfix: postfix,
                         acceptedAnswer: acceptedAnswer
@@ -327,6 +333,7 @@ extension TopicClient: DependencyKey {
                     return Question(
                         topicID: Topic.id(for: 206),
                         displayText: displayText,
+                        spokenText: displayText,
                         answerPrefix: nil,
                         answerPostfix: postfix,
                         acceptedAnswer: acceptedAnswer
@@ -349,6 +356,7 @@ extension TopicClient: DependencyKey {
                     return Question(
                         topicID: Topic.id(for: 207),
                         displayText: displayText,
+                        spokenText: displayText,
                         answerPrefix: nil,
                         answerPostfix: postfix,
                         acceptedAnswer: acceptedAnswer
@@ -377,6 +385,7 @@ extension TopicClient: DependencyKey {
                     return Question(
                         topicID: Topic.id(for: 208),
                         displayText: displayText,
+                        spokenText: displayText,
                         answerPrefix: nil,
                         answerPostfix: postfix,
                         acceptedAnswer: acceptedAnswer
@@ -399,6 +408,7 @@ extension TopicClient: DependencyKey {
                     return Question(
                         topicID: Topic.id(for: 209),
                         displayText: displayText,
+                        spokenText: displayText,
                         answerPrefix: nil,
                         answerPostfix: postfix,
                         acceptedAnswer: acceptedAnswer
@@ -424,6 +434,7 @@ extension TopicClient: DependencyKey {
                     return Question(
                         topicID: Topic.id(for: 301),
                         displayText: displayText,
+                        spokenText: displayText,
                         answerPrefix: nil,
                         answerPostfix: postfix,
                         acceptedAnswer: acceptedAnswer
@@ -447,6 +458,7 @@ extension TopicClient: DependencyKey {
                     return Question(
                         topicID: Topic.id(for: 302),
                         displayText: displayText,
+                        spokenText: displayText,
                         answerPrefix: prefix,
                         answerPostfix: postfix,
                         acceptedAnswer: acceptedAnswer
@@ -482,6 +494,7 @@ extension TopicClient: DependencyKey {
                     return Question(
                         topicID: Topic.id(for: 303),
                         displayText: displayText,
+                        spokenText: displayText,
                         answerPrefix: nil,
                         answerPostfix: postfix,
                         acceptedAnswer: acceptedAnswer
@@ -504,6 +517,7 @@ extension TopicClient: DependencyKey {
                     return Question(
                         topicID: Topic.id(for: 304),
                         displayText: displayText,
+                        spokenText: displayText,
                         answerPrefix: nil,
                         answerPostfix: postfix,
                         acceptedAnswer: acceptedAnswer

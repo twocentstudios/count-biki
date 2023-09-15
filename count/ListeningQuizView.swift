@@ -203,7 +203,7 @@ struct ListeningQuizFeature: Reducer {
     }
 
     private func playBackEffect(state: inout State) -> Effect<Self.Action> {
-        guard let displayText = state.question?.displayText else {
+        guard let spokenText = state.question?.spokenText else {
             XCTFail("Tried to play before question set")
             return .none
         }
@@ -212,7 +212,7 @@ struct ListeningQuizFeature: Reducer {
         return .run { [settings = state.settings.speechSettings] send in
             await withTaskCancellation(id: CancelID.speakAction, cancelInFlight: true) {
                 do {
-                    let utterance = SpeechSynthesisUtterance(speechString: displayText, settings: settings)
+                    let utterance = SpeechSynthesisUtterance(speechString: spokenText, settings: settings)
                     try await speechClient.speak(utterance)
                     await send(.onPlaybackFinished)
                 } catch {
@@ -263,7 +263,7 @@ extension ListeningQuizFeature.State {
             ListeningQuizFeature()
                 ._printChanges()
         } withDependencies: {
-            $0.topicClient.generateQuestion = { _ in .init(topicID: Topic.mockID, displayText: "1", answerPrefix: nil, answerPostfix: nil, acceptedAnswer: "1") }
+            $0.topicClient.generateQuestion = { _ in .init(topicID: Topic.mockID, displayText: "1", spokenText: "1", answerPrefix: nil, answerPostfix: nil, acceptedAnswer: "1") }
         }
     )
 }
