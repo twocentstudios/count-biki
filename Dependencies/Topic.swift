@@ -413,13 +413,13 @@ extension TopicClient: DependencyKey {
                     skill: .listening,
                     category: .dateTime,
                     title: "Hour (24-hour)",
-                    description: "e.g. 20:00"
+                    description: "1-24時"
                 ),
                 generateQuestion: { rng in
                     let range = rng { [1 ... 12, 1 ... 12, 13 ... 24].randomElement(using: &$0)! }
                     let answer = rng { Int.random(in: range, using: &$0) }
                     let postfix = "時"
-                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let displayText = "\(answer.formatted(.number))\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 301),
