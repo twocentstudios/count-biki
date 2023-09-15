@@ -27,6 +27,7 @@ struct TopicsFeature: Reducer {
                 .filtered(allTopics(), skill: .listening, category: .number),
                 .filtered(allTopics(), skill: .listening, category: .money),
                 .filtered(allTopics(), skill: .listening, category: .duration),
+                .filtered(allTopics(), skill: .listening, category: .dateTime),
             ]
         }
     }
