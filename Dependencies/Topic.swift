@@ -335,7 +335,7 @@ extension TopicClient: DependencyKey {
                     skill: .listening,
                     category: .duration,
                     title: "Weeks",
-                    description: "1-52週(間)"
+                    description: "1-52週間"
                 ),
                 generateQuestion: { rng in
                     let answer = rng { Int.random(in: 1 ... 52, using: &$0) }
