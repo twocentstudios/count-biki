@@ -232,6 +232,8 @@ extension TopicClient: DependencyKey {
                 ),
                 generateQuestion: moneyGenerator(for: 2_000_000 ... 15_000_000, by: 100_000, topicID: Topic.id(for: 104))
             ),
+
+            /// Listening -> Duration
             TopicGenerator(
                 topic: Topic(
                     id: Topic.id(for: 201),
@@ -396,6 +398,31 @@ extension TopicClient: DependencyKey {
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 208),
+                        displayText: displayText,
+                        answerPrefix: nil,
+                        answerPostfix: postfix,
+                        acceptedAnswer: acceptedAnswer
+                    )
+                }
+            ),
+
+            /// Listening -> DateTime
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 301),
+                    skill: .listening,
+                    category: .dateTime,
+                    title: "Hour (24-hour)",
+                    description: "e.g. 20:00"
+                ),
+                generateQuestion: { rng in
+                    let range = rng { [1 ... 12, 1 ... 12, 13 ... 24].randomElement(using: &$0)! }
+                    let answer = rng { Int.random(in: range, using: &$0) }
+                    let postfix = "時"
+                    let displayText = "\(answer.formatted(.number.grouping(.automatic)))\(postfix)"
+                    let acceptedAnswer = String(answer)
+                    return Question(
+                        topicID: Topic.id(for: 301),
                         displayText: displayText,
                         answerPrefix: nil,
                         answerPostfix: postfix,
