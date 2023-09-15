@@ -436,7 +436,7 @@ extension TopicClient: DependencyKey {
                     skill: .listening,
                     category: .dateTime,
                     title: "Hour (AM/PM)",
-                    description: "午前・午後、1-12時"
+                    description: "午前・午後1-12時"
                 ),
                 generateQuestion: { rng in
                     let prefix = rng { ["午前", "午後"].randomElement(using: &$0)! }
@@ -458,6 +458,41 @@ extension TopicClient: DependencyKey {
                     id: Topic.id(for: 303),
                     skill: .listening,
                     category: .dateTime,
+                    title: "Hour (AM/PM as 24-hour)",
+                    description: "午前・午後1-12時 -> 1-24時"
+                ),
+                generateQuestion: { rng in
+                    enum Prefix: Int {
+                        case am = 0
+                        case pm = 1
+
+                        var title: String {
+                            switch self {
+                            case .am: "午前"
+                            case .pm: "午後"
+                            }
+                        }
+                    }
+                    let prefix: Prefix = rng { [.am, .pm].randomElement(using: &$0)! }
+                    let hour = rng { Int.random(in: 1 ... 12, using: &$0) }
+                    let answer = hour + (prefix.rawValue * 12)
+                    let postfix = "時"
+                    let displayText = "\(prefix.title)\(hour.formatted(.number))\(postfix)"
+                    let acceptedAnswer = String(answer)
+                    return Question(
+                        topicID: Topic.id(for: 303),
+                        displayText: displayText,
+                        answerPrefix: nil,
+                        answerPostfix: postfix,
+                        acceptedAnswer: acceptedAnswer
+                    )
+                }
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 304),
+                    skill: .listening,
+                    category: .dateTime,
                     title: "Minute",
                     description: "0-59分"
                 ),
@@ -467,7 +502,7 @@ extension TopicClient: DependencyKey {
                     let displayText = "\(answer.formatted(.number))\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
-                        topicID: Topic.id(for: 303),
+                        topicID: Topic.id(for: 304),
                         displayText: displayText,
                         answerPrefix: nil,
                         answerPostfix: postfix,
