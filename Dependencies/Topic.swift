@@ -624,6 +624,107 @@ extension TopicClient: DependencyKey {
                     )
                 }
             ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 309),
+                    skill: .listening,
+                    category: .dateTime,
+                    title: "Year (Contemporary)",
+                    description: "1950年-2030年"
+                ),
+                generateQuestion: { rng in
+                    let answer = rng { Int.random(in: 1950 ... 2030, using: &$0) }
+                    let postfix = "年"
+                    let displayText = "\(answer)\(postfix)"
+                    let acceptedAnswer = String(answer)
+                    return Question(
+                        topicID: Topic.id(for: 309),
+                        displayText: displayText,
+                        spokenText: displayText,
+                        answerPrefix: nil,
+                        answerPostfix: postfix,
+                        acceptedAnswer: acceptedAnswer
+                    )
+                }
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 310),
+                    skill: .listening,
+                    category: .dateTime,
+                    title: "Year (A.D.)",
+                    description: "1年-2500年"
+                ),
+                generateQuestion: { rng in
+                    let answer = rng { Int.random(in: 1 ... 2500, using: &$0) }
+                    let postfix = "年"
+                    let displayText = "\(answer)\(postfix)"
+                    let acceptedAnswer = String(answer)
+                    return Question(
+                        topicID: Topic.id(for: 310),
+                        displayText: displayText,
+                        spokenText: displayText,
+                        answerPrefix: nil,
+                        answerPostfix: postfix,
+                        acceptedAnswer: acceptedAnswer
+                    )
+                }
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 311),
+                    skill: .listening,
+                    category: .dateTime,
+                    title: "Year (日本 to Gregorian)",
+                    description: "昭和/平成/令和 -> 1926年-2024年"
+                ),
+                generateQuestion: { rng in
+                    enum Era: CaseIterable {
+                        case showa
+                        case heisei
+                        case reiwa
+                        
+                        var title: String {
+                            switch self {
+                            case .showa: "昭和"
+                            case .heisei: "平成"
+                            case .reiwa: "令和"
+                            }
+                        }
+                        
+                        var length: Int {
+                            switch self {
+                            case .showa: 64
+                            case .heisei: 31
+                            case .reiwa: 6
+                            }
+                        }
+                        
+                        var start: Int {
+                            switch self {
+                            case .showa: 1926
+                            case .heisei: 1989
+                            case .reiwa: 2019
+                            }
+                        }
+                    }
+                    let era = rng { Era.allCases.randomElement(using: &$0)! }
+                    let japaneseYear = rng { Int.random(in: 1 ... era.length, using: &$0) }
+                    let answer = era.start + japaneseYear - 1
+                    let postfix = "年"
+                    let displayText = "\(answer)\(postfix)"
+                    let spokenText = "\(era.title)\(japaneseYear)"
+                    let acceptedAnswer = String(answer)
+                    return Question(
+                        topicID: Topic.id(for: 311),
+                        displayText: displayText,
+                        spokenText: spokenText,
+                        answerPrefix: nil,
+                        answerPostfix: postfix,
+                        acceptedAnswer: acceptedAnswer
+                    )
+                }
+            ),
         ]
         return TopicClient(
             allTopics: {
