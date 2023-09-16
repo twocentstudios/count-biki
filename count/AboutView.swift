@@ -1,6 +1,9 @@
+import StoreKit
 import SwiftUI
 
 struct AboutView: View {
+    @Environment(\.requestReview) var requestReview
+
     var body: some View {
         NavigationStack {
             List {
@@ -33,11 +36,26 @@ struct AboutView: View {
                 }
 
                 Section {
-                    Label("Report a bug", systemImage: "ladybug")
-                    Label("Report a content error", systemImage: "exclamationmark.bubble")
-                    Label("Suggest a new Topic", systemImage: "lightbulb")
-                    Label("Send me a nice message", systemImage: "face.smiling")
-                    Label("Rate on the App Store", systemImage: "star")
+                    Link(destination: URL(string: "example.com")!) {
+                        Label("Report a bug", systemImage: "ladybug")
+                    }
+                    Link(destination: URL(string: "example.com")!) {
+                        Label("Report a content error", systemImage: "exclamationmark.bubble")
+                    }
+                    Link(destination: URL(string: "example.com")!) {
+                        Label("Suggest a new Topic", systemImage: "lightbulb")
+                    }
+                    Link(destination: URL(string: "example.com")!) {
+                        Label("Send me a nice message", systemImage: "face.smiling")
+                    }
+                    Button {
+                        requestReview()
+                    } label: {
+                        Label("Rate on the App Store", systemImage: "star")
+                    }
+                    Link(destination: URL(string: "https://apps.apple.com/app/id\(appStoreAppID)?action=write-review")!) {
+                        Label("Review on the App Store", systemImage: "square.and.pencil")
+                    }
                 } header: {
                     Text("Support")
                 }
@@ -60,17 +78,29 @@ struct AboutView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .listRowSeparator(.hidden)
-                    Label("twocentstudios.com", systemImage: "globe")
-                    Label("Mastodon", systemImage: "globe")
-                    Label("Twitter", systemImage: "globe")
+                    Link(destination: URL(string: "https://twocentstudios.com")!) {
+                        Label("twocentstudios.com", systemImage: "globe")
+                    }
+                    Link(destination: URL(string: "https://hachyderm.io/@twocentstudios")!) {
+                        Label("Mastodon", systemImage: "globe")
+                    }
+                    Link(destination: URL(string: "https://twitter.com/twocentstudios")!) {
+                        Label("Twitter", systemImage: "globe")
+                    }
                 } header: {
                     Text("About")
                 }
 
                 Section {
-                    Label("Licenses", systemImage: "note.text")
-                    Label("Privacy policy", systemImage: "note.text")
-                    Label("Terms and conditions", systemImage: "note.text")
+                    Link(destination: URL(string: "example.com")!) {
+                        Label("Licenses", systemImage: "note.text")
+                    } // TODO: licenses
+                    Link(destination: URL(string: "example.com")!) {
+                        Label("Privacy policy", systemImage: "note.text")
+                    } // TODO: privacy policy
+                    Link(destination: URL(string: "example.com")!) {
+                        Label("Terms and conditions", systemImage: "note.text")
+                    } // TODO: terms and conditions
                 } header: {
                     Text("Legal")
                 }

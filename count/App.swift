@@ -1,6 +1,8 @@
 import ComposableArchitecture
 import SwiftUI
 
+let appStoreAppID = "6463796779"
+
 @main
 struct CountApp: App {
     var body: some Scene {
