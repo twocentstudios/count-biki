@@ -31,7 +31,7 @@ struct CountApp: App {
                     }
 
                     #if targetEnvironment(simulator)
-                        $0.topicClient.generateQuestion = { _ in .init(topicID: Topic.id(for: 000), displayText: "1", answerPrefix: nil, answerPostfix: nil, acceptedAnswer: "1") }
+                        $0.topicClient.generateQuestion = { _ in .init(topicID: Topic.id(for: 000), displayText: "1", spokenText: "1", answerPrefix: nil, answerPostfix: nil, acceptedAnswer: "1") }
                     #endif
                 }
             )
