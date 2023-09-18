@@ -9,7 +9,7 @@ struct AboutFeature: Reducer {
     enum Action: Equatable {
         case doneButtonTapped
     }
-    
+
     @Dependency(\.dismiss) var dismiss
 
     var body: some ReducerOf<Self> {
@@ -88,10 +88,13 @@ struct AboutView: View {
 
                     Section {
                         VStack {
-                            Image(systemName: "circle")
+                            Image("ct_avatar_about")
                                 .resizable()
-                                .foregroundColor(Color(.label))
-                                .frame(width: 80, height: 80)
+                                .clipShape(Circle())
+                                .padding(2)
+                                .background { Circle().fill(Color(.secondarySystemBackground)) }
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 100, height: 100)
                                 .frame(maxWidth: .infinity, alignment: .center)
                             Text("Hi, I'm Chris.")
                                 .font(.title3)
