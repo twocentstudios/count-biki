@@ -74,8 +74,7 @@ struct AboutView: View {
                             Label("Send the developer a nice message", systemImage: "face.smiling")
                         }
                         Button {
-                            //                        requestReview()
-                            print(MailTo.reportBug)
+                            requestReview()
                         } label: {
                             Label("Rate on the App Store", systemImage: "star")
                         }
@@ -92,7 +91,7 @@ struct AboutView: View {
                                 .resizable()
                                 .clipShape(Circle())
                                 .padding(2)
-                                .background { 
+                                .background {
                                     Circle().fill(Color(.systemBackground))
                                     Circle().stroke(Color(.secondarySystemBackground))
                                 }
