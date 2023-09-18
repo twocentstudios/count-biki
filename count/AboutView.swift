@@ -32,11 +32,9 @@ struct AboutView: View {
             NavigationStack {
                 List {
                     Section {
-                        VStack {
-                            Image(systemName: "circle")
-                                .resizable()
-                                .foregroundColor(Color(.label))
-                                .frame(width: 80, height: 80)
+                        VStack(spacing: 0) {
+                            CountBikiView()
+                                .frame(width: 100, height: 100)
                             Text("Count Biki")
                                 .font(.largeTitle)
                                 .bold()
