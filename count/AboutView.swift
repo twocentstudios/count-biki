@@ -36,17 +36,17 @@ struct AboutView: View {
                 }
 
                 Section {
-                    Link(destination: URL(string: "example.com")!) {
+                    Link(destination: MailTo.reportBug) {
                         Label("Report a bug", systemImage: "ladybug")
                     }
-                    Link(destination: URL(string: "example.com")!) {
+                    Link(destination: MailTo.reportContentError) {
                         Label("Report a content error", systemImage: "exclamationmark.bubble")
                     }
-                    Link(destination: URL(string: "example.com")!) {
+                    Link(destination: MailTo.suggestTopic) {
                         Label("Suggest a new Topic", systemImage: "lightbulb")
                     }
-                    Link(destination: URL(string: "example.com")!) {
-                        Label("Send me a nice message", systemImage: "face.smiling")
+                    Link(destination: MailTo.sendNiceMessage) {
+                        Label("Send the developer a nice message", systemImage: "face.smiling")
                     }
                     Button {
                         requestReview()
@@ -127,4 +127,47 @@ struct AboutView: View {
 #Preview {
     AboutView()
         .fontDesign(.rounded)
+}
+
+@MainActor private struct MailTo {
+    static let supportAddress = "support@twocentstudios.com"
+    static let reportBug = mailToURL(
+        to: supportAddress,
+        subject: "Count Biki: Report bug",
+        body: debugInfoBody()
+    )
+    static let reportContentError = mailToURL(
+        to: supportAddress,
+        subject: "Count Biki: Report content error",
+        body: debugInfoBody()
+    )
+    static let suggestTopic = mailToURL(
+        to: supportAddress,
+        subject: "Count Biki: Suggest a topic",
+        body: debugInfoBody()
+    )
+    static let sendNiceMessage = mailToURL(
+        to: supportAddress,
+        subject: "Count Biki: A nice message",
+        body: ""
+    )
+
+    private static func mailToURL(to: String, subject: String, body: String) -> URL {
+        var components = URLComponents()
+        components.scheme = "mailto"
+        components.path = to
+        components.queryItems = [
+            URLQueryItem(name: "subject", value: subject),
+            URLQueryItem(name: "body", value: body),
+        ]
+        return components.url!
+    }
+
+    @MainActor private static func debugInfoBody() -> String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] ?? "(unknown)"
+        let build = Bundle.main.infoDictionary?[kCFBundleVersionKey as String] ?? "(unknown)"
+        let model = UIDevice.current.model
+        let systemVersion = UIDevice.current.systemVersion
+        return "\n\n\n\n-------------------\nDEBUG INFO:\nApp Version: \(version)\nApp Build: \(build)\nDevice: \(model)\nOS Version: \(systemVersion)"
+    }
 }
