@@ -96,6 +96,19 @@ struct SettingsView: View {
                         } label: {
                             Text("Get more voices")
                         }
+                        let speechRateValues: [Float] = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]
+                        Picker(selection: viewStore.$speechSettings.rate) {
+                            ForEach(speechRateValues, id: \.self) { value in
+                                if value == 1.0 {
+                                    Text("\(value.formatted(.number.precision(.integerLength(1)).precision(.fractionLength(1))))⨯ (default)").tag(Optional<Float>(nil))
+                                } else {
+                                    Text("\(value.formatted(.number.precision(.integerLength(1)).precision(.fractionLength(1))))⨯").tag(Optional(value))
+                                }
+                            }
+                        } label: {
+                            Text("Speech rate")
+                        }
+                        .pickerStyle(.navigationLink)
                     } header: {
                         Text("Voice")
                             .font(.subheadline)

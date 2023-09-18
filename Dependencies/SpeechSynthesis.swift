@@ -43,7 +43,7 @@ extension SpeechSynthesisClient: DependencyKey {
             try? AVAudioSession.sharedInstance().setCategory(.playback, options: [.duckOthers])
             return Self(
                 availableVoices: {
-                    AVSpeechSynthesisVoice.speechVoices().filter({ $0.language == "ja-JP" }).map(SpeechSynthesisVoice.init(_:))
+                    AVSpeechSynthesisVoice.speechVoices().filter { $0.language == "ja-JP" }.map(SpeechSynthesisVoice.init(_:))
                 },
                 speak: { utterance in
                     let synthesizer = AVSpeechSynthesizer()
@@ -189,5 +189,9 @@ extension SpeechSynthesisVoice {
 extension SpeechSynthesisSettings {
     static var mock: Self {
         .init(voiceIdentifier: SpeechSynthesisVoice.mock1.voiceIdentifier, pitchMultiplier: 0.5, volume: 0.5, rate: 0.8, preUtteranceDelay: 0.5, postUtteranceDelay: 1.0)
+    }
+
+    static var mockNil: Self {
+        .init(voiceIdentifier: nil, pitchMultiplier: nil, volume: nil, rate: nil, preUtteranceDelay: nil, postUtteranceDelay: nil)
     }
 }

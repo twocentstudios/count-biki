@@ -34,7 +34,7 @@ extension SpeechSynthesisSettingsClient: DependencyKey {
 
 extension SpeechSynthesisSettingsClient: TestDependencyKey {
     private final class MockStorage {
-        var value: SpeechSynthesisSettings = .mock
+        var value: SpeechSynthesisSettings = .mockNil
     }
     static var previewValue: Self {
         let storage = MockStorage()
