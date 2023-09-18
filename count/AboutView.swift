@@ -49,14 +49,17 @@ struct AboutView: View {
                         .frame(maxWidth: .infinity)
                     }
 
-                    Section {
-                        Label("Leave a tip", systemImage: "yensign.circle")
-                        Label("Choose app icon", systemImage: "app.badge")
-                        Label("Choose Biki's outfit", systemImage: "tshirt")
-                    } header: {
-                        Text("Transylvania Tier")
-                    } footer: {
-                        Text("Leave any size tip to join Transylvania Tier. Unlock whimsical benefits and support the app's development.")
+                    // TODO: implement IAP
+                    if false {
+                        Section {
+                            Label("Leave a tip", systemImage: "yensign.circle")
+                            Label("Choose app icon", systemImage: "app.badge")
+                            Label("Choose Biki's outfit", systemImage: "tshirt")
+                        } header: {
+                            Text("Transylvania Tier")
+                        } footer: {
+                            Text("Leave any size tip to join Transylvania Tier. Unlock whimsical benefits and support the app's development.")
+                        }
                     }
 
                     Section {
@@ -116,18 +119,21 @@ struct AboutView: View {
                         Text("About")
                     }
 
-                    Section {
-                        Link(destination: URL(string: "example.com")!) {
-                            Label("Licenses", systemImage: "note.text")
-                        } // TODO: licenses
-                        Link(destination: URL(string: "example.com")!) {
-                            Label("Privacy policy", systemImage: "note.text")
-                        } // TODO: privacy policy
-                        Link(destination: URL(string: "example.com")!) {
-                            Label("Terms and conditions", systemImage: "note.text")
-                        } // TODO: terms and conditions
-                    } header: {
-                        Text("Legal")
+                    // TODO: add legal stuff links
+                    if false {
+                        Section {
+                            Link(destination: URL(string: "example.com")!) {
+                                Label("Licenses", systemImage: "note.text")
+                            } // TODO: licenses
+                            Link(destination: URL(string: "example.com")!) {
+                                Label("Privacy policy", systemImage: "note.text")
+                            } // TODO: privacy policy
+                            Link(destination: URL(string: "example.com")!) {
+                                Label("Terms and conditions", systemImage: "note.text")
+                            } // TODO: terms and conditions
+                        } header: {
+                            Text("Legal")
+                        }
                     }
                 }
                 .listStyle(.insetGrouped)
