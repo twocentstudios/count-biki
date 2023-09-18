@@ -19,6 +19,7 @@ extension TopicCategory {
 struct TopicsFeature: Reducer {
     struct State: Equatable {
         @PresentationState var quiz: ListeningQuizFeature.State?
+        @PresentationState var about: AboutFeature.State?
         let listeningCategories: IdentifiedArrayOf<TopicCategory>
 
         init() {
@@ -33,8 +34,10 @@ struct TopicsFeature: Reducer {
     }
 
     enum Action: Equatable {
+        case about(PresentationAction<AboutFeature.Action>)
+        case aboutButtonTapped
         case quiz(PresentationAction<ListeningQuizFeature.Action>)
-        case selectTopic(UUID)
+        case selectTopic(UUID) // TODO: change to buttonTapped
     }
 
     @Dependency(\.continuousClock) var clock
@@ -43,9 +46,16 @@ struct TopicsFeature: Reducer {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .about:
+                return .none
+                
+            case .aboutButtonTapped:
+                state.about = .init()
+                return .none
+                
             case .quiz:
                 return .none
-
+            
             case let .selectTopic(topicID):
                 state.quiz = .init(topicID: topicID)
                 return .none
@@ -53,6 +63,9 @@ struct TopicsFeature: Reducer {
         }
         .ifLet(\.$quiz, action: /Action.quiz) {
             ListeningQuizFeature()
+        }
+        .ifLet(\.$about, action: /Action.about) {
+            AboutFeature()
         }
     }
 }
@@ -136,6 +149,13 @@ struct TopicsView: View {
                         Text("Topics")
                             .font(.headline)
                     }
+                    ToolbarItem(placement: .primaryAction) {
+                        Button {
+                            viewStore.send(.aboutButtonTapped)
+                        } label: {
+                            Image(systemName: "info.circle")
+                        }
+                    }
                 }
             }
         }
@@ -143,6 +163,11 @@ struct TopicsView: View {
             store: store.scope(state: \.$quiz, action: { .quiz($0) })
         ) { store in
             ListeningQuizView(store: store)
+        }
+        .sheet(
+            store: store.scope(state: \.$about, action: { .about($0) })
+        ) { store in
+            AboutView(store: store)
         }
     }
 }
