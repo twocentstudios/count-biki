@@ -7,7 +7,9 @@ struct SettingsFeature: Reducer {
         let availableVoices: [SpeechSynthesisVoice]
         @BindingState var rawSpeechRate: Float
         @BindingState var rawVoiceIdentifier: String?
+        @BindingState var rawPitchMultiplier: Float
         let speechRateRange: ClosedRange<Float>
+        let pitchMultiplierRange: ClosedRange<Float>
 
         let topic: Topic
 
@@ -19,11 +21,17 @@ struct SettingsFeature: Reducer {
             topic = allTopics()[id: topicID]!
             let speechSettings = speechSettingsClient.get()
             self.speechSettings = speechSettings
+            
             availableVoices = speechClient.availableVoices()
             rawVoiceIdentifier = speechSettings.voiceIdentifier ?? speechClient.defaultVoice()?.voiceIdentifier
+            
             let speechRateAttributes = speechClient.speechRateAttributes()
             rawSpeechRate = speechSettings.rate ?? speechRateAttributes.defaultRate
             speechRateRange = speechRateAttributes.minimumRate ... speechRateAttributes.maximumRate
+            
+            let pitchMultiplierAttributes = speechClient.pitchMultiplierAttributes()
+            rawPitchMultiplier = speechSettings.pitchMultiplier ?? pitchMultiplierAttributes.defaultPitch
+            pitchMultiplierRange = pitchMultiplierAttributes.minimumPitch ... pitchMultiplierAttributes.maximumPitch
         }
     }
 
@@ -47,6 +55,9 @@ struct SettingsFeature: Reducer {
                 return .none
             case .binding(\.$rawVoiceIdentifier):
                 state.speechSettings.voiceIdentifier = state.rawVoiceIdentifier
+                return .none
+            case .binding(\.$rawPitchMultiplier):
+                state.speechSettings.pitchMultiplier = state.rawPitchMultiplier
                 return .none
             case .binding:
                 return .none
@@ -72,7 +83,7 @@ struct SettingsFeature: Reducer {
             }
         }
         .onChange(of: \.speechSettings) { _, newValue in
-            Reduce { state, action in
+            Reduce { _, _ in
                 do {
                     try speechSettingsClient.set(newValue)
                 } catch {
@@ -142,6 +153,16 @@ struct SettingsView: View {
                                     Image(systemName: "tortoise")
                                 } maximumValueLabel: {
                                     Image(systemName: "hare")
+                                }
+                            }
+                            HStack {
+                                Text("Pitch")
+                                Slider(value: viewStore.$rawPitchMultiplier, in: viewStore.pitchMultiplierRange, step: 0.05) {
+                                    Text("Pitch")
+                                } minimumValueLabel: {
+                                    Image(systemName: "dial.low")
+                                } maximumValueLabel: {
+                                    Image(systemName: "dial.high")
                                 }
                             }
                             Button {

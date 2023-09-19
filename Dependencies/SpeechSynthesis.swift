@@ -6,6 +6,7 @@ struct SpeechSynthesisClient {
     var defaultVoice: @Sendable () -> SpeechSynthesisVoice?
     var speak: @Sendable (SpeechSynthesisUtterance) async throws -> Void
     var speechRateAttributes: @Sendable () -> SpeechSynthesisVoiceRateAttributes
+    var pitchMultiplierAttributes: @Sendable () -> SpeechSynthesisVoicePitchMultiplierAttributes
 }
 
 extension SpeechSynthesisClient {
@@ -32,6 +33,9 @@ extension SpeechSynthesisClient: TestDependencyKey {
             },
             speechRateAttributes: {
                 .init(minimumRate: 0.0, maximumRate: 1.0, defaultRate: 0.5)
+            },
+            pitchMultiplierAttributes: {
+                .init(minimumPitch: 0.5, maximumPitch: 2.0, defaultPitch: 1.0)
             }
         )
     }
@@ -40,9 +44,10 @@ extension SpeechSynthesisClient: TestDependencyKey {
         availableVoices: unimplemented(""),
         defaultVoice: unimplemented(""),
         speak: unimplemented(""),
-        speechRateAttributes: unimplemented("")
+        speechRateAttributes: unimplemented(""),
+        pitchMultiplierAttributes: unimplemented("")
     )
-    
+
     static var noVoices: Self {
         var value = Self.previewValue
         value.availableVoices = { [] }
@@ -87,6 +92,10 @@ extension SpeechSynthesisClient: DependencyKey {
                 },
                 speechRateAttributes: {
                     .init(minimumRate: AVSpeechUtteranceMinimumSpeechRate, maximumRate: AVSpeechUtteranceMaximumSpeechRate, defaultRate: AVSpeechUtteranceDefaultSpeechRate)
+                },
+                pitchMultiplierAttributes: {
+                    // From AVSpeechUtterance.pitchMultiplier docs
+                    .init(minimumPitch: 0.5, maximumPitch: 2.0, defaultPitch: 1.0)
                 }
             )
         }
@@ -199,6 +208,12 @@ struct SpeechSynthesisVoiceRateAttributes: Equatable {
     let minimumRate: Float
     let maximumRate: Float
     let defaultRate: Float
+}
+
+struct SpeechSynthesisVoicePitchMultiplierAttributes: Equatable {
+    let minimumPitch: Float
+    let maximumPitch: Float
+    let defaultPitch: Float
 }
 
 extension SpeechSynthesisVoice {
