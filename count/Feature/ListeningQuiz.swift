@@ -21,7 +21,7 @@ struct ListeningQuizFeature: Reducer {
         var isShowingPlaybackError: Bool = false
         var isSpeaking: Bool = false
         @BindingState var pendingSubmissionValue: String = ""
-        var settings: SettingsFeature.State
+        var speechSettings: SpeechSynthesisSettings
         let topic: Topic
         let topicID: UUID
 
@@ -61,7 +61,9 @@ struct ListeningQuizFeature: Reducer {
             let challenge = Challenge(id: uuid(), startDate: now, question: question, submissions: [])
             self.challenge = challenge
 
-            settings = .init(topicID: topicID)
+            @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
+            let speechSettings = speechSettingsClient.get()
+            self.speechSettings = speechSettings
         }
     }
 
@@ -101,6 +103,7 @@ struct ListeningQuizFeature: Reducer {
     @Dependency(\.continuousClock) var clock
     @Dependency(\.hapticsClient) var haptics
     @Dependency(\.speechSynthesisClient) var speechClient
+    @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
     @Dependency(\.topicClient) var topicClient
     @Dependency(\.uuid) var uuid
     @Dependency(\.dismiss) var dismiss
@@ -138,9 +141,13 @@ struct ListeningQuizFeature: Reducer {
             case .binding:
                 return .none
 
-            case .destination(.presented(.settings(.binding))):
-                guard case let .settings(newValue) = state.destination else { return .none }
-                state.settings = newValue
+            case let .destination(.presented(.settings(.delegate(.speechSettingsUpdated(newSpeechSettings))))):
+                state.speechSettings = newSpeechSettings
+                do {
+                    try speechSettingsClient.set(newSpeechSettings)
+                } catch {
+                    XCTFail("SpeechSettingsClient unexpectedly failed to write")
+                }
                 return .none
 
             case .destination(.presented(.settings(.endSessionButtonTapped))):
@@ -187,7 +194,7 @@ struct ListeningQuizFeature: Reducer {
                 return .none
 
             case .titleButtonTapped:
-                state.destination = .settings(state.settings)
+                state.destination = .settings(.init(topicID: state.topicID, speechSettings: state.speechSettings))
                 return .none
             }
         }
@@ -204,7 +211,7 @@ struct ListeningQuizFeature: Reducer {
 
     private func playBackEffect(state: inout State) -> Effect<Self.Action> {
         state.isSpeaking = true
-        return .run { [settings = state.settings.speechSettings, spokenText = state.question.spokenText] send in
+        return .run { [settings = state.speechSettings, spokenText = state.question.spokenText] send in
             await withTaskCancellation(id: CancelID.speakAction, cancelInFlight: true) {
                 do {
                     let utterance = SpeechSynthesisUtterance(speechString: spokenText, settings: settings)

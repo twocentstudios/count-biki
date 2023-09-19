@@ -13,13 +13,11 @@ struct SettingsFeature: Reducer {
 
         let topic: Topic
 
-        init(topicID: UUID) {
-            @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
+        init(topicID: UUID, speechSettings: SpeechSynthesisSettings) {
             @Dependency(\.speechSynthesisClient) var speechClient
             @Dependency(\.topicClient.allTopics) var allTopics
 
             topic = allTopics()[id: topicID]!
-            let speechSettings = speechSettingsClient.get()
             self.speechSettings = speechSettings
 
             availableVoices = speechClient.availableVoices()
@@ -37,16 +35,20 @@ struct SettingsFeature: Reducer {
 
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case delegate(Delegate)
         case doneButtonTapped
         case endSessionButtonTapped
         case pitchLabelDoubleTapped
         case rateLabelDoubleTapped
         case testVoiceButtonTapped
+
+        enum Delegate: Equatable {
+            case speechSettingsUpdated(SpeechSynthesisSettings)
+        }
     }
 
     @Dependency(\.dismiss) var dismiss
     @Dependency(\.speechSynthesisClient) var speechClient
-    @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -62,6 +64,8 @@ struct SettingsFeature: Reducer {
                 state.speechSettings.pitchMultiplier = state.rawPitchMultiplier
                 return .none
             case .binding:
+                return .none
+            case .delegate:
                 return .none
             case .doneButtonTapped:
                 return .run { send in
@@ -94,12 +98,7 @@ struct SettingsFeature: Reducer {
         }
         .onChange(of: \.speechSettings) { _, newValue in
             Reduce { _, _ in
-                do {
-                    try speechSettingsClient.set(newValue)
-                } catch {
-                    XCTFail("SpeechSettingsClient unexpectedly failed to write")
-                }
-                return .none
+                .send(.delegate(.speechSettingsUpdated(newValue)))
             }
         }
     }
@@ -228,7 +227,7 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView(
-        store: Store(initialState: SettingsFeature.State(topicID: Topic.mockID)) {
+        store: Store(initialState: SettingsFeature.State(topicID: Topic.mockID, speechSettings: .mock)) {
             SettingsFeature()
                 ._printChanges()
         } withDependencies: { deps in
