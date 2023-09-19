@@ -5,6 +5,8 @@ struct SettingsFeature: Reducer {
     struct State: Equatable {
         @BindingState var speechSettings: SpeechSynthesisSettings // TODO: nil is error
         let availableVoices: [SpeechSynthesisVoice]
+        @BindingState var rawSpeechRate: Float
+        let speechRateRange: ClosedRange<Float>
 
         let topic: Topic
 
@@ -14,8 +16,12 @@ struct SettingsFeature: Reducer {
             @Dependency(\.topicClient.allTopics) var allTopics
 
             topic = allTopics()[id: topicID]!
-            speechSettings = try! speechSettingsClient.get() // TODO: error handling
+            let speechSettings = try! speechSettingsClient.get() // TODO: error handling
+            self.speechSettings = speechSettings
             availableVoices = speechClient.availableVoices()
+            let speechRateAttributes = speechClient.speechRateAttributes()
+            rawSpeechRate = speechSettings.rate ?? speechRateAttributes.defaultRate
+            speechRateRange = speechRateAttributes.minimumRate ... speechRateAttributes.maximumRate
         }
     }
 
@@ -32,15 +38,22 @@ struct SettingsFeature: Reducer {
         BindingReducer()
         Reduce { state, action in
             switch action {
+            case .binding(\.$rawSpeechRate):
+                state.speechSettings.rate = state.rawSpeechRate
+                return .none
             case .binding:
-                // TODO: should persistence happen in child or parent reducer?
-                try? speechSettingsClient.set(state.speechSettings) // TODO: handle error
                 return .none
             case .doneButtonTapped:
                 return .run { send in
                     await dismiss()
                 }
             case .endSessionButtonTapped:
+                return .none
+            }
+        }
+        .onChange(of: \.speechSettings) { _, newValue in
+            Reduce { state, action in
+                try? speechSettingsClient.set(newValue) // TODO: handle error
                 return .none
             }
         }
@@ -88,7 +101,7 @@ struct SettingsView: View {
                                     .tag(Optional(voice.voiceIdentifier))
                             }
                         } label: {
-                            Text("Voice Name")
+                            Text("Voice name")
                         }
                         .pickerStyle(.navigationLink)
                         NavigationLink {
@@ -96,19 +109,25 @@ struct SettingsView: View {
                         } label: {
                             Text("Get more voices")
                         }
-                        let speechRateValues: [Float] = [0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0]
-                        Picker(selection: viewStore.$speechSettings.rate) {
-                            ForEach(speechRateValues, id: \.self) { value in
-                                if value == 1.0 {
-                                    Text("\(value.formatted(.number.precision(.integerLength(1)).precision(.fractionLength(1))))⨯ (default)").tag(Optional<Float>(nil))
-                                } else {
-                                    Text("\(value.formatted(.number.precision(.integerLength(1)).precision(.fractionLength(1))))⨯").tag(Optional(value))
-                                }
+                        HStack {
+                            Text("Rate")
+                            Slider(value: viewStore.$rawSpeechRate, in: viewStore.speechRateRange) {
+                                Text("Speech rate")
+                            } minimumValueLabel: {
+                                Image(systemName: "tortoise")
+                            } maximumValueLabel: {
+                                Image(systemName: "hare")
                             }
-                        } label: {
-                            Text("Speech rate")
                         }
-                        .pickerStyle(.navigationLink)
+                        Button {
+                            // TODO: play test
+                        } label: {
+                            HStack(spacing: 10) {
+                                Image(systemName: "person.wave.2")
+                                Text("Test Voice")
+                            }
+                            .frame(maxWidth: .infinity, alignment: .center)
+                        }
                     } header: {
                         Text("Voice")
                             .font(.subheadline)

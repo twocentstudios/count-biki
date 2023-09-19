@@ -4,6 +4,7 @@ import Dependencies
 struct SpeechSynthesisClient {
     var availableVoices: @Sendable () -> [SpeechSynthesisVoice]
     var speak: @Sendable (SpeechSynthesisUtterance) async throws -> Void
+    var speechRateAttributes: @Sendable () -> SpeechSynthesisVoiceRateAttributes
 }
 
 extension SpeechSynthesisClient {
@@ -27,13 +28,17 @@ extension SpeechSynthesisClient: TestDependencyKey {
             availableVoices: { [.mock1, .mock2] },
             speak: { _ in
                 try? await clock.sleep(for: .seconds(2))
+            },
+            speechRateAttributes: {
+                .init(minimumRate: 0.0, maximumRate: 1.0, defaultRate: 0.5)
             }
         )
     }
 
     static let testValue = Self(
         availableVoices: unimplemented(""),
-        speak: unimplemented("")
+        speak: unimplemented(""),
+        speechRateAttributes: unimplemented("")
     )
 }
 
@@ -69,6 +74,9 @@ extension SpeechSynthesisClient: DependencyKey {
                     } onCancel: {
                         synthesizer.stopSpeaking(at: .immediate)
                     }
+                },
+                speechRateAttributes: {
+                    .init(minimumRate: AVSpeechUtteranceMinimumSpeechRate, maximumRate: AVSpeechUtteranceMaximumSpeechRate, defaultRate: AVSpeechUtteranceDefaultSpeechRate)
                 }
             )
         }
@@ -165,6 +173,12 @@ struct SpeechSynthesisVoice: Identifiable, Equatable {
     let quality: AVSpeechSynthesisVoiceQuality
     let gender: AVSpeechSynthesisVoiceGender
     let languageCode: String
+}
+
+struct SpeechSynthesisVoiceRateAttributes: Equatable {
+    let minimumRate: Float
+    let maximumRate: Float
+    let defaultRate: Float
 }
 
 extension SpeechSynthesisVoice {
