@@ -33,6 +33,18 @@ struct SettingsFeature: Reducer {
             rawPitchMultiplier = speechSettings.pitchMultiplier ?? pitchMultiplierAttributes.defaultPitch
             pitchMultiplierRange = pitchMultiplierAttributes.minimumPitch ... pitchMultiplierAttributes.maximumPitch
         }
+
+        var challengesTotal: Int { sessionChallenges.count }
+        var challengesCorrect: Int {
+            sessionChallenges
+                .filter { $0.submissions.allSatisfy { $0.kind == .correct } }
+                .count
+        }
+        var challengesIncorrect: Int {
+            sessionChallenges
+                .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
+                .count
+        }
     }
 
     enum Action: BindableAction, Equatable {
@@ -140,7 +152,7 @@ struct SettingsView: View {
                         Text("Topic")
                             .font(.subheadline)
                     }
-                    
+
                     Section {
                         HStack {
                             Image(systemName: "tray.full")
@@ -149,7 +161,7 @@ struct SettingsView: View {
                                 .frame(width: 17)
                             Text("Total")
                             Spacer()
-                            Text("17")
+                            Text("\(viewStore.challengesTotal)")
                                 .font(.headline)
                         }
                         .listRowInsets(.init(top: 0, leading: 20, bottom: 0, trailing: 20))
@@ -161,7 +173,7 @@ struct SettingsView: View {
                                 .foregroundStyle(Color.green)
                             Text("Correct")
                             Spacer()
-                            Text("17")
+                            Text("\(viewStore.challengesCorrect)")
                                 .font(.headline)
                         }
                         .listRowInsets(.init(top: 0, leading: 40, bottom: 0, trailing: 20))
@@ -173,7 +185,7 @@ struct SettingsView: View {
                                 .foregroundStyle(Color.red)
                             Text("Incorrect & skipped")
                             Spacer()
-                            Text("17")
+                            Text("\(viewStore.challengesIncorrect)")
                                 .font(.headline)
                         }
                         .listRowInsets(.init(top: 0, leading: 40, bottom: 0, trailing: 20))
@@ -181,7 +193,7 @@ struct SettingsView: View {
                         Text("Results (so far)")
                             .font(.subheadline)
                     }
-                    
+
                     Section {
                         if let $unwrappedVoiceIdentifier = Binding(viewStore.$rawVoiceIdentifier) {
                             Picker(selection: $unwrappedVoiceIdentifier) {
