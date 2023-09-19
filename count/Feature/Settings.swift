@@ -140,6 +140,48 @@ struct SettingsView: View {
                         Text("Topic")
                             .font(.subheadline)
                     }
+                    
+                    Section {
+                        HStack {
+                            Image(systemName: "tray.full")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 17)
+                            Text("Total")
+                            Spacer()
+                            Text("17")
+                                .font(.headline)
+                        }
+                        .listRowInsets(.init(top: 0, leading: 20, bottom: 0, trailing: 20))
+                        HStack {
+                            Image(systemName: "checkmark.circle")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 17)
+                                .foregroundStyle(Color.green)
+                            Text("Correct")
+                            Spacer()
+                            Text("17")
+                                .font(.headline)
+                        }
+                        .listRowInsets(.init(top: 0, leading: 40, bottom: 0, trailing: 20))
+                        HStack {
+                            Image(systemName: "xmark.circle")
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(width: 17)
+                                .foregroundStyle(Color.red)
+                            Text("Incorrect & skipped")
+                            Spacer()
+                            Text("17")
+                                .font(.headline)
+                        }
+                        .listRowInsets(.init(top: 0, leading: 40, bottom: 0, trailing: 20))
+                    } header: {
+                        Text("Results (so far)")
+                            .font(.subheadline)
+                    }
+                    
                     Section {
                         if let $unwrappedVoiceIdentifier = Binding(viewStore.$rawVoiceIdentifier) {
                             Picker(selection: $unwrappedVoiceIdentifier) {
