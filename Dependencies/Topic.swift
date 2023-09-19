@@ -753,7 +753,7 @@ extension TopicClient: DependencyKey {
 }
 
 extension TopicClient: TestDependencyKey {
-    static let previewValue: TopicClient = .liveValue
+    static let previewValue: TopicClient = .mock
 
     static var testValue: TopicClient {
         Self(
