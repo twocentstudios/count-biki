@@ -12,13 +12,15 @@ struct SettingsFeature: Reducer {
         var speechSettings: SpeechSynthesisSettings
 
         let topic: Topic
+        let sessionChallenges: [Challenge]
 
-        init(topicID: UUID, speechSettings: SpeechSynthesisSettings) {
+        init(topicID: UUID, speechSettings: SpeechSynthesisSettings, sessionChallenges: [Challenge]) {
             @Dependency(\.speechSynthesisClient) var speechClient
             @Dependency(\.topicClient.allTopics) var allTopics
 
             topic = allTopics()[id: topicID]!
             self.speechSettings = speechSettings
+            self.sessionChallenges = sessionChallenges
 
             availableVoices = speechClient.availableVoices()
             rawVoiceIdentifier = speechSettings.voiceIdentifier ?? speechClient.defaultVoice()?.voiceIdentifier
@@ -200,15 +202,15 @@ struct SettingsView: View {
                             }
                         }
                     } header: {
-                        Text("Voice")
+                        Text("Voice Settings")
                             .font(.subheadline)
                     }
                 }
                 .navigationBarTitleDisplayMode(.inline)
-                .navigationTitle("Settings")
+                .navigationTitle("Session")
                 .toolbar {
                     ToolbarItem(placement: .principal) {
-                        Text("Session Settings")
+                        Text("Session")
                             .font(.headline)
                     }
                     ToolbarItem(placement: .primaryAction) {
@@ -227,7 +229,7 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView(
-        store: Store(initialState: SettingsFeature.State(topicID: Topic.mockID, speechSettings: .mock)) {
+        store: Store(initialState: SettingsFeature.State(topicID: Topic.mockID, speechSettings: .mock, sessionChallenges: [])) {
             SettingsFeature()
                 ._printChanges()
         } withDependencies: { deps in
