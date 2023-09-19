@@ -37,22 +37,19 @@ extension SpeechSynthesisSettingsClient: DependencyKey {
 }
 
 extension SpeechSynthesisSettingsClient: TestDependencyKey {
-    private final class MockStorage {
-        var value: SpeechSynthesisSettings = .mockNil
-    }
     static var previewValue: Self {
-        let storage = MockStorage()
+        let storage = LockIsolated(SpeechSynthesisSettings.mockNil)
         return .init(
             get: { storage.value },
-            set: { storage.value = $0 }
+            set: { storage.setValue($0) }
         )
     }
 
     static var testValue: Self {
-        let storage = MockStorage()
+        let storage = LockIsolated(SpeechSynthesisSettings.mockNil)
         return .init(
             get: { storage.value },
-            set: { storage.value = $0 }
+            set: { storage.setValue($0) }
         )
     }
 }
