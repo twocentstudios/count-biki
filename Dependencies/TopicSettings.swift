@@ -33,22 +33,19 @@ extension TopicSettingsClient: DependencyKey {
 }
 
 extension TopicSettingsClient: TestDependencyKey {
-    private final class MockStorage {
-        var value: UUID = UUID(0)
-    }
     static var previewValue: Self {
-        let storage = MockStorage()
+        let storage = LockIsolated(UUID(0))
         return .init(
             get: { storage.value },
-            set: { storage.value = $0 }
+            set: { storage.setValue($0) }
         )
     }
 
     static var testValue: Self {
-        let storage = MockStorage()
+        let storage = LockIsolated(UUID(0))
         return .init(
             get: { storage.value },
-            set: { storage.value = $0 }
+            set: { storage.setValue($0) }
         )
     }
 }
