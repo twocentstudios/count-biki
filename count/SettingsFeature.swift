@@ -3,13 +3,13 @@ import SwiftUI
 
 struct SettingsFeature: Reducer {
     struct State: Equatable {
-        var speechSettings: SpeechSynthesisSettings
         let availableVoices: [SpeechSynthesisVoice]
         @BindingState var rawSpeechRate: Float
         @BindingState var rawVoiceIdentifier: String?
         @BindingState var rawPitchMultiplier: Float
-        let speechRateRange: ClosedRange<Float>
         let pitchMultiplierRange: ClosedRange<Float>
+        let speechRateRange: ClosedRange<Float>
+        var speechSettings: SpeechSynthesisSettings
 
         let topic: Topic
 
