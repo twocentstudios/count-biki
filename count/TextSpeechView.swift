@@ -53,7 +53,7 @@ struct TextSpeechFeature: Reducer {
     private func playBackEffect(text: String) -> Effect<Self.Action> {
         .run { send in
             do {
-                let utterance = SpeechSynthesisUtterance(speechString: text, settings: try! speechSettingsClient.get())
+                let utterance = SpeechSynthesisUtterance(speechString: text, settings: speechSettingsClient.get())
                 try await speechClient.speak(utterance)
             } catch {
                 print(error.localizedDescription)
