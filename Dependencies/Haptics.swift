@@ -6,11 +6,11 @@ struct HapticsClient {
     var error: @Sendable @MainActor () -> Void
 }
 extension HapticsClient: DependencyKey {
-    @MainActor static var liveValue: Self {
-        let generator = UINotificationFeedbackGenerator()
+    static var liveValue: Self {
+        let generator = MainActorIsolated { UINotificationFeedbackGenerator() }
         return HapticsClient(
-            success: { generator.notificationOccurred(.success) },
-            error: { generator.notificationOccurred(.error) }
+            success: { generator.value.notificationOccurred(.success) },
+            error: { generator.value.notificationOccurred(.error) }
         )
     }
 }
@@ -20,4 +20,15 @@ extension DependencyValues {
         get { self[HapticsClient.self] }
         set { self[HapticsClient.self] = newValue }
     }
+}
+
+/// From: https://github.com/pointfreeco/swift-dependencies/discussions/22#discussioncomment-4681533
+/// TODO: Revisit this in the swift-dependencies or swift-dependencies-additions libraries
+@MainActor
+public final class MainActorIsolated<Value>: Sendable {
+  public lazy var value: Value = initialValue()
+  private let initialValue: @MainActor () -> Value
+  nonisolated public init(initialValue: @MainActor @escaping () -> Value) {
+    self.initialValue = initialValue
+  }
 }
