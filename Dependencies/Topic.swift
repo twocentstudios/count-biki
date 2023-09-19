@@ -502,12 +502,13 @@ extension TopicClient: DependencyKey {
                     let hour = rng { Int.random(in: 1 ... 12, using: &$0) }
                     let answer = hour + (prefix.rawValue * 12)
                     let postfix = "時"
-                    let displayText = "\(prefix.title)\(hour)\(postfix)"
+                    let displayText = "\(answer)\(postfix)"
+                    let spokenText = "\(prefix.title)\(hour)\(postfix)"
                     let acceptedAnswer = String(answer)
                     return Question(
                         topicID: Topic.id(for: 303),
                         displayText: displayText,
-                        spokenText: displayText,
+                        spokenText: spokenText,
                         answerPrefix: nil,
                         answerPostfix: postfix,
                         acceptedAnswer: acceptedAnswer
