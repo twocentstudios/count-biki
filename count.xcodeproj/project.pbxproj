@@ -7,6 +7,21 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3406A68B2AB993CD004E92BE /* SpeechSynthesis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340E70522A820E73004B124B /* SpeechSynthesis.swift */; };
+		3406A68C2AB993CD004E92BE /* SpeechSynthesisSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340E70572A83738F004B124B /* SpeechSynthesisSettings.swift */; };
+		3406A68D2AB993CD004E92BE /* TopicSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D047F2A88F23F008AFD0A /* TopicSettings.swift */; };
+		3406A68E2AB993CD004E92BE /* Topic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D047C2A88E569008AFD0A /* Topic.swift */; };
+		3406A68F2AB993CD004E92BE /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BDC4962AA5C2B6001EF005 /* Haptics.swift */; };
+		3406A6902AB993CD004E92BE /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340A51CC2A78EC78007DCA0C /* App.swift */; };
+		3406A6912AB993CD004E92BE /* About.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34276FC32AB5899C00647AE9 /* About.swift */; };
+		3406A6922AB993CD004E92BE /* ListeningQuiz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340A51CE2A78EC78007DCA0C /* ListeningQuiz.swift */; };
+		3406A6932AB993CD004E92BE /* PlanningTopics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3478331E2AA7343A005160DC /* PlanningTopics.swift */; };
+		3406A6942AB993CD004E92BE /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D04792A84EB3A008AFD0A /* Settings.swift */; };
+		3406A6952AB993CD004E92BE /* TextSpeech.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34276FBE2AB34EB600647AE9 /* TextSpeech.swift */; };
+		3406A6962AB993CD004E92BE /* Topics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E2E3E92AA8C821002B511A /* Topics.swift */; };
+		3406A6972AB993CD004E92BE /* CountBikiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348000E42A9CCD4700E7CCEE /* CountBikiView.swift */; };
+		3406A6982AB993CD004E92BE /* GetMoreVoicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BDC4942AA58A51001EF005 /* GetMoreVoicesView.swift */; };
+		3406A6992AB993CD004E92BE /* IndeterminiteProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349802212A7BDDF200E352F5 /* IndeterminiteProgressView.swift */; };
 		340A51CD2A78EC78007DCA0C /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340A51CC2A78EC78007DCA0C /* App.swift */; };
 		340A51CF2A78EC78007DCA0C /* ListeningQuiz.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340A51CE2A78EC78007DCA0C /* ListeningQuiz.swift */; };
 		340A51D12A78EC79007DCA0C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 340A51D02A78EC79007DCA0C /* Assets.xcassets */; };
@@ -24,9 +39,7 @@
 		349802222A7BDDF200E352F5 /* IndeterminiteProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349802212A7BDDF200E352F5 /* IndeterminiteProgressView.swift */; };
 		349D047A2A84EB3A008AFD0A /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D04792A84EB3A008AFD0A /* Settings.swift */; };
 		349D047D2A88E569008AFD0A /* Topic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D047C2A88E569008AFD0A /* Topic.swift */; };
-		349D047E2A88E569008AFD0A /* Topic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D047C2A88E569008AFD0A /* Topic.swift */; };
 		349D04802A88F23F008AFD0A /* TopicSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D047F2A88F23F008AFD0A /* TopicSettings.swift */; };
-		349D04812A88F23F008AFD0A /* TopicSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D047F2A88F23F008AFD0A /* TopicSettings.swift */; };
 		34A9749A2A7AB0E600E6F672 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 34A974992A7AB0E600E6F672 /* ComposableArchitecture */; };
 		34BDC4952AA58A51001EF005 /* GetMoreVoicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BDC4942AA58A51001EF005 /* GetMoreVoicesView.swift */; };
 		34BDC4972AA5C2B6001EF005 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BDC4962AA5C2B6001EF005 /* Haptics.swift */; };
@@ -314,9 +327,22 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3406A68B2AB993CD004E92BE /* SpeechSynthesis.swift in Sources */,
+				3406A68C2AB993CD004E92BE /* SpeechSynthesisSettings.swift in Sources */,
+				3406A68D2AB993CD004E92BE /* TopicSettings.swift in Sources */,
+				3406A68E2AB993CD004E92BE /* Topic.swift in Sources */,
+				3406A68F2AB993CD004E92BE /* Haptics.swift in Sources */,
+				3406A6902AB993CD004E92BE /* App.swift in Sources */,
+				3406A6912AB993CD004E92BE /* About.swift in Sources */,
+				3406A6922AB993CD004E92BE /* ListeningQuiz.swift in Sources */,
+				3406A6932AB993CD004E92BE /* PlanningTopics.swift in Sources */,
+				3406A6942AB993CD004E92BE /* Settings.swift in Sources */,
+				3406A6952AB993CD004E92BE /* TextSpeech.swift in Sources */,
+				3406A6962AB993CD004E92BE /* Topics.swift in Sources */,
+				3406A6972AB993CD004E92BE /* CountBikiView.swift in Sources */,
+				3406A6982AB993CD004E92BE /* GetMoreVoicesView.swift in Sources */,
+				3406A6992AB993CD004E92BE /* IndeterminiteProgressView.swift in Sources */,
 				340A51DF2A78EC79007DCA0C /* ListeningQuizFeatureTests.swift in Sources */,
-				349D04812A88F23F008AFD0A /* TopicSettings.swift in Sources */,
-				349D047E2A88E569008AFD0A /* Topic.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

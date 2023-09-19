@@ -41,11 +41,15 @@ extension SpeechSynthesisClient: TestDependencyKey {
     }
 
     static let testValue = Self(
-        availableVoices: unimplemented(""),
-        defaultVoice: unimplemented(""),
-        speak: unimplemented(""),
-        speechRateAttributes: unimplemented(""),
-        pitchMultiplierAttributes: unimplemented("")
+        availableVoices: unimplemented("SpeechSynthesisClient.availableVoices"),
+        defaultVoice: unimplemented("SpeechSynthesisClient.defaultVoice"),
+        speak: unimplemented("SpeechSynthesisClient.speak"),
+        speechRateAttributes: {
+            .init(minimumRate: 0.0, maximumRate: 1.0, defaultRate: 0.5)
+        },
+        pitchMultiplierAttributes: {
+            .init(minimumPitch: 0.5, maximumPitch: 2.0, defaultPitch: 1.0)
+        }
     )
 
     static var noVoices: Self {

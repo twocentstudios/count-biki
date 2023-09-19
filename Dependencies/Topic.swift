@@ -99,7 +99,20 @@ extension Topic {
     static func id(for intValue: Int) -> UUID {
         UUID(uuidString: "C27296D2-934F-42DD-9F48-\(String(format: "%012x", intValue))")!
     }
-    static let mockID: UUID = Topic.id(for: 001)
+    
+    static let mockID: UUID = Topic.id(for: 000)
+    fileprivate static let mockGenerator = TopicGenerator(
+        topic: Topic(
+            id: Self.mockID,
+            skill: .listening,
+            category: .number,
+            title: "Mock topic",
+            description: "Just the number 1"
+        ),
+        generateQuestion: { _ in
+            Question(topicID: Self.mockID, displayText: "1", spokenText: "1", answerPrefix: nil, answerPostfix: nil, acceptedAnswer: "1")
+        }
+    )
 }
 
 func numberQuestionGenerator(for range: ClosedRange<Int>, topicID: UUID) -> @Sendable (WithRandomNumberGenerator) throws -> (Question) {
@@ -683,7 +696,7 @@ extension TopicClient: DependencyKey {
                         case showa
                         case heisei
                         case reiwa
-                        
+
                         var title: String {
                             switch self {
                             case .showa: "昭和"
@@ -691,7 +704,7 @@ extension TopicClient: DependencyKey {
                             case .reiwa: "令和"
                             }
                         }
-                        
+
                         var length: Int {
                             switch self {
                             case .showa: 64
@@ -699,7 +712,7 @@ extension TopicClient: DependencyKey {
                             case .reiwa: 6
                             }
                         }
-                        
+
                         var start: Int {
                             switch self {
                             case .showa: 1926
@@ -746,6 +759,19 @@ extension TopicClient: TestDependencyKey {
         Self(
             allTopics: unimplemented("allTopics"),
             generateQuestion: unimplemented("generateQuestion")
+        )
+    }
+
+    static var mock: TopicClient {
+        Self(
+            allTopics: {
+                let array = IdentifiedArray(uniqueElements: [Topic.mockGenerator.topic])
+                return array
+            },
+            generateQuestion: { _ in
+                @Dependency(\.withRandomNumberGenerator) var rng
+                return try! Topic.mockGenerator.generateQuestion(rng)
+            }
         )
     }
 }
