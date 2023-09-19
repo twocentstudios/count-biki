@@ -66,16 +66,17 @@ extension SpeechSynthesisClient: DependencyKey {
             try? AVAudioSession.sharedInstance().setCategory(.playback, options: [.duckOthers])
             var availableVoices: [SpeechSynthesisVoice] { AVSpeechSynthesisVoice.speechVoices().filter { $0.language == "ja-JP" }.map(SpeechSynthesisVoice.init(_:)) }
             var defaultVoice: SpeechSynthesisVoice? { availableVoices.sorted(by: { $0.quality.rawValue > $1.quality.rawValue }).first }
+            let synthesizer = LockIsolated(AVSpeechSynthesizer())
             return Self(
                 availableVoices: { availableVoices },
                 defaultVoice: { defaultVoice },
                 speak: { utterance in
-                    let synthesizer = AVSpeechSynthesizer()
+                    var delegate: SpeechSynthesisDelegate?
                     try await withTaskCancellationHandler {
                         try await withCheckedThrowingContinuation { continuation in
                             do {
                                 let avSpeechUtterance = try utterance.avSpeechUtterance(defaultVoiceIdentifier: defaultVoice?.voiceIdentifier)
-                                let delegate = SpeechSynthesisDelegate(
+                                delegate = SpeechSynthesisDelegate(
                                     didStart: {
                                         // TODO: check didStart?
                                     }, didFinish: {
@@ -84,15 +85,16 @@ extension SpeechSynthesisClient: DependencyKey {
                                         continuation.resume()
                                     }
                                 )
-                                synthesizer.delegate = delegate
-                                synthesizer.speak(avSpeechUtterance)
+                                synthesizer.value.delegate = delegate
+                                synthesizer.value.speak(avSpeechUtterance)
                             } catch {
                                 continuation.resume(throwing: error)
                             }
                         }
                     } onCancel: {
-                        synthesizer.stopSpeaking(at: .immediate)
+                        synthesizer.value.stopSpeaking(at: .immediate)
                     }
+                    delegate = nil
                 },
                 speechRateAttributes: {
                     .init(minimumRate: AVSpeechUtteranceMinimumSpeechRate, maximumRate: AVSpeechUtteranceMaximumSpeechRate, defaultRate: AVSpeechUtteranceDefaultSpeechRate)
