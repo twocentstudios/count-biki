@@ -73,8 +73,11 @@ struct SettingsFeature: Reducer {
         }
         .onChange(of: \.speechSettings) { _, newValue in
             Reduce { state, action in
-                // TODO: debounce for rate limit
-                try? speechSettingsClient.set(newValue) // TODO: handle error
+                do {
+                    try speechSettingsClient.set(newValue)
+                } catch {
+                    XCTFail("SpeechSettingsClient unexpectedly failed to write")
+                }
                 return .none
             }
         }
