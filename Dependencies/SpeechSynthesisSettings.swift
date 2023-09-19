@@ -2,7 +2,7 @@ import DependenciesAdditions
 import Foundation
 
 struct SpeechSynthesisSettingsClient {
-    var get: @Sendable () throws -> (SpeechSynthesisSettings)
+    var get: @Sendable () -> (SpeechSynthesisSettings)
     var set: @Sendable (SpeechSynthesisSettings) throws -> Void
 }
 
@@ -20,9 +20,13 @@ extension SpeechSynthesisSettingsClient: DependencyKey {
         @Dependency(\.decode) var decode
         return .init(
             get: {
-                guard let data = userDefaults.data(forKey: settingsKey) else { throw Error.settingsUnset }
-                let value = try decode(SpeechSynthesisSettings.self, from: data)
-                return value
+                guard let data = userDefaults.data(forKey: settingsKey) else { return SpeechSynthesisSettings() }
+                do {
+                    let value = try decode(SpeechSynthesisSettings.self, from: data)
+                    return value
+                } catch {
+                    return SpeechSynthesisSettings()
+                }
             },
             set: { newSettings in
                 let data = try encode(newSettings)

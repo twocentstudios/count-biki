@@ -3,9 +3,10 @@ import SwiftUI
 
 struct SettingsFeature: Reducer {
     struct State: Equatable {
-        @BindingState var speechSettings: SpeechSynthesisSettings // TODO: nil is error
+        var speechSettings: SpeechSynthesisSettings
         let availableVoices: [SpeechSynthesisVoice]
         @BindingState var rawSpeechRate: Float
+        @BindingState var rawVoiceIdentifier: String?
         let speechRateRange: ClosedRange<Float>
 
         let topic: Topic
@@ -16,9 +17,10 @@ struct SettingsFeature: Reducer {
             @Dependency(\.topicClient.allTopics) var allTopics
 
             topic = allTopics()[id: topicID]!
-            let speechSettings = try! speechSettingsClient.get() // TODO: error handling
+            let speechSettings = speechSettingsClient.get()
             self.speechSettings = speechSettings
             availableVoices = speechClient.availableVoices()
+            rawVoiceIdentifier = speechSettings.voiceIdentifier ?? speechClient.defaultVoice()?.voiceIdentifier
             let speechRateAttributes = speechClient.speechRateAttributes()
             rawSpeechRate = speechSettings.rate ?? speechRateAttributes.defaultRate
             speechRateRange = speechRateAttributes.minimumRate ... speechRateAttributes.maximumRate
@@ -42,6 +44,9 @@ struct SettingsFeature: Reducer {
             switch action {
             case .binding(\.$rawSpeechRate):
                 state.speechSettings.rate = state.rawSpeechRate
+                return .none
+            case .binding(\.$rawVoiceIdentifier):
+                state.speechSettings.voiceIdentifier = state.rawVoiceIdentifier
                 return .none
             case .binding:
                 return .none
@@ -68,6 +73,7 @@ struct SettingsFeature: Reducer {
         }
         .onChange(of: \.speechSettings) { _, newValue in
             Reduce { state, action in
+                // TODO: debounce for rate limit
                 try? speechSettingsClient.set(newValue) // TODO: handle error
                 return .none
             }
@@ -110,38 +116,49 @@ struct SettingsView: View {
                             .font(.subheadline)
                     }
                     Section {
-                        Picker(selection: viewStore.$speechSettings.voiceIdentifier) {
-                            ForEach(viewStore.availableVoices) { voice in
-                                Text(voice.name)
-                                    .tag(Optional(voice.voiceIdentifier))
+                        if let $unwrappedVoiceIdentifier = Binding(viewStore.$rawVoiceIdentifier) {
+                            Picker(selection: $unwrappedVoiceIdentifier) {
+                                ForEach(viewStore.availableVoices) { voice in
+                                    Text(voice.name)
+                                        .tag(Optional(voice.voiceIdentifier))
+                                }
+                            } label: {
+                                Text("Voice name")
                             }
-                        } label: {
-                            Text("Voice name")
-                        }
-                        .pickerStyle(.navigationLink)
-                        NavigationLink {
-                            GetMoreVoicesView()
-                        } label: {
-                            Text("Get more voices")
-                        }
-                        HStack {
-                            Text("Rate")
-                            Slider(value: viewStore.$rawSpeechRate, in: viewStore.speechRateRange) {
-                                Text("Speech rate")
-                            } minimumValueLabel: {
-                                Image(systemName: "tortoise")
-                            } maximumValueLabel: {
-                                Image(systemName: "hare")
+                            .pickerStyle(.navigationLink)
+                            NavigationLink {
+                                GetMoreVoicesView()
+                            } label: {
+                                Text("Get more voices")
                             }
-                        }
-                        Button {
-                            viewStore.send(.testVoiceButtonTapped)
-                        } label: {
-                            HStack(spacing: 10) {
-                                Image(systemName: "person.wave.2")
-                                Text("Test Voice")
+                            HStack {
+                                Text("Rate")
+                                Slider(value: viewStore.$rawSpeechRate, in: viewStore.speechRateRange) {
+                                    Text("Speech rate")
+                                } minimumValueLabel: {
+                                    Image(systemName: "tortoise")
+                                } maximumValueLabel: {
+                                    Image(systemName: "hare")
+                                }
                             }
-                            .frame(maxWidth: .infinity, alignment: .center)
+                            Button {
+                                viewStore.send(.testVoiceButtonTapped)
+                            } label: {
+                                HStack(spacing: 10) {
+                                    Image(systemName: "person.wave.2")
+                                    Text("Test Voice")
+                                }
+                                .frame(maxWidth: .infinity, alignment: .center)
+                            }
+                        } else {
+                            NavigationLink {
+                                GetMoreVoicesView()
+                            } label: {
+                                HStack {
+                                    Text("Error: no voices found on device")
+                                        .foregroundStyle(Color.red)
+                                }
+                            }
                         }
                     } header: {
                         Text("Voice")
@@ -174,6 +191,8 @@ struct SettingsView: View {
         store: Store(initialState: SettingsFeature.State(topicID: Topic.mockID)) {
             SettingsFeature()
                 ._printChanges()
+        } withDependencies: { deps in
+            // deps.speechSynthesisClient = .noVoices
         }
     )
     .fontDesign(.rounded)

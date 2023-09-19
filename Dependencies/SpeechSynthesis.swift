@@ -3,14 +3,14 @@ import Dependencies
 
 struct SpeechSynthesisClient {
     var availableVoices: @Sendable () -> [SpeechSynthesisVoice]
+    var defaultVoice: @Sendable () -> SpeechSynthesisVoice?
     var speak: @Sendable (SpeechSynthesisUtterance) async throws -> Void
     var speechRateAttributes: @Sendable () -> SpeechSynthesisVoiceRateAttributes
 }
 
 extension SpeechSynthesisClient {
     enum Error: Swift.Error {
-        case noVoiceSet
-        case voiceIdentifierNotAvailable
+        case noVoicesAvailable
     }
 }
 
@@ -26,6 +26,7 @@ extension SpeechSynthesisClient: TestDependencyKey {
         @Dependency(\.continuousClock) var clock
         return Self(
             availableVoices: { [.mock1, .mock2] },
+            defaultVoice: { .mock1 },
             speak: { _ in
                 try? await clock.sleep(for: .seconds(2))
             },
@@ -37,25 +38,34 @@ extension SpeechSynthesisClient: TestDependencyKey {
 
     static let testValue = Self(
         availableVoices: unimplemented(""),
+        defaultVoice: unimplemented(""),
         speak: unimplemented(""),
         speechRateAttributes: unimplemented("")
     )
+    
+    static var noVoices: Self {
+        var value = Self.previewValue
+        value.availableVoices = { [] }
+        value.defaultVoice = { nil }
+        return value
+    }
 }
 
 extension SpeechSynthesisClient: DependencyKey {
     #if !targetEnvironment(simulator)
         static var liveValue: Self {
             try? AVAudioSession.sharedInstance().setCategory(.playback, options: [.duckOthers])
+            var availableVoices: [SpeechSynthesisVoice] { AVSpeechSynthesisVoice.speechVoices().filter { $0.language == "ja-JP" }.map(SpeechSynthesisVoice.init(_:)) }
+            var defaultVoice: SpeechSynthesisVoice? { availableVoices.sorted(by: { $0.quality.rawValue > $1.quality.rawValue }).first }
             return Self(
-                availableVoices: {
-                    AVSpeechSynthesisVoice.speechVoices().filter { $0.language == "ja-JP" }.map(SpeechSynthesisVoice.init(_:))
-                },
+                availableVoices: { availableVoices },
+                defaultVoice: { defaultVoice },
                 speak: { utterance in
                     let synthesizer = AVSpeechSynthesizer()
                     try await withTaskCancellationHandler {
                         try await withCheckedThrowingContinuation { continuation in
                             do {
-                                let avSpeechUtterance = try utterance.avSpeechUtterance()
+                                let avSpeechUtterance = try utterance.avSpeechUtterance(defaultVoiceIdentifier: defaultVoice?.voiceIdentifier)
                                 let delegate = SpeechSynthesisDelegate(
                                     didStart: {
                                         // TODO: check didStart?
@@ -131,9 +141,19 @@ struct SpeechSynthesisUtterance {
 }
 
 extension SpeechSynthesisUtterance {
-    func avSpeechUtterance() throws -> AVSpeechUtterance {
-        guard let voiceIdentifier = settings.voiceIdentifier else { throw SpeechSynthesisClient.Error.noVoiceSet }
-        guard let avSpeechSynthesisVoice = AVSpeechSynthesisVoice(identifier: voiceIdentifier) else { throw SpeechSynthesisClient.Error.voiceIdentifierNotAvailable }
+    func avSpeechUtterance(defaultVoiceIdentifier: String?) throws -> AVSpeechUtterance {
+        let avSpeechSynthesisVoice: AVSpeechSynthesisVoice
+        if let voiceIdentifierFromSettings = settings.voiceIdentifier,
+           let voiceFromSettings = AVSpeechSynthesisVoice(identifier: voiceIdentifierFromSettings)
+        {
+            avSpeechSynthesisVoice = voiceFromSettings
+        } else if let defaultVoiceIdentifier,
+                  let defaultVoice = AVSpeechSynthesisVoice(identifier: defaultVoiceIdentifier)
+        {
+            avSpeechSynthesisVoice = defaultVoice
+        } else {
+            throw SpeechSynthesisClient.Error.noVoicesAvailable
+        }
 
         let utterance = AVSpeechUtterance(string: speechString)
         utterance.voice = avSpeechSynthesisVoice

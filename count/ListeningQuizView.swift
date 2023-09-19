@@ -35,7 +35,7 @@ struct ListeningQuizFeature: Reducer {
         var isShowingAnswer: Bool {
             challenge.submissions.last?.kind == .skip
         }
-        var question: Question? {
+        var question: Question? { // TODO: this doesn't need to be optional
             challenge.question
         }
         var totalIncorrect: Int {
