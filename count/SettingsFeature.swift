@@ -29,9 +29,11 @@ struct SettingsFeature: Reducer {
         case binding(BindingAction<State>)
         case doneButtonTapped
         case endSessionButtonTapped
+        case testVoiceButtonTapped
     }
 
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.speechSynthesisClient) var speechClient
     @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
 
     var body: some ReducerOf<Self> {
@@ -49,6 +51,19 @@ struct SettingsFeature: Reducer {
                 }
             case .endSessionButtonTapped:
                 return .none
+            case .testVoiceButtonTapped:
+                let spokenText = "1234"
+                enum CancelID { case speakAction }
+                return .run { [settings = state.speechSettings] send in
+                    await withTaskCancellation(id: CancelID.speakAction, cancelInFlight: true) {
+                        do {
+                            let utterance = SpeechSynthesisUtterance(speechString: spokenText, settings: settings)
+                            try await speechClient.speak(utterance)
+                        } catch {
+                            assertionFailure(error.localizedDescription)
+                        }
+                    }
+                }
             }
         }
         .onChange(of: \.speechSettings) { _, newValue in
@@ -120,7 +135,7 @@ struct SettingsView: View {
                             }
                         }
                         Button {
-                            // TODO: play test
+                            viewStore.send(.testVoiceButtonTapped)
                         } label: {
                             HStack(spacing: 10) {
                                 Image(systemName: "person.wave.2")
