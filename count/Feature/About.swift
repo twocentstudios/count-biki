@@ -28,7 +28,6 @@ struct AboutView: View {
 
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
-
             NavigationStack {
                 List {
                     Section {
@@ -125,9 +124,14 @@ struct AboutView: View {
                     // TODO: add legal stuff links
                     if false {
                         Section {
-                            Link(destination: URL(string: "example.com")!) {
+                            NavigationLink {
+                                ScrollView {
+                                    Text(acknowledgements()).padding()
+                                }
+                                .navigationTitle("Licenses")
+                            } label: {
                                 Label("Licenses", systemImage: "note.text")
-                            } // TODO: licenses
+                            }
                             Link(destination: URL(string: "example.com")!) {
                                 Label("Privacy policy", systemImage: "note.text")
                             } // TODO: privacy policy
@@ -165,6 +169,19 @@ struct AboutView: View {
             AboutFeature()
         })
         .fontDesign(.rounded)
+}
+
+// $ brew install licenseplist
+// $ cd ~/code/count
+// $ license-plist --markdown-path count/acknowledgements.md --single-page --force --output-path /tmp --suppress-opening-directory
+private func acknowledgements() -> String {
+    guard let path = Bundle.main.path(forResource: "acknowledgements", ofType: "md"),
+          let string = try? String(contentsOfFile: path)
+    else {
+        XCTFail("acknowledgements file is missing")
+        return ""
+    }
+    return string
 }
 
 @MainActor private enum MailTo {

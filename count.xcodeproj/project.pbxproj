@@ -15,6 +15,7 @@
 		340E70532A820E73004B124B /* SpeechSynthesis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340E70522A820E73004B124B /* SpeechSynthesis.swift */; };
 		340E70582A83738F004B124B /* SpeechSynthesisSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340E70572A83738F004B124B /* SpeechSynthesisSettings.swift */; };
 		340E705B2A83D396004B124B /* DependenciesAdditions in Frameworks */ = {isa = PBXBuildFile; productRef = 340E705A2A83D396004B124B /* DependenciesAdditions */; };
+		3414855A2AB9FD27008EC2DE /* acknowledgements.md in Resources */ = {isa = PBXBuildFile; fileRef = 341485592AB9FD27008EC2DE /* acknowledgements.md */; };
 		34276FBF2AB34EB600647AE9 /* TextSpeech.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34276FBE2AB34EB600647AE9 /* TextSpeech.swift */; };
 		34276FC22AB354D600647AE9 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 34276FC12AB354D600647AE9 /* Collections */; };
 		34276FC42AB5899C00647AE9 /* About.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34276FC32AB5899C00647AE9 /* About.swift */; };
@@ -55,6 +56,7 @@
 		340DDAE92A9F770B00E21308 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		340E70522A820E73004B124B /* SpeechSynthesis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSynthesis.swift; sourceTree = "<group>"; };
 		340E70572A83738F004B124B /* SpeechSynthesisSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSynthesisSettings.swift; sourceTree = "<group>"; };
+		341485592AB9FD27008EC2DE /* acknowledgements.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = acknowledgements.md; sourceTree = "<group>"; };
 		34276FBE2AB34EB600647AE9 /* TextSpeech.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextSpeech.swift; sourceTree = "<group>"; };
 		34276FC32AB5899C00647AE9 /* About.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = About.swift; sourceTree = "<group>"; };
 		3478331E2AA7343A005160DC /* PlanningTopics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTopics.swift; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 				3475DCFE2AB983740065521F /* Feature */,
 				3475DCFF2AB983B80065521F /* View */,
 				340A51D02A78EC79007DCA0C /* Assets.xcassets */,
+				341485592AB9FD27008EC2DE /* acknowledgements.md */,
 				340A51D22A78EC79007DCA0C /* count.entitlements */,
 				340A51F72A790356007DCA0C /* count.playground */,
 				348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */,
@@ -271,6 +274,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				348000E32A9CC0A800E7CCEE /* CountBiki.scnassets in Resources */,
+				3414855A2AB9FD27008EC2DE /* acknowledgements.md in Resources */,
 				340A51D52A78EC79007DCA0C /* Preview Assets.xcassets in Resources */,
 				340A51D12A78EC79007DCA0C /* Assets.xcassets in Resources */,
 			);
