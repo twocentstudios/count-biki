@@ -66,7 +66,7 @@ extension SpeechSynthesisClient: DependencyKey {
             try? AVAudioSession.sharedInstance().setCategory(.playback, options: [.duckOthers])
             var availableVoices: [SpeechSynthesisVoice] { AVSpeechSynthesisVoice.speechVoices().filter { $0.language == "ja-JP" }.map(SpeechSynthesisVoice.init(_:)) }
             var defaultVoice: SpeechSynthesisVoice? { availableVoices.sorted(by: { $0.quality.rawValue > $1.quality.rawValue }).first }
-            let synthesizer = LockIsolated(AVSpeechSynthesizer())
+            let synthesizer = AVSpeechSynthesizer()
             return Self(
                 availableVoices: { availableVoices },
                 defaultVoice: { defaultVoice },
@@ -85,14 +85,14 @@ extension SpeechSynthesisClient: DependencyKey {
                                         continuation.resume()
                                     }
                                 )
-                                synthesizer.value.delegate = delegate
-                                synthesizer.value.speak(avSpeechUtterance)
+                                synthesizer.delegate = delegate
+                                synthesizer.speak(avSpeechUtterance)
                             } catch {
                                 continuation.resume(throwing: error)
                             }
                         }
                     } onCancel: {
-                        synthesizer.value.stopSpeaking(at: .immediate)
+                        synthesizer.stopSpeaking(at: .immediate)
                     }
                     delegate = nil
                 },
