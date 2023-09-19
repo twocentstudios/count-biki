@@ -35,7 +35,7 @@ struct ListeningQuizFeature: Reducer {
         var isShowingAnswer: Bool {
             challenge.submissions.last?.kind == .skip
         }
-        var question: Question? { // TODO: this doesn't need to be optional
+        var question: Question {
             challenge.question
         }
         var totalIncorrect: Int {
@@ -53,14 +53,14 @@ struct ListeningQuizFeature: Reducer {
             @Dependency(\.topicClient.allTopics) var allTopics
             topic = allTopics()[id: topicID]!
             self.topicID = topicID
-            
+
             @Dependency(\.topicClient.generateQuestion) var generateQuestion
             @Dependency(\.uuid) var uuid
             @Dependency(\.date.now) var now
             let question = try! generateQuestion(topicID) // TODO: handle error
             let challenge = Challenge(id: uuid(), startDate: now, question: question, submissions: [])
             self.challenge = challenge
-            
+
             settings = .init(topicID: topicID)
         }
     }
@@ -117,7 +117,7 @@ struct ListeningQuizFeature: Reducer {
                     generateChallenge(state: &state)
                     return .run { _ in await haptics.error() }
                         .merge(with: playBackEffect(state: &state))
-                } else if state.question?.acceptedAnswer == state.pendingSubmissionValue {
+                } else if state.question.acceptedAnswer == state.pendingSubmissionValue {
                     let submission = Submission(id: uuid(), date: now, kind: .correct, value: state.pendingSubmissionValue)
                     state.challenge.submissions.append(submission)
                     state.completedChallenges.append(state.challenge)
@@ -203,13 +203,8 @@ struct ListeningQuizFeature: Reducer {
     }
 
     private func playBackEffect(state: inout State) -> Effect<Self.Action> {
-        guard let spokenText = state.question?.spokenText else {
-            XCTFail("Tried to play before question set")
-            return .none
-        }
-
         state.isSpeaking = true
-        return .run { [settings = state.settings.speechSettings] send in
+        return .run { [settings = state.settings.speechSettings, spokenText = state.question.spokenText] send in
             await withTaskCancellation(id: CancelID.speakAction, cancelInFlight: true) {
                 do {
                     let utterance = SpeechSynthesisUtterance(speechString: spokenText, settings: settings)
@@ -238,7 +233,7 @@ extension ListeningQuizFeature.State {
 
     var answerText: String {
         if isShowingAnswer {
-            return question?.displayText ?? ""
+            return question.displayText
         } else {
             return "00000"
         }
@@ -466,11 +461,12 @@ struct ListeningQuizView: View {
 
     @MainActor @ViewBuilder func submissionTextField(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
         HStack(spacing: 0) {
-            if let prefix = viewStore.question?.answerPrefix {
+            if let prefix = viewStore.question.answerPrefix {
                 Text(prefix)
                     .font(.title)
                     .foregroundStyle(Color.secondary)
             }
+
             TextField("Answer", text: viewStore.$pendingSubmissionValue)
                 .foregroundStyle(Color.primary)
                 .font(.largeTitle)
@@ -480,7 +476,7 @@ struct ListeningQuizView: View {
                 .padding(.horizontal, 4)
                 .focused($answerFieldFocused)
 
-            if let postfix = viewStore.question?.answerPostfix {
+            if let postfix = viewStore.question.answerPostfix {
                 Text(postfix)
                     .font(.title)
                     .foregroundStyle(Color.secondary)
