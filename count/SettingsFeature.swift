@@ -21,14 +21,14 @@ struct SettingsFeature: Reducer {
             topic = allTopics()[id: topicID]!
             let speechSettings = speechSettingsClient.get()
             self.speechSettings = speechSettings
-            
+
             availableVoices = speechClient.availableVoices()
             rawVoiceIdentifier = speechSettings.voiceIdentifier ?? speechClient.defaultVoice()?.voiceIdentifier
-            
+
             let speechRateAttributes = speechClient.speechRateAttributes()
             rawSpeechRate = speechSettings.rate ?? speechRateAttributes.defaultRate
             speechRateRange = speechRateAttributes.minimumRate ... speechRateAttributes.maximumRate
-            
+
             let pitchMultiplierAttributes = speechClient.pitchMultiplierAttributes()
             rawPitchMultiplier = speechSettings.pitchMultiplier ?? pitchMultiplierAttributes.defaultPitch
             pitchMultiplierRange = pitchMultiplierAttributes.minimumPitch ... pitchMultiplierAttributes.maximumPitch
@@ -39,6 +39,8 @@ struct SettingsFeature: Reducer {
         case binding(BindingAction<State>)
         case doneButtonTapped
         case endSessionButtonTapped
+        case pitchLabelDoubleTapped
+        case rateLabelDoubleTapped
         case testVoiceButtonTapped
     }
 
@@ -66,6 +68,14 @@ struct SettingsFeature: Reducer {
                     await dismiss()
                 }
             case .endSessionButtonTapped:
+                return .none
+            case .pitchLabelDoubleTapped:
+                state.rawPitchMultiplier = speechClient.pitchMultiplierAttributes().defaultPitch
+                state.speechSettings.pitchMultiplier = state.rawPitchMultiplier
+                return .none
+            case .rateLabelDoubleTapped:
+                state.rawSpeechRate = speechClient.speechRateAttributes().defaultRate
+                state.speechSettings.rate = state.rawSpeechRate
                 return .none
             case .testVoiceButtonTapped:
                 let spokenText = "1234"
@@ -147,6 +157,9 @@ struct SettingsView: View {
                             }
                             HStack {
                                 Text("Rate")
+                                    .onTapGesture(count: 2) {
+                                        viewStore.send(.rateLabelDoubleTapped)
+                                    }
                                 Slider(value: viewStore.$rawSpeechRate, in: viewStore.speechRateRange, step: 0.05) {
                                     Text("Speech rate")
                                 } minimumValueLabel: {
@@ -157,6 +170,9 @@ struct SettingsView: View {
                             }
                             HStack {
                                 Text("Pitch")
+                                    .onTapGesture(count: 2) {
+                                        viewStore.send(.pitchLabelDoubleTapped)
+                                    }
                                 Slider(value: viewStore.$rawPitchMultiplier, in: viewStore.pitchMultiplierRange, step: 0.05) {
                                     Text("Pitch")
                                 } minimumValueLabel: {
