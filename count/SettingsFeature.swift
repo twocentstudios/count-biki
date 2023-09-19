@@ -136,7 +136,7 @@ struct SettingsView: View {
                             }
                             HStack {
                                 Text("Rate")
-                                Slider(value: viewStore.$rawSpeechRate, in: viewStore.speechRateRange) {
+                                Slider(value: viewStore.$rawSpeechRate, in: viewStore.speechRateRange, step: 0.05) {
                                     Text("Speech rate")
                                 } minimumValueLabel: {
                                     Image(systemName: "tortoise")
