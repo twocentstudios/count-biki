@@ -209,7 +209,7 @@ struct SettingsView: View {
                 .navigationTitle("Settings")
                 .toolbar {
                     ToolbarItem(placement: .principal) {
-                        Text("Settings")
+                        Text("Session Settings")
                             .font(.headline)
                     }
                     ToolbarItem(placement: .primaryAction) {
