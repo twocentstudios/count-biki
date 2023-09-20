@@ -132,7 +132,7 @@ struct AboutView: View {
                             } label: {
                                 Label("Licenses", systemImage: "note.text")
                             }
-                            Link(destination: URL(string: "example.com")!) {
+                            Link(destination: URL(string: "https://twocentstudios.com/apps/countbiki/privacy-policy")!) {
                                 Label("Privacy policy", systemImage: "note.text")
                             } // TODO: privacy policy
                             Link(destination: URL(string: "example.com")!) {
