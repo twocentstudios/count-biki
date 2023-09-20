@@ -121,26 +121,20 @@ struct AboutView: View {
                         Text("About")
                     }
 
-                    // TODO: add legal stuff links
-                    if false {
-                        Section {
-                            NavigationLink {
-                                ScrollView {
-                                    Text(acknowledgements()).padding()
-                                }
-                                .navigationTitle("Licenses")
-                            } label: {
-                                Label("Licenses", systemImage: "note.text")
+                    Section {
+                        NavigationLink {
+                            ScrollView {
+                                Text(acknowledgements()).padding()
                             }
-                            Link(destination: URL(string: "https://twocentstudios.com/apps/countbiki/privacy-policy")!) {
-                                Label("Privacy policy", systemImage: "note.text")
-                            } // TODO: privacy policy
-                            Link(destination: URL(string: "example.com")!) {
-                                Label("Terms and conditions", systemImage: "note.text")
-                            } // TODO: terms and conditions
-                        } header: {
-                            Text("Legal")
+                            .navigationTitle("Licenses")
+                        } label: {
+                            Label("Licenses", systemImage: "note.text")
                         }
+                        Link(destination: URL(string: "https://twocentstudios.com/apps/countbiki/privacy-policy")!) {
+                            Label("Privacy policy", systemImage: "note.text")
+                        }
+                    } header: {
+                        Text("Legal")
                     }
                 }
                 .listStyle(.insetGrouped)
