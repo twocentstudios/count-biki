@@ -99,7 +99,7 @@ extension Topic {
     static func id(for intValue: Int) -> UUID {
         UUID(uuidString: "C27296D2-934F-42DD-9F48-\(String(format: "%012x", intValue))")!
     }
-    
+
     static let mockID: UUID = Topic.id(for: 000)
     fileprivate static let mockGenerator = TopicGenerator(
         topic: Topic(
@@ -463,6 +463,9 @@ extension TopicClient: DependencyKey {
                     description: "午前・午後1-12時"
                 ),
                 generateQuestion: { rng in
+                    // According to https://www.tofugu.com/japanese/japanese-counter-ji-jikan/ , 午後12時 is 12pm, which means 午後 is an exact translation of pm.
+                    // However, many sites say that 午後12時 and 午前12時 are ambiguous so alternates are preferred. Even the alternates are not always obvious.
+                    // For example: 0:00 = 午前0時 or 真夜中, 12:00 = 午後0時 or 正午.
                     let prefix = rng { ["午前", "午後"].randomElement(using: &$0)! }
                     let answer = rng { Int.random(in: 1 ... 12, using: &$0) }
                     let postfix = "時"
@@ -487,6 +490,7 @@ extension TopicClient: DependencyKey {
                     description: "午前・午後1-12時 -> 1-24時"
                 ),
                 generateQuestion: { rng in
+                    // See notes in previous topic.
                     enum Prefix: Int {
                         case am = 0
                         case pm = 1
