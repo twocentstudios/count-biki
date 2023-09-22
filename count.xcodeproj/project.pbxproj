@@ -20,6 +20,7 @@
 		34276FC22AB354D600647AE9 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 34276FC12AB354D600647AE9 /* Collections */; };
 		34276FC42AB5899C00647AE9 /* About.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34276FC32AB5899C00647AE9 /* About.swift */; };
 		3442421F2ABD8F1C001E2FC8 /* _NotificationDependency in Frameworks */ = {isa = PBXBuildFile; productRef = 3442421E2ABD8F1C001E2FC8 /* _NotificationDependency */; };
+		344242212ABDBDA8001E2FC8 /* AppIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242202ABDBDA8001E2FC8 /* AppIcon.swift */; };
 		3478331F2AA7343A005160DC /* PlanningTopics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3478331E2AA7343A005160DC /* PlanningTopics.swift */; };
 		348000E32A9CC0A800E7CCEE /* CountBiki.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */; };
 		348000E52A9CCD4700E7CCEE /* CountBikiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348000E42A9CCD4700E7CCEE /* CountBikiView.swift */; };
@@ -60,6 +61,7 @@
 		341485592AB9FD27008EC2DE /* acknowledgements.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = acknowledgements.md; sourceTree = "<group>"; };
 		34276FBE2AB34EB600647AE9 /* TextSpeech.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextSpeech.swift; sourceTree = "<group>"; };
 		34276FC32AB5899C00647AE9 /* About.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = About.swift; sourceTree = "<group>"; };
+		344242202ABDBDA8001E2FC8 /* AppIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcon.swift; sourceTree = "<group>"; };
 		3478331E2AA7343A005160DC /* PlanningTopics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTopics.swift; sourceTree = "<group>"; };
 		348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = CountBiki.scnassets; sourceTree = "<group>"; };
 		348000E42A9CCD4700E7CCEE /* CountBikiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountBikiView.swift; sourceTree = "<group>"; };
@@ -156,6 +158,7 @@
 				349D047F2A88F23F008AFD0A /* TopicSettings.swift */,
 				349D047C2A88E569008AFD0A /* Topic.swift */,
 				34BDC4962AA5C2B6001EF005 /* Haptics.swift */,
+				344242202ABDBDA8001E2FC8 /* AppIcon.swift */,
 			);
 			path = Dependencies;
 			sourceTree = "<group>";
@@ -307,6 +310,7 @@
 			files = (
 				34E2E3EA2AA8C821002B511A /* Topics.swift in Sources */,
 				3478331F2AA7343A005160DC /* PlanningTopics.swift in Sources */,
+				344242212ABDBDA8001E2FC8 /* AppIcon.swift in Sources */,
 				340A51CF2A78EC78007DCA0C /* ListeningQuiz.swift in Sources */,
 				340E70582A83738F004B124B /* SpeechSynthesisSettings.swift in Sources */,
 				34BDC4972AA5C2B6001EF005 /* Haptics.swift in Sources */,
@@ -458,6 +462,7 @@
 		340A51EF2A78EC79007DCA0C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon-01 AppIcon-02 AppIcon-03 AppIcon-04 AppIcon-05";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = count/count.entitlements;
@@ -502,6 +507,7 @@
 		340A51F02A78EC79007DCA0C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "AppIcon-01 AppIcon-02 AppIcon-03 AppIcon-04 AppIcon-05";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = count/count.entitlements;
