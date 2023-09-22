@@ -318,19 +318,31 @@ struct ListeningQuizView: View {
             } label: {
                 VStack(alignment: .leading, spacing: 6) {
                     ViewThatFits(in: .horizontal) {
-                        HStack(alignment: .firstTextBaseline, spacing: 4) {
-                            Text(viewStore.topic.category.title)
-                                .font(.title)
-                                .fontWeight(.semibold)
-                            Text(viewStore.topic.title)
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
+                        HStack(alignment: .top, spacing: 0) {
+                            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                                Text(viewStore.topic.category.title)
+                                    .font(.title)
+                                    .fontWeight(.semibold)
+                                Text(viewStore.topic.title)
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(Color(.secondaryLabel))
+                            }
+                            Spacer()
+                            Image(systemName: "gearshape.fill")
+                                .font(.title3)
                                 .foregroundStyle(Color(.secondaryLabel))
                         }
                         VStack(alignment: .leading, spacing: 0) {
-                            Text(viewStore.topic.category.title)
-                                .font(.title)
-                                .fontWeight(.semibold)
+                            HStack(alignment: .top, spacing: 0) {
+                                Text(viewStore.topic.category.title)
+                                    .font(.title)
+                                    .fontWeight(.semibold)
+                                Spacer()
+                                Image(systemName: "gearshape.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(Color(.secondaryLabel))
+                            }
                             Text(viewStore.topic.title)
                                 .font(.subheadline)
                                 .fontWeight(.semibold)
@@ -381,11 +393,7 @@ struct ListeningQuizView: View {
                 }
                 .padding(.vertical, 6)
                 .padding(.horizontal, 6)
-                .overlay(alignment: .topTrailing) {
-                    Image(systemName: "gearshape.fill")
-                        .font(.title3)
-                        .foregroundStyle(Color(.secondaryLabel))
-                }
+                .overlay(alignment: .topTrailing) {}
                 .padding(.vertical, 10)
                 .padding(.horizontal, 10)
                 .background {
