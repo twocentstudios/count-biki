@@ -67,7 +67,6 @@ struct AboutView: View {
                             } label: {
                                 Label("Choose app icon", systemImage: "app.badge")
                             }
-
                             if false { // TODO: choose Biki's outfit
                                 Label("Choose Biki's outfit", systemImage: "tshirt")
                             }
