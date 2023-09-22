@@ -11,6 +11,7 @@ struct CountApp: App {
                 TopicsView(
                     store: Store(initialState: .init()) {
                         TopicsFeature()
+                            ._printChanges()
                     } withDependencies: {
                         #if targetEnvironment(simulator)
                             $0.topicClient = .mock
