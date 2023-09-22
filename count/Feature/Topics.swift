@@ -6,13 +6,14 @@ struct TopicCategory: Identifiable, Equatable {
     let topics: IdentifiedArrayOf<Topic>
     let title: String
     let description: String
+    let symbolName: String
 }
 
 extension TopicCategory {
     static func filtered(_ allTopics: IdentifiedArrayOf<Topic>, skill: Topic.Skill, category: Topic.Category) -> Self {
         let id = skill.title + ":" + category.title
         let filteredTopics = allTopics.filter { $0.skill == skill && $0.category == category }
-        return .init(id: id, topics: filteredTopics, title: category.title, description: category.description)
+        return .init(id: id, topics: filteredTopics, title: category.title, description: category.description, symbolName: category.symbolName)
     }
 }
 
@@ -123,13 +124,18 @@ struct TopicsView: View {
                                     }
                                 }
                             } label: {
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(category.title).font(.headline)
-                                    Text(category.description)
-                                        .font(.caption)
-                                        .foregroundStyle(.secondary)
+                                HStack(alignment: .center, spacing: 10) {
+                                    Image(systemName: category.symbolName)
+                                        .font(.body)
+                                        .foregroundColor(Color(.label))
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(category.title).font(.headline)
+                                        Text(category.description)
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                    .padding(.vertical, 2)
                                 }
-                                .padding(.vertical, 2)
                             }
                         }
                     } header: {

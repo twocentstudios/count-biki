@@ -59,6 +59,16 @@ extension Topic.Category {
         case .counter: "Objects and more: Objects and more: 個、枚、人、..."
         }
     }
+    
+    var symbolName: String {
+        switch self {
+        case .number: "number"
+        case .money: "yensign"
+        case .duration: "clock"
+        case .dateTime: "calendar"
+        case .counter: "baseball"
+        }
+    }
 }
 
 struct Question: Equatable {
