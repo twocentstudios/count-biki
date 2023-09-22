@@ -23,6 +23,7 @@ struct AppIconFeature: Reducer {
     }
 
     @Dependency(\.appIconClient) var appIconClient
+    @Dependency(\.continuousClock) var clock
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -33,11 +34,14 @@ struct AppIconFeature: Reducer {
                     await send(.appIconSet(currentAppIcon))
                 }
             case let .appIconTapped(tappedIcon):
+                guard let currentIcon = state.selectedAppIcon else { return .none }
                 return .run { send in
                     do {
-                        try await appIconClient.setAppIcon(tappedIcon)
                         await send(.appIconSet(tappedIcon))
+                        try await clock.sleep(for: .milliseconds(500))
+                        try await appIconClient.setAppIcon(tappedIcon)
                     } catch {
+                        await send(.appIconSet(currentIcon))
                         XCTFail("Unexpectedly couldn't update app icon.")
                     }
                 }
@@ -81,14 +85,12 @@ struct AppIconView: View {
                                 .padding(6)
                                 .shadow(color: Color.primary.opacity(0.3), radius: 6)
                                 .background {
-                                    ZStack {
-                                        if viewStore.selectedAppIcon == appIcon {
-                                            RoundedRectangle(cornerRadius: 26).strokeBorder(Color.accentColor, lineWidth: 6)
-                                                .transition(AnyTransition.scale(scale: 0.1).combined(with: .opacity))
-                                        }
+                                    if viewStore.selectedAppIcon == appIcon {
+                                        RoundedRectangle(cornerRadius: 26).strokeBorder(Color.accentColor, lineWidth: 6)
+                                            .transition(.scale(scale: 0.92).combined(with: .opacity))
                                     }
-                                    .animation(.smooth(duration: 0.7), value: viewStore.selectedAppIcon)
                                 }
+                                .animation(.smooth(duration: 0.5), value: viewStore.selectedAppIcon)
                         }
                         .buttonStyle(.plain)
                         .disabled(!viewStore.isAppIconChangingAvailable)
