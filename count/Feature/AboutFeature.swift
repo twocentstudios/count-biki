@@ -13,7 +13,7 @@ struct AppIconFeature: Reducer {
             @Dependency(\.appIconClient) var appIconClient
             appIcons = appIconClient.allIcons()
             selectedAppIcon = nil
-            isAppIconChangingAvailable = true // TODO: paywall
+            isAppIconChangingAvailable = false // TODO: paywall
         }
     }
 
@@ -53,7 +53,7 @@ struct AppIconFeature: Reducer {
 struct AboutFeature: Reducer {
     struct State: Equatable {
         var appIcon: AppIconFeature.State
-        
+
         init(appIcon: AppIconFeature.State = .init()) {
             self.appIcon = appIcon
         }
@@ -109,7 +109,60 @@ struct AboutView: View {
                     if true {
                         Section {
                             Label("Leave a tip", systemImage: "yensign.circle")
-                            Label("Choose app icon", systemImage: "app.badge")
+                            NavigationLink {
+                                WithViewStore(store.scope(state: \.appIcon, action: { .appIcon($0) }), observe: { $0 }) { viewStore in
+                                    ScrollView {
+                                        VStack(spacing: 6) {
+                                            if viewStore.isAppIconChangingAvailable {
+                                                Text("You've unlocked Transylvania Tier 🥳")
+                                                    .font(.headline)
+                                                Text("Select any app icon below")
+                                                    .font(.subheadline)
+                                            } else {
+                                                Text("Unlock Transylvania Tier to change the app icon")
+                                            }
+                                        }
+                                        .multilineTextAlignment(.center)
+                                        .padding(.horizontal, 20)
+                                        .padding(.vertical, 20)
+                                        LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 10, alignment: .center), count: 3)) {
+                                            ForEach(viewStore.appIcons) { appIcon in
+                                                Button {
+                                                    viewStore.send(.appIconTapped(appIcon))
+                                                }
+                                                label: {
+                                                    Image(uiImage: UIImage(named: appIcon.iconName) ?? UIImage())
+                                                        .resizable()
+                                                        .aspectRatio(contentMode: .fit)
+                                                        .clipShape(RoundedRectangle(cornerRadius: 20))
+                                                        .padding(6)
+                                                        .shadow(color: Color.primary.opacity(0.3), radius: 6)
+                                                        .background {
+                                                            ZStack {
+                                                                if viewStore.selectedAppIcon == appIcon {
+                                                                    RoundedRectangle(cornerRadius: 26).strokeBorder(Color.accentColor, lineWidth: 6)
+                                                                        .transition(AnyTransition.scale(scale: 0.1).combined(with: .opacity))
+                                                                }
+                                                            }
+                                                            .animation(.smooth(duration: 0.7), value: viewStore.selectedAppIcon)
+                                                        }
+                                                }
+                                                .buttonStyle(.plain)
+                                                .disabled(!viewStore.isAppIconChangingAvailable)
+                                            }
+                                        }
+                                        .padding()
+                                    }
+                                    .background { Color(.secondarySystemBackground).ignoresSafeArea() }
+                                    .navigationTitle("App Icon")
+                                    .task {
+                                        viewStore.send(.onTask)
+                                    }
+                                }
+                            } label: {
+                                Label("Choose app icon", systemImage: "app.badge")
+                            }
+
                             Label("Choose Biki's outfit", systemImage: "tshirt")
                         } header: {
                             Text("Transylvania Tier")
