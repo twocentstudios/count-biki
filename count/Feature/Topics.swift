@@ -48,14 +48,14 @@ struct TopicsFeature: Reducer {
             switch action {
             case .about:
                 return .none
-                
+
             case .aboutButtonTapped:
                 state.about = .init()
                 return .none
-                
+
             case .quiz:
                 return .none
-            
+
             case let .selectTopic(topicID):
                 state.quiz = .init(topicID: topicID)
                 return .none
@@ -105,7 +105,7 @@ struct TopicsView: View {
                                                 subtitle: topic.description,
                                                 isFavorite: false,
                                                 tapped: { viewStore.send(.selectTopic(topic.id)) },
-                                                toggleFavoriteTapped: {}
+                                                toggleFavoriteTapped: nil // TODO: favorite support
                                             )
                                         }
                                     } footer: {
@@ -202,11 +202,13 @@ struct TopicCell: View {
         }
         .buttonStyle(.plain)
         .contextMenu {
-            Button {
-                toggleFavoriteTapped?()
-            }
-            label: {
-                Label(isFavorite ? "Remove Favorite" : "Add Favorite", systemImage: "star")
+            if let toggleFavoriteTapped {
+                Button {
+                    toggleFavoriteTapped()
+                }
+                label: {
+                    Label(isFavorite ? "Remove Favorite" : "Add Favorite", systemImage: "star")
+                }
             }
         }
     }
