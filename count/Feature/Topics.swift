@@ -124,9 +124,10 @@ struct TopicsView: View {
                                     }
                                 }
                             } label: {
-                                HStack(alignment: .center, spacing: 10) {
+                                HStack(alignment: .center, spacing: 14) {
                                     Image(systemName: category.symbolName)
                                         .font(.body)
+                                        .frame(width: 16, height: 16)
                                         .foregroundColor(Color(.label))
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(category.title).font(.headline)
