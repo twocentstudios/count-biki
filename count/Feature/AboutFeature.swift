@@ -3,20 +3,79 @@ import SwiftUI
 
 import ComposableArchitecture
 
+struct AppIconFeature: Reducer {
+    struct State: Equatable {
+        let appIcons: IdentifiedArrayOf<AppIcon>
+        var selectedAppIcon: AppIcon?
+        var isAppIconChangingAvailable: Bool
+
+        init() {
+            @Dependency(\.appIconClient) var appIconClient
+            appIcons = appIconClient.allIcons()
+            selectedAppIcon = nil
+            isAppIconChangingAvailable = true // TODO: paywall
+        }
+    }
+
+    enum Action: Equatable {
+        case appIconTapped(AppIcon)
+        case appIconSet(AppIcon)
+        case onTask
+    }
+
+    @Dependency(\.appIconClient) var appIconClient
+
+    var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .onTask:
+                return .run { send in
+                    let currentAppIcon = await appIconClient.appIcon()
+                    await send(.appIconSet(currentAppIcon))
+                }
+            case let .appIconTapped(tappedIcon):
+                return .run { send in
+                    do {
+                        try await appIconClient.setAppIcon(tappedIcon)
+                        await send(.appIconSet(tappedIcon))
+                    } catch {
+                        XCTFail("Unexpectedly couldn't update app icon.")
+                    }
+                }
+            case let .appIconSet(tappedIcon):
+                state.selectedAppIcon = tappedIcon
+                return .none
+            }
+        }
+    }
+}
+
 struct AboutFeature: Reducer {
-    struct State: Equatable {}
+    struct State: Equatable {
+        var appIcon: AppIconFeature.State
+        
+        init(appIcon: AppIconFeature.State = .init()) {
+            self.appIcon = appIcon
+        }
+    }
 
     enum Action: Equatable {
         case doneButtonTapped
+        case appIcon(AppIconFeature.Action)
     }
 
     @Dependency(\.dismiss) var dismiss
 
     var body: some ReducerOf<Self> {
+        Scope(state: \.appIcon, action: /Action.appIcon) {
+            AppIconFeature()
+        }
         Reduce { state, action in
             switch action {
             case .doneButtonTapped:
                 return .run { _ in await dismiss() }
+            case .appIcon:
+                return .none
             }
         }
     }
@@ -47,7 +106,7 @@ struct AboutView: View {
                     }
 
                     // TODO: implement IAP
-                    if false {
+                    if true {
                         Section {
                             Label("Leave a tip", systemImage: "yensign.circle")
                             Label("Choose app icon", systemImage: "app.badge")

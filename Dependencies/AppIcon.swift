@@ -1,8 +1,9 @@
 import Dependencies
+import IdentifiedCollections
 import UIKit.UIImage
 
 struct AppIconClient {
-    var allIcons: @Sendable () -> [AppIcon]
+    var allIcons: @Sendable () -> IdentifiedArrayOf<AppIcon>
     var appIcon: @MainActor @Sendable () -> AppIcon
     var setAppIcon: @Sendable (AppIcon) async throws -> Void
 }
@@ -10,10 +11,11 @@ struct AppIconClient {
 extension AppIconClient: DependencyKey {
     static var liveValue: Self {
         Self(
-            allIcons: { AppIcon.allCases },
+            allIcons: { IdentifiedArray(uniqueElements: AppIcon.allCases) },
             appIcon: { @MainActor in
                 if let iconName = UIApplication.shared.alternateIconName,
-                   let appIcon = AppIcon(rawValue: iconName) {
+                   let appIcon = AppIcon(rawValue: iconName)
+                {
                     return appIcon
                 } else {
                     return AppIcon.primary
