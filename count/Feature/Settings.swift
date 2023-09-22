@@ -1,9 +1,10 @@
 import ComposableArchitecture
+import _NotificationDependency
 import SwiftUI
 
 struct SettingsFeature: Reducer {
     struct State: Equatable {
-        let availableVoices: [SpeechSynthesisVoice]
+        var availableVoices: [SpeechSynthesisVoice]
         @BindingState var rawSpeechRate: Float
         @BindingState var rawVoiceIdentifier: String?
         @BindingState var rawPitchMultiplier: Float
@@ -52,6 +53,8 @@ struct SettingsFeature: Reducer {
         case delegate(Delegate)
         case doneButtonTapped
         case endSessionButtonTapped
+        case onSceneWillEnterForeground
+        case onTask
         case pitchLabelDoubleTapped
         case rateLabelDoubleTapped
         case testVoiceButtonTapped
@@ -62,6 +65,7 @@ struct SettingsFeature: Reducer {
     }
 
     @Dependency(\.dismiss) var dismiss
+    @Dependency.Notification(\.sceneWillEnterForeground) var sceneWillEnterForeground
     @Dependency(\.speechSynthesisClient) var speechClient
 
     var body: some ReducerOf<Self> {
@@ -95,6 +99,15 @@ struct SettingsFeature: Reducer {
                 state.rawSpeechRate = speechClient.speechRateAttributes().defaultRate
                 state.speechSettings.rate = state.rawSpeechRate
                 return .none
+            case .onSceneWillEnterForeground:
+                state.availableVoices = speechClient.availableVoices()
+                return .none
+            case .onTask:
+                return .run { send in
+                    for await _ in sceneWillEnterForeground {
+                        await send(.onSceneWillEnterForeground)
+                    }
+                }
             case .testVoiceButtonTapped:
                 let spokenText = "1234"
                 enum CancelID { case speakAction }
@@ -276,6 +289,9 @@ struct SettingsView: View {
                         }
                     }
                 }
+            }
+            .task {
+                await viewStore.send(.onTask).finish()
             }
         }
     }
