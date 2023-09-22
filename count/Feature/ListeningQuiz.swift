@@ -261,6 +261,16 @@ extension ListeningQuizFeature.State {
             return .checkmark
         }
     }
+
+    var formattedPendingSubmissionValue: String? {
+        guard let formatted = Int(pendingSubmissionValue)?.formatted(.number.grouping(.automatic)) else {
+            return nil
+        }
+        if formatted.count < 4 {
+            return nil
+        }
+        return formatted
+    }
 }
 
 #Preview {
@@ -513,6 +523,11 @@ struct ListeningQuizView: View {
             .disabled(viewStore.isSubmitButtonDisabled)
         }
         .padding()
+        .overlay(alignment: .top) {
+            Text(viewStore.formattedPendingSubmissionValue ?? "")
+                .font(.caption)
+        }
+        .padding(.top, 4)
         .background {
             Color(.secondarySystemBackground)
                 .ignoresSafeArea(.all, edges: .bottom)
