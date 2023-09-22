@@ -19,6 +19,7 @@
 		34276FBF2AB34EB600647AE9 /* TextSpeech.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34276FBE2AB34EB600647AE9 /* TextSpeech.swift */; };
 		34276FC22AB354D600647AE9 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 34276FC12AB354D600647AE9 /* Collections */; };
 		34276FC42AB5899C00647AE9 /* About.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34276FC32AB5899C00647AE9 /* About.swift */; };
+		3442421F2ABD8F1C001E2FC8 /* _NotificationDependency in Frameworks */ = {isa = PBXBuildFile; productRef = 3442421E2ABD8F1C001E2FC8 /* _NotificationDependency */; };
 		3478331F2AA7343A005160DC /* PlanningTopics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3478331E2AA7343A005160DC /* PlanningTopics.swift */; };
 		348000E32A9CC0A800E7CCEE /* CountBiki.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */; };
 		348000E52A9CCD4700E7CCEE /* CountBikiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348000E42A9CCD4700E7CCEE /* CountBikiView.swift */; };
@@ -79,6 +80,7 @@
 				34E2E3EE2AA9C86A002B511A /* ConfettiSwiftUI in Frameworks */,
 				34A9749A2A7AB0E600E6F672 /* ComposableArchitecture in Frameworks */,
 				34276FC22AB354D600647AE9 /* Collections in Frameworks */,
+				3442421F2ABD8F1C001E2FC8 /* _NotificationDependency in Frameworks */,
 				340E705B2A83D396004B124B /* DependenciesAdditions in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -100,6 +102,7 @@
 				340A51CB2A78EC78007DCA0C /* count */,
 				340A51DD2A78EC79007DCA0C /* countTests */,
 				340A51CA2A78EC78007DCA0C /* Products */,
+				3442421B2ABD892C001E2FC8 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -157,6 +160,13 @@
 			path = Dependencies;
 			sourceTree = "<group>";
 		};
+		3442421B2ABD892C001E2FC8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		3475DCFE2AB983740065521F /* Feature */ = {
 			isa = PBXGroup;
 			children = (
@@ -201,6 +211,7 @@
 				340E705A2A83D396004B124B /* DependenciesAdditions */,
 				34E2E3ED2AA9C86A002B511A /* ConfettiSwiftUI */,
 				34276FC12AB354D600647AE9 /* Collections */,
+				3442421E2ABD8F1C001E2FC8 /* _NotificationDependency */,
 			);
 			productName = count;
 			productReference = 340A51C92A78EC78007DCA0C /* count.app */;
@@ -657,6 +668,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 34276FC02AB354D600647AE9 /* XCRemoteSwiftPackageReference "swift-collections" */;
 			productName = Collections;
+		};
+		3442421E2ABD8F1C001E2FC8 /* _NotificationDependency */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 340E70592A83D396004B124B /* XCRemoteSwiftPackageReference "swift-dependencies-additions" */;
+			productName = _NotificationDependency;
 		};
 		34A974992A7AB0E600E6F672 /* ComposableArchitecture */ = {
 			isa = XCSwiftPackageProductDependency;
