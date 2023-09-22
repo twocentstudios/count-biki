@@ -78,7 +78,7 @@ extension SpeechSynthesisClient: DependencyKey {
                                 let avSpeechUtterance = try utterance.avSpeechUtterance(defaultVoiceIdentifier: defaultVoice?.voiceIdentifier)
                                 delegate = SpeechSynthesisDelegate(
                                     didStart: {
-                                        // TODO: check didStart?
+                                        // No need to check didStart
                                     }, didFinish: {
                                         continuation.resume()
                                     }, didCancel: {
