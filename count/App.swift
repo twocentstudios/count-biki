@@ -14,7 +14,8 @@ struct CountApp: App {
                             ._printChanges()
                     } withDependencies: {
                         #if targetEnvironment(simulator)
-                            $0.topicClient = .mock
+                            // $0.topicClient = .mock
+                            $0.topicClient = .liveValue
                         #endif
                     }
                 )
