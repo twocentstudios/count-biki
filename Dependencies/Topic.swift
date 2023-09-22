@@ -470,14 +470,14 @@ extension TopicClient: DependencyKey {
                     skill: .listening,
                     category: .dateTime,
                     title: "Hour (AM/PM)",
-                    description: "午前・午後1-12時"
+                    description: "午前・午後1-11時"
                 ),
                 generateQuestion: { rng in
                     // According to https://www.tofugu.com/japanese/japanese-counter-ji-jikan/ , 午後12時 is 12pm, which means 午後 is an exact translation of pm.
                     // However, many sites say that 午後12時 and 午前12時 are ambiguous so alternates are preferred. Even the alternates are not always obvious.
                     // For example: 0:00 = 午前0時 or 真夜中, 12:00 = 午後0時 or 正午.
                     let prefix = rng { ["午前", "午後"].randomElement(using: &$0)! }
-                    let answer = rng { Int.random(in: 1 ... 12, using: &$0) }
+                    let answer = rng { Int.random(in: 1 ... 11, using: &$0) }
                     let postfix = "時"
                     let displayText = "\(prefix)\(answer)\(postfix)"
                     let acceptedAnswer = String(answer)
@@ -497,7 +497,7 @@ extension TopicClient: DependencyKey {
                     skill: .listening,
                     category: .dateTime,
                     title: "Hour (AM/PM as 24-hour)",
-                    description: "午前・午後1-12時 -> 1-24時"
+                    description: "午前・午後1-11時 -> 1-23時"
                 ),
                 generateQuestion: { rng in
                     // See notes in previous topic.
@@ -513,7 +513,7 @@ extension TopicClient: DependencyKey {
                         }
                     }
                     let prefix: Prefix = rng { [.am, .pm].randomElement(using: &$0)! }
-                    let hour = rng { Int.random(in: 1 ... 12, using: &$0) }
+                    let hour = rng { Int.random(in: 1 ... 11, using: &$0) }
                     let answer = hour + (prefix.rawValue * 12)
                     let postfix = "時"
                     let displayText = "\(answer)\(postfix)"
