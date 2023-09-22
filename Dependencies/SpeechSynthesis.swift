@@ -114,6 +114,7 @@ private final class SpeechSynthesisDelegate: NSObject, AVSpeechSynthesizerDelega
     let didStart: @Sendable () -> Void
     let didFinish: @Sendable () -> Void
     let didCancel: @Sendable () -> Void
+    private let isComplete = LockIsolated(false)
 
     init(
         didStart: @escaping @Sendable () -> Void,
@@ -130,10 +131,14 @@ private final class SpeechSynthesisDelegate: NSObject, AVSpeechSynthesizerDelega
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
+        guard !isComplete.value else { assertionFailure("already complete"); return }
+        isComplete.setValue(true)
         didFinish()
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
+        guard !isComplete.value else { assertionFailure("already complete"); return }
+        isComplete.setValue(true)
         didCancel()
     }
 
