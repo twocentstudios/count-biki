@@ -5,6 +5,7 @@ import SwiftUI
 struct AboutFeature: Reducer {
     struct State: Equatable {
         var appIcon: AppIconFeature.State
+        var hasTranslyvaniaTier: Bool = true // TODO: read this
 
         init(appIcon: AppIconFeature.State = .init()) {
             self.appIcon = appIcon
@@ -67,11 +68,17 @@ struct AboutView: View {
                                 Label("Choose app icon", systemImage: "app.badge")
                             }
 
-                            Label("Choose Biki's outfit", systemImage: "tshirt")
+                            if false { // TODO: choose Biki's outfit
+                                Label("Choose Biki's outfit", systemImage: "tshirt")
+                            }
                         } header: {
                             Text("Transylvania Tier")
                         } footer: {
-                            Text("Leave any size tip to join Transylvania Tier. Unlock whimsical benefits and support the app's development.")
+                            if viewStore.hasTranslyvaniaTier {
+                                Text("You've unlocked Translyvania Tier. Thanks for your support!")
+                            } else {
+                                Text("Leave any size tip to join Transylvania Tier. Unlock whimsical benefits and support the app's development.")
+                            }
                         }
                     }
 
