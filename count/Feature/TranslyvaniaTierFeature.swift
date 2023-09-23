@@ -29,6 +29,7 @@ struct TranslyvaniaTierView: View {
                         if viewStore.hasTranslyvaniaTier {
                             Text("You've unlocked...")
                                 .font(.subheadline)
+                                .foregroundStyle(.secondary)
                             Text("Translyvania Tier")
                                 .font(.largeTitle)
                                 .fontWeight(.black)
@@ -42,6 +43,7 @@ struct TranslyvaniaTierView: View {
                         } else {
                             Text("Leave any size tip to unlock...")
                                 .font(.subheadline)
+                                .foregroundStyle(.secondary)
                             Text("Translyvania Tier")
                                 .font(.largeTitle)
                                 .fontWeight(.black)
@@ -51,8 +53,9 @@ struct TranslyvaniaTierView: View {
                                 Text("\(Image(systemName: "2.circle"))  Support ongoing development")
                             }
                             .font(.headline)
-                            .padding()
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.trailing, 20)
+                            .padding(.vertical, 16)
+                            .frame(maxWidth: .infinity, alignment: .center)
                         }
                     }
                     VStack(spacing: 16) {
@@ -61,15 +64,18 @@ struct TranslyvaniaTierView: View {
                         TipButton(imageName: nil, title: "Coffin polish tip", price: "$19.99")
                         Button {} label: {
                             Text("Restore Purchases")
+                                .font(.callout)
                         }
-                        .padding(.vertical, 10)
+                        .padding(.vertical, 0)
                         HStack(spacing: 20) {
                             Button {} label: {
                                 Text("Terms of Service")
+                                    .font(.callout)
                             }
                             .buttonStyle(.borderless)
                             Button {} label: {
                                 Text("Privacy Policy")
+                                    .font(.callout)
                             }
                             .buttonStyle(.borderless)
                         }
