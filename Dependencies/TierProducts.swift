@@ -37,11 +37,6 @@ enum TierStatus: Equatable {
     case unlocked(IdentifiedArrayOf<TierProduct>)
 }
 
-enum TierProductUpdate: Equatable {
-    case added(TierProduct)
-    case removed(TierProduct)
-}
-
 struct TierProductsClient {
     var availableProducts: @Sendable () async throws -> IdentifiedArrayOf<TierProduct>
     var purchase: @Sendable (TierProduct) async throws -> TierPurchaseResult
