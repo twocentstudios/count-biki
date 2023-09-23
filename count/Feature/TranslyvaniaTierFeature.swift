@@ -21,6 +21,7 @@ struct TransylvaniaTierFeature: Reducer {
     enum Action: Equatable {
         case availableProductsUpdated(IdentifiedArrayOf<TierProduct>)
         case onTask
+        case restorePurchasesTapped
         case tierStatusUpdated(TierStatus)
     }
 
@@ -43,6 +44,10 @@ struct TransylvaniaTierFeature: Reducer {
                     for await newStatus in transylvaniaTierClient.tierStatusStream() {
                         await send(.tierStatusUpdated(newStatus))
                     }
+                }
+            case .restorePurchasesTapped:
+                return .run { _ in
+                    await tierProductsClient.restorePurchases()
                 }
             case let .tierStatusUpdated(tierStatus):
                 state.tierStatus = tierStatus
@@ -99,7 +104,9 @@ struct TranslyvaniaTierView: View {
 //                        TipButton(imageName: nil, title: "Atomic red carrot tip", price: "$0.99")
 //                        TipButton(imageName: nil, title: "Sunblock tip", price: "$4.99")
 //                        TipButton(imageName: nil, title: "Coffin polish tip", price: "$19.99")
-                        Button {} label: {
+                        Button {
+                            viewStore.send(.restorePurchasesTapped)
+                        } label: {
                             Text("Restore Purchases")
                                 .font(.callout)
                         }
