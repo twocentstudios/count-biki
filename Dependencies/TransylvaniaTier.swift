@@ -5,7 +5,7 @@ import IdentifiedCollections
 struct TransylvaniaTierClient {
     var tierStatus: @Sendable () -> (TierStatus)
     var tierStatusStream: @Sendable () -> AsyncStream<TierStatus>
-    var monitor: @Sendable () async throws -> Void
+    var monitor: @Sendable () async -> Void
 }
 
 extension TransylvaniaTierClient: DependencyKey {

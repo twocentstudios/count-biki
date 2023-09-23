@@ -20,6 +20,11 @@ struct CountApp: App {
                     }
                 )
                 .fontDesign(.rounded)
+                .task {
+                    // TODO: move this to AppReducer
+                    @Dependency(\.transylvaniaTierClient) var transylvaniaTierClient
+                    await transylvaniaTierClient.monitor()
+                }
             }
         }
     }
