@@ -32,7 +32,7 @@ struct TransylvaniaTierFeature: Reducer {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .availableProductsUpdated(let products):
+            case let .availableProductsUpdated(products):
                 state.availableProducts = products
                 return .none
             case .onTask:
@@ -189,7 +189,7 @@ struct TipButton: View {
             TransylvaniaTierFeature()
                 ._printChanges()
         } withDependencies: {
-            $0.transylvaniaTierClient = .unlocked
+            $0.tierProductsClient = .mock
         }
     )
     .fontDesign(.rounded)

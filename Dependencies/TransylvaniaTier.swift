@@ -37,30 +37,6 @@ extension TransylvaniaTierClient: TestDependencyKey {
             monitor: unimplemented("monitor")
         )
     }
-
-    static var unlocked: TransylvaniaTierClient {
-        return Self(
-            tierStatus: { .unlocked(TierProductsClient.mockProducts) },
-            tierStatusStream: { AsyncStream { _ in } },
-            monitor: {}
-        )
-    }
-    
-    static var locked: TransylvaniaTierClient {
-        return Self(
-            tierStatus: { .locked },
-            tierStatusStream: { AsyncStream { _ in } },
-            monitor: {}
-        )
-    }
-    
-    static var unknown: TransylvaniaTierClient {
-        return Self(
-            tierStatus: { .unknown },
-            tierStatusStream: { AsyncStream { _ in } },
-            monitor: {}
-        )
-    }
 }
 
 extension DependencyValues {

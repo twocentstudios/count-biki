@@ -137,13 +137,67 @@ extension TierProductsClient: TestDependencyKey {
     }
 
     static var mock: TierProductsClient {
-        Self(
+        let products: LockIsolated<IdentifiedArrayOf<TierProduct>> = .init([])
+        return Self(
             availableProducts: { mockProducts },
-            purchase: { _ in
-                .success
+            purchase: { product in
+                _ = products.withValue { value in
+                    value.append(product)
+                }
+                return .success
             },
             restorePurchases: {},
+            currentStatus: {
+                if products.value.isEmpty {
+                    return .locked
+                } else {
+                    return .unlocked(products.value)
+                }
+            },
+            monitorPurchases: {
+                print("addddadadasdfa")
+                let streamPair = AsyncStream.makeStream(of: Void.self)
+                let handle = Task {
+                    @Dependency(\.continuousClock) var clock
+                    while true {
+                        try! await clock.sleep(for: .seconds(1))
+                        streamPair.continuation.yield()
+                    }
+                }
+                streamPair.continuation.onTermination = { _ in
+                    handle.cancel()
+                }
+                return streamPair.stream
+            }
+        )
+    }
+
+    static var unlocked: TierProductsClient {
+        Self(
+            availableProducts: { mockProducts },
+            purchase: { _ in .success },
+            restorePurchases: {},
+            currentStatus: { .unlocked(mockProducts) },
+            monitorPurchases: { AsyncStream { _ in }}
+        )
+    }
+
+    static var locked: TierProductsClient {
+        Self(
+            availableProducts: { mockProducts },
+            purchase: { _ in .success },
+            restorePurchases: {},
             currentStatus: { .locked },
+            monitorPurchases: { AsyncStream { _ in }}
+        )
+    }
+
+    static var unknown: TierProductsClient {
+        Self(
+            availableProducts: { mockProducts },
+            purchase: { _ in .success },
+            restorePurchases: {},
+            currentStatus: { .unknown },
             monitorPurchases: { AsyncStream { _ in }}
         )
     }
