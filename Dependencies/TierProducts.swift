@@ -104,6 +104,51 @@ extension TierProductsClient: DependencyKey {
         )
     }
 }
+
+extension TierProductsClient: TestDependencyKey {
+    static let mockProducts: IdentifiedArrayOf<TierProduct> = .init(uniqueElements: [
+        TierProduct(
+            id: "tier01",
+            displayName: "Test Product 01",
+            displayPrice: "$1.23"
+        ),
+        TierProduct(
+            id: "tier02",
+            displayName: "Test Product 02",
+            displayPrice: "$4.56"
+        ),
+        TierProduct(
+            id: "tier03",
+            displayName: "Test Product 03",
+            displayPrice: "$7.89"
+        ),
+    ])
+
+    static let previewValue: TierProductsClient = .liveValue
+
+    static var testValue: TierProductsClient {
+        Self(
+            availableProducts: unimplemented("availableProducts"),
+            purchase: unimplemented("purchase"),
+            restorePurchases: unimplemented("restorePurchases"),
+            currentStatus: unimplemented("currentStatus"),
+            monitorPurchases: unimplemented("monitorPurchases")
+        )
+    }
+
+    static var mock: TierProductsClient {
+        Self(
+            availableProducts: { mockProducts },
+            purchase: { _ in
+                .success
+            },
+            restorePurchases: {},
+            currentStatus: { .locked },
+            monitorPurchases: { AsyncStream { _ in }}
+        )
+    }
+}
+
 extension DependencyValues {
     var tierProductsClient: TierProductsClient {
         get { self[TierProductsClient.self] }

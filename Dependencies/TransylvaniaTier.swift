@@ -39,25 +39,8 @@ extension TransylvaniaTierClient: TestDependencyKey {
     }
 
     static var unlocked: TransylvaniaTierClient {
-        let mockProducts: IdentifiedArrayOf<TierProduct> = .init(uniqueElements: [
-            TierProduct(
-                id: "tier01",
-                displayName: "Test Product 01",
-                displayPrice: "$1.23"
-            ),
-            TierProduct(
-                id: "tier02",
-                displayName: "Test Product 02",
-                displayPrice: "$4.56"
-            ),
-            TierProduct(
-                id: "tier03",
-                displayName: "Test Product 03",
-                displayPrice: "$7.89"
-            ),
-        ])
         return Self(
-            tierStatus: { .unlocked(mockProducts) },
+            tierStatus: { .unlocked(TierProductsClient.mockProducts) },
             tierStatusStream: { AsyncStream { _ in } },
             monitor: {}
         )
