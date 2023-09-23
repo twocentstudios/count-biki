@@ -84,6 +84,11 @@ struct TranslyvaniaTierView: View {
                 .padding()
             }
             .navigationTitle("Translyvania Tier")
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("")
+                }
+            }
         }
     }
 }
