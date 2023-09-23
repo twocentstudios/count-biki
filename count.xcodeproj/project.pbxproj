@@ -23,6 +23,7 @@
 		344242212ABDBDA8001E2FC8 /* AppIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242202ABDBDA8001E2FC8 /* AppIcon.swift */; };
 		344242232ABDD814001E2FC8 /* AppIconFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242222ABDD814001E2FC8 /* AppIconFeature.swift */; };
 		344242252ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242242ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift */; };
+		344242272ABEBD6F001E2FC8 /* TransylvaniaTier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242262ABEBD6F001E2FC8 /* TransylvaniaTier.swift */; };
 		3478331F2AA7343A005160DC /* PlanningTopicsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3478331E2AA7343A005160DC /* PlanningTopicsFeature.swift */; };
 		348000E32A9CC0A800E7CCEE /* CountBiki.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */; };
 		348000E52A9CCD4700E7CCEE /* CountBikiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348000E42A9CCD4700E7CCEE /* CountBikiView.swift */; };
@@ -66,6 +67,7 @@
 		344242202ABDBDA8001E2FC8 /* AppIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIcon.swift; sourceTree = "<group>"; };
 		344242222ABDD814001E2FC8 /* AppIconFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconFeature.swift; sourceTree = "<group>"; };
 		344242242ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslyvaniaTierFeature.swift; sourceTree = "<group>"; };
+		344242262ABEBD6F001E2FC8 /* TransylvaniaTier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransylvaniaTier.swift; sourceTree = "<group>"; };
 		3478331E2AA7343A005160DC /* PlanningTopicsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTopicsFeature.swift; sourceTree = "<group>"; };
 		348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = CountBiki.scnassets; sourceTree = "<group>"; };
 		348000E42A9CCD4700E7CCEE /* CountBikiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountBikiView.swift; sourceTree = "<group>"; };
@@ -163,6 +165,7 @@
 				349D047C2A88E569008AFD0A /* Topic.swift */,
 				34BDC4962AA5C2B6001EF005 /* Haptics.swift */,
 				344242202ABDBDA8001E2FC8 /* AppIcon.swift */,
+				344242262ABEBD6F001E2FC8 /* TransylvaniaTier.swift */,
 			);
 			path = Dependencies;
 			sourceTree = "<group>";
@@ -320,6 +323,7 @@
 				344242212ABDBDA8001E2FC8 /* AppIcon.swift in Sources */,
 				340A51CF2A78EC78007DCA0C /* ListeningQuizFeature.swift in Sources */,
 				340E70582A83738F004B124B /* SpeechSynthesisSettings.swift in Sources */,
+				344242272ABEBD6F001E2FC8 /* TransylvaniaTier.swift in Sources */,
 				34BDC4972AA5C2B6001EF005 /* Haptics.swift in Sources */,
 				349D04802A88F23F008AFD0A /* TopicSettings.swift in Sources */,
 				34BDC4952AA58A51001EF005 /* GetMoreVoicesView.swift in Sources */,
