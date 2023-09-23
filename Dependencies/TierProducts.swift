@@ -88,9 +88,6 @@ extension TierProductsClient: DependencyKey {
 
                     if transaction.revocationDate == nil {
                         purchaseIds.insert(transaction.productID)
-                    } else {
-                        // TODO: does this make sense?
-                        purchaseIds.remove(transaction.productID)
                     }
                 }
                 guard let products = try? await availableProducts() else { return .unknown }
