@@ -103,7 +103,7 @@ extension TierProductsClient: DependencyKey {
     }
 }
 extension DependencyValues {
-    var feature: TierProductsClient {
+    var tierProductsClient: TierProductsClient {
         get { self[TierProductsClient.self] }
         set { self[TierProductsClient.self] = newValue }
     }
