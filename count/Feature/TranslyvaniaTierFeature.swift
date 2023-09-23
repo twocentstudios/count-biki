@@ -112,12 +112,16 @@ struct TranslyvaniaTierView: View {
                         }
                         .padding(.vertical, 0)
                         HStack(spacing: 20) {
-                            Button {} label: {
+                            Button {
+                                // TODO: TOS
+                            } label: {
                                 Text("Terms of Service")
                                     .font(.callout)
                             }
                             .buttonStyle(.borderless)
-                            Button {} label: {
+                            Button {
+                                // TODO: Privacy Policy
+                            } label: {
                                 Text("Privacy Policy")
                                     .font(.callout)
                             }
