@@ -34,7 +34,7 @@ enum TierPurchaseResult: Equatable {
 enum TierStatus: Equatable {
     case unknown
     case locked
-    case unlocked(IdentifiedArrayOf<TierProduct>)
+    case unlocked([TierProduct])
 }
 
 struct TierProductsClient {
@@ -95,7 +95,7 @@ extension TierProductsClient: DependencyKey {
                 if purchasedProducts.isEmpty {
                     return .locked
                 } else {
-                    return .unlocked(.init(uniqueElements: purchasedProducts))
+                    return .unlocked(purchasedProducts)
                 }
             },
             monitorPurchases: {
@@ -137,13 +137,14 @@ extension TierProductsClient: TestDependencyKey {
     }
 
     static var mock: TierProductsClient {
-        let products: LockIsolated<IdentifiedArrayOf<TierProduct>> = .init([])
+        let products: LockIsolated<[TierProduct]> = .init([])
         return Self(
             availableProducts: { mockProducts },
             purchase: { product in
-                _ = products.withValue { value in
+                products.withValue { value in
                     value.append(product)
                 }
+                print("count", products.value.count)
                 return .success
             },
             restorePurchases: {},
@@ -177,7 +178,7 @@ extension TierProductsClient: TestDependencyKey {
             availableProducts: { mockProducts },
             purchase: { _ in .success },
             restorePurchases: {},
-            currentStatus: { .unlocked(mockProducts) },
+            currentStatus: { .unlocked(mockProducts.elements) },
             monitorPurchases: { AsyncStream { _ in }}
         )
     }
