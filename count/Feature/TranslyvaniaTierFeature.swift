@@ -4,6 +4,7 @@ import SwiftUI
 struct TransylvaniaTierFeature: Reducer {
     struct State: Equatable {
         var tierStatus: TierStatus
+        var availableProducts: IdentifiedArrayOf<TierProduct> = []
         let canMakePayments: Bool = true // TODO: AppStore.canMakePayments
 
         var hasTranslyvaniaTier: Bool {
@@ -18,18 +19,27 @@ struct TransylvaniaTierFeature: Reducer {
     }
 
     enum Action: Equatable {
+        case availableProductsUpdated(IdentifiedArrayOf<TierProduct>)
         case onTask
         case tierStatusUpdated(TierStatus)
     }
 
     @Dependency(\.transylvaniaTierClient) var transylvaniaTierClient
+    @Dependency(\.tierProductsClient) var tierProductsClient
     @Dependency(\.continuousClock) var clock
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .availableProductsUpdated(let products):
+                state.availableProducts = products
+                return .none
             case .onTask:
                 return .run { send in
+                    if let products = try? await tierProductsClient.availableProducts() {
+                        // TODO: handle error
+                        await send(.availableProductsUpdated(products))
+                    }
                     for await newStatus in transylvaniaTierClient.tierStatusStream() {
                         await send(.tierStatusUpdated(newStatus))
                     }
@@ -83,9 +93,12 @@ struct TranslyvaniaTierView: View {
                         }
                     }
                     VStack(spacing: 16) {
-                        TipButton(imageName: nil, title: "Atomic red carrot tip", price: "$0.99")
-                        TipButton(imageName: nil, title: "Sunblock tip", price: "$4.99")
-                        TipButton(imageName: nil, title: "Coffin polish tip", price: "$19.99")
+                        ForEach(viewStore.availableProducts) { product in
+                            TipButton(imageName: nil, title: product.displayName, price: product.displayPrice, action: nil)
+                        }
+//                        TipButton(imageName: nil, title: "Atomic red carrot tip", price: "$0.99")
+//                        TipButton(imageName: nil, title: "Sunblock tip", price: "$4.99")
+//                        TipButton(imageName: nil, title: "Coffin polish tip", price: "$19.99")
                         Button {} label: {
                             Text("Restore Purchases")
                                 .font(.callout)
