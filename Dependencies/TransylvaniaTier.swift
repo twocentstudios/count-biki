@@ -1,4 +1,4 @@
-import Combine
+@preconcurrency import Combine
 import Dependencies
 import IdentifiedCollections
 
@@ -10,7 +10,7 @@ struct TransylvaniaTierClient {
 
 extension TransylvaniaTierClient: DependencyKey {
     static var liveValue: TransylvaniaTierClient {
-        let tierStatusSubject: CurrentValueSubject<TierStatus, Never> = .init(.unknown)
+        let tierStatusSubject: CurrentValueSubject<TierStatus, Never> = .init(.unknown) // TODO: this is probably not @Sendable
         return TransylvaniaTierClient(
             tierStatus: { tierStatusSubject.value },
             tierStatusStream: { tierStatusSubject.values.eraseToStream() },
