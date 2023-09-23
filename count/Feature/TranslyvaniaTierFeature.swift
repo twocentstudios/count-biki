@@ -188,6 +188,8 @@ struct TipButton: View {
         store: Store(initialState: TransylvaniaTierFeature.State()) {
             TransylvaniaTierFeature()
                 ._printChanges()
+        } withDependencies: {
+            $0.transylvaniaTierClient = .unlocked
         }
     )
     .fontDesign(.rounded)
