@@ -34,7 +34,7 @@ enum TierPurchaseResult: Equatable {
 enum TierStatus: Equatable {
     case unknown
     case locked
-    case unlocked([TierProduct])
+    case unlocked(IdentifiedArrayOf<TierProduct>)
 }
 
 enum TierProductUpdate: Equatable {
@@ -46,7 +46,8 @@ struct TierProductsClient {
     var availableProducts: @Sendable () async throws -> IdentifiedArrayOf<TierProduct>
     var purchase: @Sendable (TierProduct) async throws -> TierPurchaseResult
     var restorePurchases: @Sendable () async -> Void
-    var monitorPurchases: @Sendable () async -> AsyncStream<TierProductUpdate>
+    var currentStatus: @Sendable () async -> TierStatus
+    var monitorPurchases: @Sendable () -> AsyncStream<Void>
 }
 
 extension TierProductsClient: DependencyKey {
@@ -85,19 +86,28 @@ extension TierProductsClient: DependencyKey {
             restorePurchases: {
                 try? await AppStore.sync()
             },
-            monitorPurchases: {
-                Transaction.currentEntitlements
-                    .compactMap { result in
-                        guard case let .verified(transaction) = result else { return nil }
-                        guard let product = try await availableProducts()[id: transaction.productID] else { return nil }
+            currentStatus: {
+                var purchaseIds: Set<TierProductID> = []
+                for await result in Transaction.currentEntitlements {
+                    guard case let .verified(transaction) = result else { continue }
 
-                        if transaction.revocationDate == nil {
-                            return TierProductUpdate.added(product)
-                        } else {
-                            return TierProductUpdate.removed(product)
-                        }
+                    if transaction.revocationDate == nil {
+                        purchaseIds.insert(transaction.productID)
+                    } else {
+                        // TODO: does this make sense?
+                        purchaseIds.remove(transaction.productID)
                     }
-                    .eraseToStream()
+                }
+                guard let products = try? await availableProducts() else { return .unknown }
+                let purchasedProducts = purchaseIds.compactMap { products[id: $0] }
+                if purchasedProducts.isEmpty {
+                    return .locked
+                } else {
+                    return .unlocked(.init(uniqueElements: purchasedProducts))
+                }
+            },
+            monitorPurchases: {
+                Transaction.updates.map { _ in () }.eraseToStream()
             }
         )
     }
