@@ -42,22 +42,22 @@ enum TierProductUpdate: Equatable {
     case removed(TierProduct)
 }
 
-struct TranslyvaniaTierClient {
+struct TierProductsClient {
     var availableProducts: @Sendable () async throws -> IdentifiedArrayOf<TierProduct>
     var purchase: @Sendable (TierProduct) async throws -> TierPurchaseResult
     var restorePurchases: @Sendable () async -> Void
     var monitorPurchases: @Sendable () async -> AsyncStream<TierProductUpdate>
 }
 
-extension TranslyvaniaTierClient: DependencyKey {
-    static var liveValue: TranslyvaniaTierClient {
+extension TierProductsClient: DependencyKey {
+    static var liveValue: TierProductsClient {
         let storeKitProducts: @Sendable () async throws -> IdentifiedArrayOf<Product> = {
             try await IdentifiedArray(uniqueElements: Product.products(for: TierProduct.localIDs))
         }
         let availableProducts: @Sendable () async throws -> IdentifiedArrayOf<TierProduct> = {
             try await IdentifiedArray(uniqueElements: storeKitProducts().compactMap(TierProduct.init))
         }
-        return Self(
+        return TierProductsClient(
             availableProducts: availableProducts,
             purchase: { tierProduct in
                 struct NoProductFoundError: Error {} // TODO: merge into errors
@@ -103,8 +103,8 @@ extension TranslyvaniaTierClient: DependencyKey {
     }
 }
 extension DependencyValues {
-    var feature: TranslyvaniaTierClient {
-        get { self[TranslyvaniaTierClient.self] }
-        set { self[TranslyvaniaTierClient.self] = newValue }
+    var feature: TierProductsClient {
+        get { self[TierProductsClient.self] }
+        set { self[TierProductsClient.self] = newValue }
     }
 }
