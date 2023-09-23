@@ -3,17 +3,41 @@ import SwiftUI
 
 struct TransylvaniaTierFeature: Reducer {
     struct State: Equatable {
-        let hasTranslyvaniaTier: Bool = false
+        var tierStatus: TierStatus
         let canMakePayments: Bool = true // TODO: AppStore.canMakePayments
+
+        var hasTranslyvaniaTier: Bool {
+            if case .unlocked = tierStatus { return true }
+            return false
+        }
+
+        init() {
+            @Dependency(\.transylvaniaTierClient) var transylvaniaTierClient
+            tierStatus = transylvaniaTierClient.tierStatus()
+        }
     }
 
-    enum Action: Equatable {}
+    enum Action: Equatable {
+        case onTask
+        case tierStatusUpdated(TierStatus)
+    }
 
+    @Dependency(\.transylvaniaTierClient) var transylvaniaTierClient
     @Dependency(\.continuousClock) var clock
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
-            switch action {}
+            switch action {
+            case .onTask:
+                return .run { send in
+                    for await newStatus in transylvaniaTierClient.tierStatusStream() {
+                        await send(.tierStatusUpdated(newStatus))
+                    }
+                }
+            case let .tierStatusUpdated(tierStatus):
+                state.tierStatus = tierStatus
+                return .none
+            }
         }
     }
 }
@@ -88,6 +112,9 @@ struct TranslyvaniaTierView: View {
                 ToolbarItem(placement: .principal) {
                     Text("")
                 }
+            }
+            .task {
+                await viewStore.send(.onTask).finish()
             }
         }
     }
