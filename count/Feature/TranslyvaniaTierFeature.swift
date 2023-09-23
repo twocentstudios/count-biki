@@ -55,37 +55,23 @@ struct TranslyvaniaTierView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                         }
                     }
-                    VStack(spacing: 0) {
+                    VStack(spacing: 16) {
+                        TipButton(imageName: nil, title: "Atomic red carrot tip", price: "$0.99")
+                        TipButton(imageName: nil, title: "Sunblock tip", price: "$4.99")
+                        TipButton(imageName: nil, title: "Coffin polish tip", price: "$19.99")
                         Button {} label: {
-                            HStack(spacing: 0) {
-                                Image(systemName: "circle")
-                                    .padding(.trailing, 10)
-                                Text("Atomic red carrot tip")
-                                    .font(.title3)
-                                    .fontWeight(.black)
-                                    .multilineTextAlignment(.leading)
-                                Spacer(minLength: 16)
-                                Text("$0.99")
-                                    .fontWeight(.semibold)
-                                    .padding(.vertical, 10)
-                                    .padding(.horizontal, 10)
-                                    .background {
-                                        RoundedRectangle(cornerRadius: 10).strokeBorder(Color.accentColor, lineWidth: 2)
-                                    }
-                                    .background(Material.ultraThick)
-                                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                            Text("Restore Purchases")
+                        }
+                        .padding(.vertical, 10)
+                        HStack(spacing: 20) {
+                            Button {} label: {
+                                Text("Terms of Service")
                             }
-                            .padding(.vertical, 40)
-                            .padding(.horizontal, 20)
-                            .frame(maxWidth: .infinity, alignment: .leading)
-                            .background { RoundedRectangle(cornerRadius: 10).fill(Color(.secondarySystemFill)) }
-                        }
-                        .buttonStyle(.plain)
-                        Button {} label: {
-                            Text("Sunblock tip")
-                        }
-                        Button {} label: {
-                            Text("Coffin tip")
+                            .buttonStyle(.borderless)
+                            Button {} label: {
+                                Text("Privacy Policy")
+                            }
+                            .buttonStyle(.borderless)
                         }
                     }
                 }
@@ -93,6 +79,45 @@ struct TranslyvaniaTierView: View {
             }
             .navigationTitle("Translyvania Tier")
         }
+    }
+}
+
+struct TipButton: View {
+    let imageName: String?
+    let title: String
+    let price: String
+    var action: (() -> Void)?
+
+    var body: some View {
+        Button {
+            action?()
+        } label: {
+            HStack(spacing: 0) {
+                if let imageName {
+                    Image(imageName)
+                        .padding(.trailing, 10)
+                }
+                Text(title)
+                    .font(.title3)
+                    .fontWeight(.black)
+                    .multilineTextAlignment(.leading)
+                Spacer(minLength: 16)
+                Text(price)
+                    .fontWeight(.semibold)
+                    .padding(.vertical, 10)
+                    .padding(.horizontal, 10)
+                    .background {
+                        RoundedRectangle(cornerRadius: 10).strokeBorder(Color.accentColor, lineWidth: 2)
+                    }
+                    .background(Material.ultraThick)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+            .padding(.vertical, 40)
+            .padding(.horizontal, 20)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background { RoundedRectangle(cornerRadius: 10).fill(Color(.secondarySystemFill)) }
+        }
+        .buttonStyle(.plain)
     }
 }
 
