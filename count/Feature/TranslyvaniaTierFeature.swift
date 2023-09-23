@@ -21,6 +21,7 @@ struct TransylvaniaTierFeature: Reducer {
     enum Action: Equatable {
         case availableProductsUpdated(IdentifiedArrayOf<TierProduct>)
         case onTask
+        case purchaseButtonTapped(TierProduct)
         case restorePurchasesTapped
         case tierStatusUpdated(TierStatus)
     }
@@ -44,6 +45,10 @@ struct TransylvaniaTierFeature: Reducer {
                     for await newStatus in transylvaniaTierClient.tierStatusStream() {
                         await send(.tierStatusUpdated(newStatus))
                     }
+                }
+            case let .purchaseButtonTapped(product):
+                return .run { send in
+                    let result = try await tierProductsClient.purchase(product)
                 }
             case .restorePurchasesTapped:
                 return .run { _ in
@@ -99,7 +104,14 @@ struct TranslyvaniaTierView: View {
                     }
                     VStack(spacing: 16) {
                         ForEach(viewStore.availableProducts) { product in
-                            TipButton(imageName: nil, title: product.displayName, price: product.displayPrice, action: nil)
+                            TipButton(
+                                imageName: nil,
+                                title: product.displayName,
+                                price: product.displayPrice,
+                                action: {
+                                    viewStore.send(.purchaseButtonTapped(product))
+                                }
+                            )
                         }
 //                        TipButton(imageName: nil, title: "Atomic red carrot tip", price: "$0.99")
 //                        TipButton(imageName: nil, title: "Sunblock tip", price: "$4.99")
