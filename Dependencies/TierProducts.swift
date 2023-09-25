@@ -32,17 +32,48 @@ enum TierPurchaseResult: Equatable {
 }
 
 enum TierStatus: Equatable {
-    case unknown
     case locked
-    case unlocked([TierProduct])
+    case unlocked
+}
+
+struct TierPurchaseHistory: Equatable {
+    var transactions: IdentifiedArrayOf<TierTransaction>
+}
+
+extension TierPurchaseHistory {
+    var productCounts: [TierProductID: Int] {
+        fatalError() // TODO:
+    }
+
+    var status: TierStatus {
+        transactions.isEmpty ? .locked : .unlocked
+    }
+}
+
+typealias TierTransactionID = UInt64 // Transaction.ID
+struct TierTransaction: Equatable, Identifiable {
+    let id: TierTransactionID
+    let productID: TierProductID
+    let purchaseDate: Date
+    let originalPurchaseDate: Date
+}
+
+extension TierTransaction {
+    init(_ transaction: Transaction) {
+        id = transaction.id
+        productID = transaction.productID
+        purchaseDate = transaction.purchaseDate
+        originalPurchaseDate = transaction.originalPurchaseDate
+    }
 }
 
 struct TierProductsClient {
     var availableProducts: @Sendable () async throws -> IdentifiedArrayOf<TierProduct>
     var purchase: @Sendable (TierProduct) async throws -> TierPurchaseResult
+    var purchaseHistory: @Sendable () -> TierPurchaseHistory
+    var purchaseHistoryStream: @Sendable () -> AsyncStream<TierPurchaseHistory>
     var restorePurchases: @Sendable () async -> Void
-    var currentStatus: @Sendable () async -> TierStatus
-    var monitorPurchases: @Sendable () -> AsyncStream<Void>
+    var monitorPurchases: @Sendable () async -> Void
 }
 
 extension TierProductsClient: DependencyKey {
@@ -53,6 +84,8 @@ extension TierProductsClient: DependencyKey {
         let availableProducts: @Sendable () async throws -> IdentifiedArrayOf<TierProduct> = {
             try await IdentifiedArray(uniqueElements: storeKitProducts().compactMap(TierProduct.init))
         }
+        let purchaseHistory: LockIsolated<TierPurchaseHistory> = .init(.init(transactions: [])) // TODO: load from user defaults
+        let purchaseHistoryStream = AsyncStream.makeStream(of: TierPurchaseHistory.self)
         return TierProductsClient(
             availableProducts: availableProducts,
             purchase: { tierProduct in
@@ -63,10 +96,18 @@ extension TierProductsClient: DependencyKey {
                 let result = try await storeKitProduct.purchase()
                 switch result {
                 case let .success(.verified(transaction)):
+                    purchaseHistory.withValue {
+                        $0.transactions.append(TierTransaction(transaction))
+                        purchaseHistoryStream.continuation.yield($0)
+                    }
                     await transaction.finish()
                     return .success
                 case let .success(.unverified(transaction, error)):
                     XCTFail("Transaction was unverified(???): \(error.localizedDescription)")
+                    purchaseHistory.withValue {
+                        $0.transactions.append(TierTransaction(transaction))
+                        purchaseHistoryStream.continuation.yield($0)
+                    }
                     await transaction.finish()
                     return .success
                 case .pending:
@@ -78,28 +119,26 @@ extension TierProductsClient: DependencyKey {
                     return .userCancelled
                 }
             },
+            purchaseHistory: {
+                purchaseHistory.value
+            },
+            purchaseHistoryStream: {
+                purchaseHistoryStream.stream.eraseToStream()
+            },
             restorePurchases: {
                 try? await AppStore.sync()
             },
-            currentStatus: {
-                var purchaseIds: Set<TierProductID> = []
-                for await result in Transaction.currentEntitlements {
-                    guard case let .verified(transaction) = result else { continue }
-
-                    if transaction.revocationDate == nil {
-                        purchaseIds.insert(transaction.productID)
+            monitorPurchases: {
+                for await result in Transaction.updates {
+                    switch result {
+                    case let .unverified(transaction, _),
+                         let .verified(transaction):
+                        purchaseHistory.withValue {
+                            $0.transactions.append(TierTransaction(transaction))
+                            purchaseHistoryStream.continuation.yield($0)
+                        }
                     }
                 }
-                guard let products = try? await availableProducts() else { return .unknown }
-                let purchasedProducts = purchaseIds.compactMap { products[id: $0] }
-                if purchasedProducts.isEmpty {
-                    return .locked
-                } else {
-                    return .unlocked(purchasedProducts)
-                }
-            },
-            monitorPurchases: {
-                Transaction.updates.map { _ in () }.eraseToStream()
             }
         )
     }
@@ -130,76 +169,10 @@ extension TierProductsClient: TestDependencyKey {
         Self(
             availableProducts: unimplemented("availableProducts"),
             purchase: unimplemented("purchase"),
+            purchaseHistory: unimplemented("purchaseHistory"),
+            purchaseHistoryStream: unimplemented("purchaseHistoryStream"),
             restorePurchases: unimplemented("restorePurchases"),
-            currentStatus: unimplemented("currentStatus"),
             monitorPurchases: unimplemented("monitorPurchases")
-        )
-    }
-
-    static var mock: TierProductsClient {
-        let products: LockIsolated<[TierProduct]> = .init([])
-        return Self(
-            availableProducts: { mockProducts },
-            purchase: { product in
-                products.withValue { value in
-                    value.append(product)
-                }
-                print("count", products.value.count)
-                return .success
-            },
-            restorePurchases: {},
-            currentStatus: {
-                if products.value.isEmpty {
-                    return .locked
-                } else {
-                    return .unlocked(products.value)
-                }
-            },
-            monitorPurchases: {
-                print("addddadadasdfa")
-                let streamPair = AsyncStream.makeStream(of: Void.self)
-                let handle = Task {
-                    @Dependency(\.continuousClock) var clock
-                    while true {
-                        try! await clock.sleep(for: .seconds(1))
-                        streamPair.continuation.yield()
-                    }
-                }
-                streamPair.continuation.onTermination = { _ in
-                    handle.cancel()
-                }
-                return streamPair.stream
-            }
-        )
-    }
-
-    static var unlocked: TierProductsClient {
-        Self(
-            availableProducts: { mockProducts },
-            purchase: { _ in .success },
-            restorePurchases: {},
-            currentStatus: { .unlocked(mockProducts.elements) },
-            monitorPurchases: { AsyncStream { _ in }}
-        )
-    }
-
-    static var locked: TierProductsClient {
-        Self(
-            availableProducts: { mockProducts },
-            purchase: { _ in .success },
-            restorePurchases: {},
-            currentStatus: { .locked },
-            monitorPurchases: { AsyncStream { _ in }}
-        )
-    }
-
-    static var unknown: TierProductsClient {
-        Self(
-            availableProducts: { mockProducts },
-            purchase: { _ in .success },
-            restorePurchases: {},
-            currentStatus: { .unknown },
-            monitorPurchases: { AsyncStream { _ in }}
         )
     }
 }

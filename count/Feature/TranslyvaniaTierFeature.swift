@@ -3,18 +3,18 @@ import SwiftUI
 
 struct TransylvaniaTierFeature: Reducer {
     struct State: Equatable {
-        var tierStatus: TierStatus
+        var tierHistory: TierPurchaseHistory
         var availableProducts: IdentifiedArrayOf<TierProduct> = []
         let canMakePayments: Bool = true // TODO: AppStore.canMakePayments
 
         var hasTranslyvaniaTier: Bool {
-            if case .unlocked = tierStatus { return true }
+            if case .unlocked = tierHistory.status { return true }
             return false
         }
 
         init() {
-            @Dependency(\.transylvaniaTierClient) var transylvaniaTierClient
-            tierStatus = transylvaniaTierClient.tierStatus()
+            @Dependency(\.tierProductsClient) var tierProductsClient
+            tierHistory = tierProductsClient.purchaseHistory()
         }
     }
 
@@ -23,10 +23,9 @@ struct TransylvaniaTierFeature: Reducer {
         case onTask
         case purchaseButtonTapped(TierProduct)
         case restorePurchasesTapped
-        case tierStatusUpdated(TierStatus)
+        case tierHistoryUpdated(TierPurchaseHistory)
     }
 
-    @Dependency(\.transylvaniaTierClient) var transylvaniaTierClient
     @Dependency(\.tierProductsClient) var tierProductsClient
     @Dependency(\.continuousClock) var clock
 
@@ -42,20 +41,30 @@ struct TransylvaniaTierFeature: Reducer {
                         // TODO: handle error
                         await send(.availableProductsUpdated(products))
                     }
-                    for await newStatus in transylvaniaTierClient.tierStatusStream() {
-                        await send(.tierStatusUpdated(newStatus))
+                    for await newHistory in tierProductsClient.purchaseHistoryStream() {
+                        await send(.tierHistoryUpdated(newHistory))
                     }
                 }
             case let .purchaseButtonTapped(product):
                 return .run { send in
                     let result = try await tierProductsClient.purchase(product)
+                    switch result {
+                    case .success:
+                        break
+                    // TODO: confetti?
+                    case .userCancelled:
+                        break // Do nothing
+                    case .pending:
+                        break
+                        // TODO: show message about pending status?
+                    }
                 }
             case .restorePurchasesTapped:
                 return .run { _ in
                     await tierProductsClient.restorePurchases()
                 }
-            case let .tierStatusUpdated(tierStatus):
-                state.tierStatus = tierStatus
+            case let .tierHistoryUpdated(tierHistory):
+                state.tierHistory = tierHistory
                 return .none
             }
         }
@@ -200,8 +209,6 @@ struct TipButton: View {
         store: Store(initialState: TransylvaniaTierFeature.State()) {
             TransylvaniaTierFeature()
                 ._printChanges()
-        } withDependencies: {
-            $0.tierProductsClient = .mock
         }
     )
     .fontDesign(.rounded)
