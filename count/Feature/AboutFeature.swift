@@ -5,16 +5,18 @@ import SwiftUI
 struct AboutFeature: Reducer {
     struct State: Equatable {
         var appIcon: AppIconFeature.State
-        var hasTranslyvaniaTier: Bool = true // TODO: read this
+        var translyvaniaTier: TransylvaniaTierFeature.State
 
-        init(appIcon: AppIconFeature.State = .init()) {
+        init(appIcon: AppIconFeature.State = .init(), transylvaniaTier: TransylvaniaTierFeature.State = .init()) {
             self.appIcon = appIcon
+            translyvaniaTier = transylvaniaTier
         }
     }
 
     enum Action: Equatable {
         case doneButtonTapped
         case appIcon(AppIconFeature.Action)
+        case transylvaniaTier(TransylvaniaTierFeature.Action)
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -23,11 +25,16 @@ struct AboutFeature: Reducer {
         Scope(state: \.appIcon, action: /Action.appIcon) {
             AppIconFeature()
         }
+        Scope(state: \.translyvaniaTier, action: /Action.transylvaniaTier) {
+            TransylvaniaTierFeature()
+        }
         Reduce { state, action in
             switch action {
             case .doneButtonTapped:
                 return .run { _ in await dismiss() }
             case .appIcon:
+                return .none
+            case .transylvaniaTier:
                 return .none
             }
         }
@@ -61,7 +68,11 @@ struct AboutView: View {
                     // TODO: implement IAP
                     if true {
                         Section {
-                            Label("Leave a tip", systemImage: "yensign.circle")
+                            NavigationLink {
+                                TranslyvaniaTierView(store: store.scope(state: \.translyvaniaTier, action: { .transylvaniaTier($0) }))
+                            } label: {
+                                Label("Leave a tip", systemImage: "yensign.circle")
+                            }
                             NavigationLink {
                                 AppIconView(store: store.scope(state: \.appIcon, action: { .appIcon($0) }))
                             } label: {
@@ -73,7 +84,7 @@ struct AboutView: View {
                         } header: {
                             Text("Transylvania Tier")
                         } footer: {
-                            if viewStore.hasTranslyvaniaTier {
+                            if viewStore.translyvaniaTier.hasTranslyvaniaTier {
                                 Text("You've unlocked Translyvania Tier. Thanks for your support!")
                             } else {
                                 Text("Leave any size tip to join Transylvania Tier. Unlock whimsical benefits and support the app's development.")
@@ -183,8 +194,10 @@ struct AboutView: View {
     AboutView(
         store: Store(initialState: .init()) {
             AboutFeature()
-        })
-        .fontDesign(.rounded)
+                ._printChanges()
+        }
+    )
+    .fontDesign(.rounded)
 }
 
 // $ brew install licenseplist
