@@ -5,7 +5,7 @@ import UIKit.UIImage
 struct AppIconClient {
     var allIcons: @Sendable () -> IdentifiedArrayOf<AppIcon>
     var appIcon: @MainActor @Sendable () -> AppIcon
-    var setAppIcon: @Sendable (AppIcon) async throws -> Void
+    var setAppIcon: @MainActor @Sendable (AppIcon) async throws -> Void
 }
 
 extension AppIconClient: DependencyKey {
@@ -17,8 +17,8 @@ extension AppIconClient: DependencyKey {
                 let appIcon = AppIcon(uikitName: iconName)
                 return appIcon
             },
-            setAppIcon: { newIcon in
-                guard await UIApplication.shared.alternateIconName != newIcon.uikitName else { return }
+            setAppIcon: { @MainActor newIcon in
+                guard UIApplication.shared.alternateIconName != newIcon.uikitName else { return }
                 try await UIApplication.shared.setAlternateIconName(newIcon.uikitName)
             }
         )
