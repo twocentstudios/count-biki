@@ -65,30 +65,27 @@ struct AboutView: View {
                         .frame(maxWidth: .infinity)
                     }
 
-                    // TODO: implement IAP
-                    if true {
-                        Section {
-                            NavigationLink {
-                                TranslyvaniaTierView(store: store.scope(state: \.translyvaniaTier, action: { .transylvaniaTier($0) }))
-                            } label: {
-                                Label("Leave a tip", systemImage: "yensign.circle")
-                            }
-                            NavigationLink {
-                                AppIconView(store: store.scope(state: \.appIcon, action: { .appIcon($0) }))
-                            } label: {
-                                Label("Choose app icon", systemImage: "app.badge")
-                            }
-                            if false { // TODO: choose Biki's outfit
-                                Label("Choose Biki's outfit", systemImage: "tshirt")
-                            }
-                        } header: {
-                            Text("Transylvania Tier")
-                        } footer: {
-                            if viewStore.translyvaniaTier.hasTranslyvaniaTier {
-                                Text("You've unlocked Translyvania Tier. Thanks for your support!")
-                            } else {
-                                Text("Leave any size tip to join Transylvania Tier. Unlock whimsical benefits and support the app's development.")
-                            }
+                    Section {
+                        NavigationLink {
+                            TranslyvaniaTierView(store: store.scope(state: \.translyvaniaTier, action: { .transylvaniaTier($0) }))
+                        } label: {
+                            Label("Leave a tip", systemImage: "yensign.circle")
+                        }
+                        NavigationLink {
+                            AppIconView(store: store.scope(state: \.appIcon, action: { .appIcon($0) }))
+                        } label: {
+                            Label("Choose app icon", systemImage: "app.badge")
+                        }
+                        if false { // TODO: choose Biki's outfit
+                            Label("Choose Biki's outfit", systemImage: "tshirt")
+                        }
+                    } header: {
+                        Text("Transylvania Tier")
+                    } footer: {
+                        if viewStore.translyvaniaTier.hasTranslyvaniaTier {
+                            Text("You've unlocked Translyvania Tier. Thanks for your support!")
+                        } else {
+                            Text("Leave any size tip to join Transylvania Tier. Unlock whimsical benefits and support the app's development.")
                         }
                     }
 
