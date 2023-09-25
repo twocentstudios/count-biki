@@ -70,6 +70,7 @@
 		344242242ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslyvaniaTierFeature.swift; sourceTree = "<group>"; };
 		344242262ABEBD6F001E2FC8 /* TierProducts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TierProducts.swift; sourceTree = "<group>"; };
 		344242282ABED4B4001E2FC8 /* TransylvaniaTier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransylvaniaTier.swift; sourceTree = "<group>"; };
+		3442422A2AC192FB001E2FC8 /* StoreKitConfiguration.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = StoreKitConfiguration.storekit; sourceTree = "<group>"; };
 		3478331E2AA7343A005160DC /* PlanningTopicsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTopicsFeature.swift; sourceTree = "<group>"; };
 		348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = CountBiki.scnassets; sourceTree = "<group>"; };
 		348000E42A9CCD4700E7CCEE /* CountBikiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountBikiView.swift; sourceTree = "<group>"; };
@@ -132,6 +133,7 @@
 				3475DCFE2AB983740065521F /* Feature */,
 				3475DCFF2AB983B80065521F /* View */,
 				340A51D02A78EC79007DCA0C /* Assets.xcassets */,
+				3442422A2AC192FB001E2FC8 /* StoreKitConfiguration.storekit */,
 				341485592AB9FD27008EC2DE /* acknowledgements.md */,
 				340A51D22A78EC79007DCA0C /* count.entitlements */,
 				340A51F72A790356007DCA0C /* count.playground */,
