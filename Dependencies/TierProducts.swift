@@ -10,7 +10,7 @@ struct TierProduct: Equatable, Identifiable {
 }
 
 extension TierProduct {
-    static let localIDs: [TierProductID] = ["tip01", "tip02", "tip03"]
+    static let localIDs: [TierProductID] = ["countbiki_tip_001"]
 }
 
 extension TierProduct {
