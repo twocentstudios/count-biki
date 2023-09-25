@@ -36,8 +36,8 @@ enum TierStatus: Equatable {
     case unlocked
 }
 
-struct TierPurchaseHistory: Equatable {
-    var transactions: IdentifiedArrayOf<TierTransaction>
+struct TierPurchaseHistory: Equatable, Codable {
+    var transactions: IdentifiedArrayOf<TierTransaction> = []
 }
 
 extension TierPurchaseHistory {
@@ -55,7 +55,7 @@ extension TierPurchaseHistory {
 }
 
 typealias TierTransactionID = UInt64 // Transaction.ID
-struct TierTransaction: Equatable, Identifiable {
+struct TierTransaction: Equatable, Identifiable, Codable {
     let id: TierTransactionID
     let productID: TierProductID
     let purchaseDate: Date
@@ -88,7 +88,9 @@ extension TierProductsClient: DependencyKey {
         let availableProducts: @Sendable () async throws -> IdentifiedArrayOf<TierProduct> = {
             try await IdentifiedArray(uniqueElements: storeKitProducts().compactMap(TierProduct.init))
         }
-        let purchaseHistory: LockIsolated<TierPurchaseHistory> = .init(.init(transactions: [])) // TODO: load from user defaults
+        @Dependency(\.tierPurchaseHistoryClient) var purchaseHistoryClient
+        let loadedHistory = purchaseHistoryClient.get()
+        let purchaseHistory: LockIsolated<TierPurchaseHistory> = .init(loadedHistory)
         let purchaseHistoryStream = AsyncStream.makeStream(of: TierPurchaseHistory.self)
         return TierProductsClient(
             availableProducts: availableProducts,
@@ -103,6 +105,7 @@ extension TierProductsClient: DependencyKey {
                     purchaseHistory.withValue {
                         $0.transactions.append(TierTransaction(transaction))
                         purchaseHistoryStream.continuation.yield($0)
+                        try? purchaseHistoryClient.set($0)
                     }
                     await transaction.finish()
                     return .success
@@ -111,6 +114,7 @@ extension TierProductsClient: DependencyKey {
                     purchaseHistory.withValue {
                         $0.transactions.append(TierTransaction(transaction))
                         purchaseHistoryStream.continuation.yield($0)
+                        try? purchaseHistoryClient.set($0)
                     }
                     await transaction.finish()
                     return .success
@@ -140,6 +144,7 @@ extension TierProductsClient: DependencyKey {
                         purchaseHistory.withValue {
                             $0.transactions.append(TierTransaction(transaction))
                             purchaseHistoryStream.continuation.yield($0)
+                            try? purchaseHistoryClient.set($0)
                         }
                     }
                 }
