@@ -8,31 +8,29 @@ struct AppIconFeature: Reducer {
         var selectedAppIcon: AppIcon?
         var isAppIconChangingAvailable: Bool
 
-        init() {
+        init(isAppIconChangingAvailable: Bool? = nil) {
             @Dependency(\.appIconClient) var appIconClient
+            @Dependency(\.tierProductsClient.purchaseHistory) var purchaseHistory
             appIcons = appIconClient.allIcons()
             selectedAppIcon = nil
-            isAppIconChangingAvailable = true // TODO: paywall
+            self.isAppIconChangingAvailable = isAppIconChangingAvailable ?? (purchaseHistory().status == .unlocked)
         }
     }
 
     enum Action: Equatable {
         case appIconTapped(AppIcon)
         case appIconSet(AppIcon)
+        case onPurchaseHistoryUpdated(TierPurchaseHistory)
         case onTask
     }
 
     @Dependency(\.appIconClient) var appIconClient
     @Dependency(\.continuousClock) var clock
+    @Dependency(\.tierProductsClient.purchaseHistoryStream) var purchaseHistoryStream
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .onTask:
-                return .run { send in
-                    let currentAppIcon = await appIconClient.appIcon()
-                    await send(.appIconSet(currentAppIcon))
-                }
             case let .appIconTapped(tappedIcon):
                 guard let currentIcon = state.selectedAppIcon else { return .none }
                 return .run { send in
@@ -47,6 +45,17 @@ struct AppIconFeature: Reducer {
                 }
             case let .appIconSet(tappedIcon):
                 state.selectedAppIcon = tappedIcon
+                return .none
+            case .onTask:
+                return .run { send in
+                    let currentAppIcon = await appIconClient.appIcon()
+                    await send(.appIconSet(currentAppIcon))
+                    for await newHistory in purchaseHistoryStream() {
+                        await send(.onPurchaseHistoryUpdated(newHistory))
+                    }
+                }
+            case let .onPurchaseHistoryUpdated(newHistory):
+                state.isAppIconChangingAvailable = newHistory.status == .unlocked
                 return .none
             }
         }
@@ -83,7 +92,7 @@ struct AppIconView: View {
                                 .aspectRatio(contentMode: .fit)
                                 .clipShape(RoundedRectangle(cornerRadius: 20))
                                 .padding(6)
-                                .shadow(color: Color.primary.opacity(0.3), radius: 6)
+                                .shadow(color: Color.black.opacity(0.3), radius: 6)
                                 .background {
                                     if viewStore.selectedAppIcon == appIcon {
                                         RoundedRectangle(cornerRadius: 26).strokeBorder(Color.accentColor, lineWidth: 6)
@@ -108,7 +117,7 @@ struct AppIconView: View {
 }
 
 #Preview {
-    AppIconView(store: Store(initialState: .init()) {
+    AppIconView(store: Store(initialState: .init(isAppIconChangingAvailable: true)) {
         AppIconFeature()
     })
     .fontDesign(.rounded)
