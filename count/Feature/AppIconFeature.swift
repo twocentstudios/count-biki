@@ -36,7 +36,7 @@ struct AppIconFeature: Reducer {
                 return .run { send in
                     do {
                         await send(.appIconSet(tappedIcon))
-                        try await clock.sleep(for: .milliseconds(500))
+                        try await clock.sleep(for: .milliseconds(500)) // wait for selection animation
                         try await appIconClient.setAppIcon(tappedIcon)
                     } catch {
                         await send(.appIconSet(currentIcon))
