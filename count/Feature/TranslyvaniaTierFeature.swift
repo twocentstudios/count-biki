@@ -20,6 +20,7 @@ struct TransylvaniaTierFeature: Reducer {
 
     enum Action: Equatable {
         case availableProductsUpdated(IdentifiedArrayOf<TierProduct>)
+        case clearPurchaseHistory
         case onTask
         case purchaseButtonTapped(TierProduct)
         case restorePurchasesTapped
@@ -34,6 +35,11 @@ struct TransylvaniaTierFeature: Reducer {
             switch action {
             case let .availableProductsUpdated(products):
                 state.availableProducts = products
+                return .none
+            case .clearPurchaseHistory:
+                #if DEBUG
+                    tierProductsClient.clearPurchaseHistory()
+                #endif
                 return .none
             case .onTask:
                 return .run { send in
@@ -79,6 +85,7 @@ struct TranslyvaniaTierView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     VStack(spacing: 10) {
+                        // TODO: transitions
                         if viewStore.hasTranslyvaniaTier {
                             Text("You've unlocked...")
                                 .font(.subheadline)
@@ -148,6 +155,14 @@ struct TranslyvaniaTierView: View {
                             }
                             .buttonStyle(.borderless)
                         }
+                        #if DEBUG
+                            Button {
+                                viewStore.send(.clearPurchaseHistory)
+                            } label: {
+                                Text("[DEBUG] Clear Purchase History")
+                                    .font(.callout)
+                            }
+                        #endif
                     }
                 }
                 .padding()

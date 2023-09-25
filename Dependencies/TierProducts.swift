@@ -76,6 +76,7 @@ struct TierProductsClient {
     var purchase: @Sendable (TierProduct) async throws -> TierPurchaseResult
     var purchaseHistory: @Sendable () -> TierPurchaseHistory
     var purchaseHistoryStream: @Sendable () -> AsyncStream<TierPurchaseHistory>
+    var clearPurchaseHistory: @Sendable () -> Void
     var restorePurchases: @Sendable () async -> Void
     var monitorPurchases: @Sendable () async -> Void
 }
@@ -133,6 +134,13 @@ extension TierProductsClient: DependencyKey {
             purchaseHistoryStream: {
                 purchaseHistoryStream.stream.eraseToStream()
             },
+            clearPurchaseHistory: {
+                purchaseHistory.withValue {
+                    $0.transactions = []
+                    purchaseHistoryStream.continuation.yield($0)
+                    try? purchaseHistoryClient.set($0)
+                }
+            },
             restorePurchases: {
                 try? await AppStore.sync()
             },
@@ -180,6 +188,7 @@ extension TierProductsClient: TestDependencyKey {
             purchase: unimplemented("purchase"),
             purchaseHistory: unimplemented("purchaseHistory"),
             purchaseHistoryStream: unimplemented("purchaseHistoryStream"),
+            clearPurchaseHistory: unimplemented("clearPurchaseHistory"),
             restorePurchases: unimplemented("restorePurchases"),
             monitorPurchases: unimplemented("monitorPurchases")
         )
