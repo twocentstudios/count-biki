@@ -42,7 +42,11 @@ struct TierPurchaseHistory: Equatable {
 
 extension TierPurchaseHistory {
     var productCounts: [TierProductID: Int] {
-        fatalError() // TODO:
+        var counts: [TierProductID: Int] = [:]
+        for transaction in transactions {
+            counts[transaction.productID, default: 0] += 1
+        }
+        return counts
     }
 
     var status: TierStatus {
