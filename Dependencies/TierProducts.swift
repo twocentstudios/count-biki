@@ -7,6 +7,7 @@ struct TierProduct: Equatable, Identifiable {
     let id: TierProductID
     let displayName: String
     let displayPrice: String
+    let price: Decimal
 }
 
 extension TierProductID {
@@ -44,6 +45,7 @@ extension TierProduct {
         id = product.id
         displayName = product.displayName
         displayPrice = product.displayPrice
+        price = product.price
     }
 }
 
@@ -188,17 +190,20 @@ extension TierProductsClient: TestDependencyKey {
         TierProduct(
             id: "tier01",
             displayName: "Test Product 01",
-            displayPrice: "$1.23"
+            displayPrice: "$1.23",
+            price: 123
         ),
         TierProduct(
             id: "tier02",
             displayName: "Test Product 02",
-            displayPrice: "$4.56"
+            displayPrice: "$4.56",
+            price: 456
         ),
         TierProduct(
             id: "tier03",
             displayName: "Test Product 03",
-            displayPrice: "$7.89"
+            displayPrice: "$7.89",
+            price: 789
         ),
     ])
 

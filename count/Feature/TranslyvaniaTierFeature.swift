@@ -45,7 +45,8 @@ struct TransylvaniaTierFeature: Reducer {
                 return .run { send in
                     if let products = try? await tierProductsClient.availableProducts() {
                         // TODO: handle error
-                        await send(.availableProductsUpdated(products))
+                        let sortedProducts = IdentifiedArrayOf(uniqueElements: products.sorted(by: { $0.price < $1.price }))
+                        await send(.availableProductsUpdated(sortedProducts))
                     }
                     for await newHistory in tierProductsClient.purchaseHistoryStream() {
                         await send(.tierHistoryUpdated(newHistory))
