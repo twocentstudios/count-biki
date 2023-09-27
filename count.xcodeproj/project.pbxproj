@@ -25,6 +25,8 @@
 		344242272ABEBD6F001E2FC8 /* TierProducts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242262ABEBD6F001E2FC8 /* TierProducts.swift */; };
 		3442422C2AC1AB19001E2FC8 /* DependenciesAdditions in Frameworks */ = {isa = PBXBuildFile; productRef = 3442422B2AC1AB19001E2FC8 /* DependenciesAdditions */; };
 		3442422E2AC1D11A001E2FC8 /* TierPurchaseHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3442422D2AC1D11A001E2FC8 /* TierPurchaseHistory.swift */; };
+		344242342AC41EAD001E2FC8 /* DataState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242312AC41EAD001E2FC8 /* DataState.swift */; };
+		344242372AC41F9C001E2FC8 /* EquatableError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242362AC41F9C001E2FC8 /* EquatableError.swift */; };
 		3478331F2AA7343A005160DC /* PlanningTopicsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3478331E2AA7343A005160DC /* PlanningTopicsFeature.swift */; };
 		348000E32A9CC0A800E7CCEE /* CountBiki.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */; };
 		348000E52A9CCD4700E7CCEE /* CountBikiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348000E42A9CCD4700E7CCEE /* CountBikiView.swift */; };
@@ -71,6 +73,8 @@
 		344242262ABEBD6F001E2FC8 /* TierProducts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TierProducts.swift; sourceTree = "<group>"; };
 		3442422A2AC192FB001E2FC8 /* StoreKitConfiguration.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = StoreKitConfiguration.storekit; sourceTree = "<group>"; };
 		3442422D2AC1D11A001E2FC8 /* TierPurchaseHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TierPurchaseHistory.swift; sourceTree = "<group>"; };
+		344242312AC41EAD001E2FC8 /* DataState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataState.swift; sourceTree = "<group>"; };
+		344242362AC41F9C001E2FC8 /* EquatableError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EquatableError.swift; sourceTree = "<group>"; };
 		3478331E2AA7343A005160DC /* PlanningTopicsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTopicsFeature.swift; sourceTree = "<group>"; };
 		348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = CountBiki.scnassets; sourceTree = "<group>"; };
 		348000E42A9CCD4700E7CCEE /* CountBikiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountBikiView.swift; sourceTree = "<group>"; };
@@ -109,6 +113,7 @@
 		340A51C02A78EC78007DCA0C = {
 			isa = PBXGroup;
 			children = (
+				3442422F2AC41E7B001E2FC8 /* Utilities */,
 				340E70512A820E32004B124B /* Dependencies */,
 				340A51CB2A78EC78007DCA0C /* count */,
 				340A51DD2A78EC79007DCA0C /* countTests */,
@@ -180,6 +185,15 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		3442422F2AC41E7B001E2FC8 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				344242312AC41EAD001E2FC8 /* DataState.swift */,
+				344242362AC41F9C001E2FC8 /* EquatableError.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 		3475DCFE2AB983740065521F /* Feature */ = {
@@ -334,12 +348,14 @@
 				34BDC4952AA58A51001EF005 /* GetMoreVoicesView.swift in Sources */,
 				3442422E2AC1D11A001E2FC8 /* TierPurchaseHistory.swift in Sources */,
 				349802222A7BDDF200E352F5 /* IndeterminiteProgressView.swift in Sources */,
+				344242342AC41EAD001E2FC8 /* DataState.swift in Sources */,
 				348000E52A9CCD4700E7CCEE /* CountBikiView.swift in Sources */,
 				34276FBF2AB34EB600647AE9 /* TextSpeechFeature.swift in Sources */,
 				349D047A2A84EB3A008AFD0A /* SettingsFeature.swift in Sources */,
 				340E70532A820E73004B124B /* SpeechSynthesis.swift in Sources */,
 				340A51CD2A78EC78007DCA0C /* App.swift in Sources */,
 				344242232ABDD814001E2FC8 /* AppIconFeature.swift in Sources */,
+				344242372AC41F9C001E2FC8 /* EquatableError.swift in Sources */,
 				34276FC42AB5899C00647AE9 /* AboutFeature.swift in Sources */,
 				349D047D2A88E569008AFD0A /* Topic.swift in Sources */,
 			);
