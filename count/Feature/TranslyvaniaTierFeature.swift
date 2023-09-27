@@ -122,16 +122,15 @@ struct TranslyvaniaTierView: View {
                         ForEach(viewStore.availableProducts) { product in
                             TipButton(
                                 imageName: nil,
-                                title: product.displayName,
+                                title: product.item?.title,
+                                subtitle: product.displayName,
+                                description: product.item?.description,
                                 price: product.displayPrice,
                                 action: {
                                     viewStore.send(.purchaseButtonTapped(product))
                                 }
                             )
                         }
-//                        TipButton(imageName: nil, title: "Atomic red carrot tip", price: "$0.99")
-//                        TipButton(imageName: nil, title: "Sunblock tip", price: "$4.99")
-//                        TipButton(imageName: nil, title: "Coffin polish tip", price: "$19.99")
                         Button {
                             viewStore.send(.restorePurchasesTapped)
                         } label: {
@@ -182,40 +181,59 @@ struct TranslyvaniaTierView: View {
 
 struct TipButton: View {
     let imageName: String?
-    let title: String
+    let title: String?
+    let subtitle: String
+    let description: String?
     let price: String
     var action: (() -> Void)?
 
     var body: some View {
-        Button {
-            action?()
-        } label: {
-            HStack(spacing: 0) {
-                if let imageName {
-                    Image(imageName)
-                        .padding(.trailing, 10)
-                }
-                Text(title)
-                    .font(.title3)
-                    .fontWeight(.black)
-                    .multilineTextAlignment(.leading)
-                Spacer(minLength: 16)
-                Text(price)
-                    .fontWeight(.semibold)
-                    .padding(.vertical, 10)
-                    .padding(.horizontal, 10)
-                    .background {
-                        RoundedRectangle(cornerRadius: 10).strokeBorder(Color.accentColor, lineWidth: 2)
+        VStack(alignment: .leading) {
+            Button {
+                action?()
+            } label: {
+                HStack(spacing: 0) {
+                    if let imageName {
+                        Image(imageName)
+                            .padding(.trailing, 10)
                     }
-                    .background(Material.ultraThick)
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
+                    VStack(alignment: .leading) {
+                        if let title {
+                            Text(title)
+                                .font(.title3)
+                                .fontWeight(.black)
+                                .multilineTextAlignment(.leading)
+                        }
+                        Text(subtitle)
+                            .font(.subheadline)
+                            .multilineTextAlignment(.leading)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    Spacer(minLength: 16)
+                    Text(price)
+                        .fontWeight(.semibold)
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 10)
+                        .background {
+                            RoundedRectangle(cornerRadius: 10).strokeBorder(Color.accentColor, lineWidth: 2)
+                        }
+                        .background(Material.ultraThick)
+                        .clipShape(RoundedRectangle(cornerRadius: 10))
+                }
+                .padding(.vertical, 40)
+                .padding(.horizontal, 20)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background { RoundedRectangle(cornerRadius: 10).fill(Color(.secondarySystemFill)) }
             }
-            .padding(.vertical, 40)
-            .padding(.horizontal, 20)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background { RoundedRectangle(cornerRadius: 10).fill(Color(.secondarySystemFill)) }
+            .buttonStyle(.plain)
+            if let description {
+                Text(description)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.leading)
+                    .padding(.horizontal, 20)
+            }
         }
-        .buttonStyle(.plain)
     }
 }
 

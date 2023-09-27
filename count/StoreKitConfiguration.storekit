@@ -10,13 +10,43 @@
       "internalID" : "6467632008",
       "localizations" : [
         {
-          "description" : "A modest tip to unlock whimsical benefits",
-          "displayName" : "Atomic Red Carrot Tip",
+          "description" : "A small tip that unlocks whimsical benefits",
+          "displayName" : "Small Tip",
           "locale" : "en_US"
         }
       ],
       "productID" : "countbiki_tip_001",
       "referenceName" : "countbiki_tip_001",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "4.99",
+      "familyShareable" : false,
+      "internalID" : "6467850796",
+      "localizations" : [
+        {
+          "description" : "A medium tip that unlocks whimsical benefits",
+          "displayName" : "Medium Tip",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "countbiki_tip_002",
+      "referenceName" : "countbiki_tip_002",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "19.99",
+      "familyShareable" : false,
+      "internalID" : "6467852287",
+      "localizations" : [
+        {
+          "description" : "A large tip that unlocks whimsical benefits",
+          "displayName" : "Large Tip",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "countbiki_tip_003",
+      "referenceName" : "countbiki_tip_003",
       "type" : "Consumable"
     }
   ],
@@ -24,7 +54,7 @@
     "_applicationInternalID" : "6463796779",
     "_developerTeamID" : "YK25EF78NT",
     "_failTransactionsEnabled" : false,
-    "_lastSynchronizedDate" : 717329416.972386,
+    "_lastSynchronizedDate" : 717494819.51243699,
     "_storeKitErrors" : [
       {
         "current" : null,

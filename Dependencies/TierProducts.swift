@@ -9,8 +9,30 @@ struct TierProduct: Equatable, Identifiable {
     let displayPrice: String
 }
 
+extension TierProductID {
+    static let tip001: Self = "countbiki_tip_001"
+    static let tip002: Self = "countbiki_tip_002"
+    static let tip003: Self = "countbiki_tip_003"
+    
+}
+
+struct TierProductItem: Equatable {
+    let title: String
+    let description: String
+    // let sceneName: String
+}
+
 extension TierProduct {
-    static let localIDs: [TierProductID] = ["countbiki_tip_001"]
+    static let localIDs: [TierProductID] = [.tip001, .tip002, .tip003]
+    
+    var item: TierProductItem? {
+        switch id {
+        case .tip001: .init(title: "Atomic Red Carrot", description: "A delicious, blood-red carrot preferred by vampiric rabbits.")
+        case .tip002: .init(title: "Vampire Sunblock", description: "It's marketed as specially formulated for vampires, but its effectiveness has been questioned.")
+        case .tip003: .init(title: "Ornate Mirror", description: "Not useful for reflecting oneself, but a great decorative piece for any room.")
+        default: nil
+        }
+    }
 }
 
 extension TierProduct {
