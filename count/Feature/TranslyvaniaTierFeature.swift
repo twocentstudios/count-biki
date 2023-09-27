@@ -4,7 +4,7 @@ import SwiftUI
 struct TransylvaniaTierFeature: Reducer {
     struct State: Equatable {
         var tierHistory: TierPurchaseHistory
-        var availableProducts: IdentifiedArrayOf<TierProduct> = []
+        var availableProducts: DataState<IdentifiedArrayOf<TierProduct>> = .initialized
         let canMakePayments: Bool = true // TODO: AppStore.canMakePayments
 
         var hasTranslyvaniaTier: Bool {
@@ -19,7 +19,7 @@ struct TransylvaniaTierFeature: Reducer {
     }
 
     enum Action: Equatable {
-        case availableProductsUpdated(IdentifiedArrayOf<TierProduct>)
+        case availableProductsUpdated(DataState<IdentifiedArrayOf<TierProduct>>)
         case clearPurchaseHistory
         case onTask
         case purchaseButtonTapped(TierProduct)
@@ -46,7 +46,7 @@ struct TransylvaniaTierFeature: Reducer {
                     if let products = try? await tierProductsClient.availableProducts() {
                         // TODO: handle error
                         let sortedProducts = IdentifiedArrayOf(uniqueElements: products.sorted(by: { $0.price < $1.price }))
-                        await send(.availableProductsUpdated(sortedProducts))
+                        await send(.availableProductsUpdated(.loaded(sortedProducts)))
                     }
                     for await newHistory in tierProductsClient.purchaseHistoryStream() {
                         await send(.tierHistoryUpdated(newHistory))
@@ -119,50 +119,52 @@ struct TranslyvaniaTierView: View {
                             .frame(maxWidth: .infinity, alignment: .center)
                         }
                     }
-                    VStack(spacing: 16) {
-                        ForEach(viewStore.availableProducts) { product in
-                            TipButton(
-                                imageName: nil,
-                                title: product.item?.title,
-                                subtitle: product.displayName,
-                                description: product.item?.description,
-                                price: product.displayPrice,
-                                action: {
-                                    viewStore.send(.purchaseButtonTapped(product))
+                    if let availableProducts = viewStore.availableProducts.value {
+                        VStack(spacing: 16) {
+                            ForEach(availableProducts) { product in
+                                TipButton(
+                                    imageName: nil,
+                                    title: product.item?.title,
+                                    subtitle: product.displayName,
+                                    description: product.item?.description,
+                                    price: product.displayPrice,
+                                    action: {
+                                        viewStore.send(.purchaseButtonTapped(product))
+                                    }
+                                )
+                            }
+                            Button {
+                                viewStore.send(.restorePurchasesTapped)
+                            } label: {
+                                Text("Restore Purchases")
+                                    .font(.callout)
+                            }
+                            .padding(.vertical, 0)
+                            HStack(spacing: 20) {
+                                Button {
+                                    // TODO: TOS
+                                } label: {
+                                    Text("Terms of Service")
+                                        .font(.callout)
                                 }
-                            )
-                        }
-                        Button {
-                            viewStore.send(.restorePurchasesTapped)
-                        } label: {
-                            Text("Restore Purchases")
-                                .font(.callout)
-                        }
-                        .padding(.vertical, 0)
-                        HStack(spacing: 20) {
-                            Button {
-                                // TODO: TOS
-                            } label: {
-                                Text("Terms of Service")
-                                    .font(.callout)
+                                .buttonStyle(.borderless)
+                                Button {
+                                    // TODO: Privacy Policy
+                                } label: {
+                                    Text("Privacy Policy")
+                                        .font(.callout)
+                                }
+                                .buttonStyle(.borderless)
                             }
-                            .buttonStyle(.borderless)
-                            Button {
-                                // TODO: Privacy Policy
-                            } label: {
-                                Text("Privacy Policy")
-                                    .font(.callout)
-                            }
-                            .buttonStyle(.borderless)
-                        }
-                        #if DEBUG
+#if DEBUG
                             Button {
                                 viewStore.send(.clearPurchaseHistory)
                             } label: {
                                 Text("[DEBUG] Clear Purchase History")
                                     .font(.callout)
                             }
-                        #endif
+#endif
+                        }
                     }
                 }
                 .padding()
