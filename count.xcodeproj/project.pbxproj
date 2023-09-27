@@ -24,7 +24,7 @@
 		344242252ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242242ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift */; };
 		344242272ABEBD6F001E2FC8 /* TierProducts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242262ABEBD6F001E2FC8 /* TierProducts.swift */; };
 		3442422C2AC1AB19001E2FC8 /* DependenciesAdditions in Frameworks */ = {isa = PBXBuildFile; productRef = 3442422B2AC1AB19001E2FC8 /* DependenciesAdditions */; };
-		3442422E2AC1D11A001E2FC8 /* TierPurchaseHistoryClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3442422D2AC1D11A001E2FC8 /* TierPurchaseHistoryClient.swift */; };
+		3442422E2AC1D11A001E2FC8 /* TierPurchaseHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3442422D2AC1D11A001E2FC8 /* TierPurchaseHistory.swift */; };
 		3478331F2AA7343A005160DC /* PlanningTopicsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3478331E2AA7343A005160DC /* PlanningTopicsFeature.swift */; };
 		348000E32A9CC0A800E7CCEE /* CountBiki.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */; };
 		348000E52A9CCD4700E7CCEE /* CountBikiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348000E42A9CCD4700E7CCEE /* CountBikiView.swift */; };
@@ -70,7 +70,7 @@
 		344242242ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslyvaniaTierFeature.swift; sourceTree = "<group>"; };
 		344242262ABEBD6F001E2FC8 /* TierProducts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TierProducts.swift; sourceTree = "<group>"; };
 		3442422A2AC192FB001E2FC8 /* StoreKitConfiguration.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = StoreKitConfiguration.storekit; sourceTree = "<group>"; };
-		3442422D2AC1D11A001E2FC8 /* TierPurchaseHistoryClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TierPurchaseHistoryClient.swift; sourceTree = "<group>"; };
+		3442422D2AC1D11A001E2FC8 /* TierPurchaseHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TierPurchaseHistory.swift; sourceTree = "<group>"; };
 		3478331E2AA7343A005160DC /* PlanningTopicsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTopicsFeature.swift; sourceTree = "<group>"; };
 		348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = CountBiki.scnassets; sourceTree = "<group>"; };
 		348000E42A9CCD4700E7CCEE /* CountBikiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountBikiView.swift; sourceTree = "<group>"; };
@@ -170,7 +170,7 @@
 				34BDC4962AA5C2B6001EF005 /* Haptics.swift */,
 				344242202ABDBDA8001E2FC8 /* AppIcon.swift */,
 				344242262ABEBD6F001E2FC8 /* TierProducts.swift */,
-				3442422D2AC1D11A001E2FC8 /* TierPurchaseHistoryClient.swift */,
+				3442422D2AC1D11A001E2FC8 /* TierPurchaseHistory.swift */,
 			);
 			path = Dependencies;
 			sourceTree = "<group>";
@@ -332,7 +332,7 @@
 				34BDC4972AA5C2B6001EF005 /* Haptics.swift in Sources */,
 				349D04802A88F23F008AFD0A /* TopicSettings.swift in Sources */,
 				34BDC4952AA58A51001EF005 /* GetMoreVoicesView.swift in Sources */,
-				3442422E2AC1D11A001E2FC8 /* TierPurchaseHistoryClient.swift in Sources */,
+				3442422E2AC1D11A001E2FC8 /* TierPurchaseHistory.swift in Sources */,
 				349802222A7BDDF200E352F5 /* IndeterminiteProgressView.swift in Sources */,
 				348000E52A9CCD4700E7CCEE /* CountBikiView.swift in Sources */,
 				34276FBF2AB34EB600647AE9 /* TextSpeechFeature.swift in Sources */,
