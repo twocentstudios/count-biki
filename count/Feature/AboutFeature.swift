@@ -5,11 +5,11 @@ import SwiftUI
 struct AboutFeature: Reducer {
     struct State: Equatable {
         var appIcon: AppIconFeature.State
-        var translyvaniaTier: TransylvaniaTierFeature.State
+        var transylvaniaTier: TransylvaniaTierFeature.State
 
         init(appIcon: AppIconFeature.State = .init(), transylvaniaTier: TransylvaniaTierFeature.State = .init()) {
             self.appIcon = appIcon
-            translyvaniaTier = transylvaniaTier
+            self.transylvaniaTier = transylvaniaTier
         }
     }
 
@@ -25,7 +25,7 @@ struct AboutFeature: Reducer {
         Scope(state: \.appIcon, action: /Action.appIcon) {
             AppIconFeature()
         }
-        Scope(state: \.translyvaniaTier, action: /Action.transylvaniaTier) {
+        Scope(state: \.transylvaniaTier, action: /Action.transylvaniaTier) {
             TransylvaniaTierFeature()
         }
         Reduce { state, action in
@@ -67,14 +67,14 @@ struct AboutView: View {
 
                     Section {
                         NavigationLink {
-                            TranslyvaniaTierView(store: store.scope(state: \.translyvaniaTier, action: { .transylvaniaTier($0) }))
+                            TranslyvaniaTierView(store: store.scope(state: \.transylvaniaTier, action: { .transylvaniaTier($0) }))
                         } label: {
                             Label("Leave a tip", systemImage: "yensign.circle")
                         }
                         NavigationLink {
                             AppIconView(store: store.scope(state: \.appIcon, action: { .appIcon($0) }))
                         } label: {
-                            Label("Choose app icon", systemImage: viewStore.translyvaniaTier.hasTranslyvaniaTier ? "app.badge" : "lock")
+                            Label("Choose app icon", systemImage: viewStore.transylvaniaTier.hasTranslyvaniaTier ? "app.badge" : "lock")
                         }
                         if false { // TODO: choose Biki's outfit
                             Label("Choose Biki's outfit", systemImage: "tshirt")
@@ -82,7 +82,7 @@ struct AboutView: View {
                     } header: {
                         Text("Transylvania Tier")
                     } footer: {
-                        if viewStore.translyvaniaTier.hasTranslyvaniaTier {
+                        if viewStore.transylvaniaTier.hasTranslyvaniaTier {
                             Text("You've unlocked Translyvania Tier. Thanks for your support!")
                         } else {
                             Text("Leave any size tip to join Transylvania Tier. Unlock whimsical benefits and support the app's development.")
