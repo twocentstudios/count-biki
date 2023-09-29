@@ -113,6 +113,7 @@ struct AboutView: View {
                     } header: {
                         Text("Support")
                     }
+                    .tint(Color(.label))
 
                     Section {
                         VStack {
@@ -150,6 +151,7 @@ struct AboutView: View {
                     } header: {
                         Text("About")
                     }
+                    .tint(Color(.label))
 
                     Section {
                         NavigationLink {
@@ -166,6 +168,7 @@ struct AboutView: View {
                     } header: {
                         Text("Legal")
                     }
+                    .tint(Color(.label))
                 }
                 .listStyle(.insetGrouped)
                 .navigationBarTitleDisplayMode(.inline)
