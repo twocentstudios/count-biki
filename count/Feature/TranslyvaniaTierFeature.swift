@@ -23,6 +23,7 @@ struct TransylvaniaTierFeature: Reducer {
         case clearPurchaseHistory
         case onTask
         case purchaseButtonTapped(TierProduct)
+        case retryLoadProductsTapped
         case restorePurchasesTapped
         case tierHistoryUpdated(TierPurchaseHistory)
     }
@@ -43,13 +44,7 @@ struct TransylvaniaTierFeature: Reducer {
                 return .none
             case .onTask:
                 return .run { send in
-                    do {
-                        let products = try await tierProductsClient.availableProducts()
-                        let sortedProducts = IdentifiedArrayOf(uniqueElements: products.sorted(by: { $0.price < $1.price }))
-                        await send(.availableProductsUpdated(.loaded(sortedProducts)))
-                    } catch {
-                        await send(.availableProductsUpdated(.loadingFailed(error.toEquatableError())))
-                    }
+                    await loadProducts(send: send)
                     for await newHistory in tierProductsClient.purchaseHistoryStream() {
                         await send(.tierHistoryUpdated(newHistory))
                     }
@@ -68,6 +63,8 @@ struct TransylvaniaTierFeature: Reducer {
                         // TODO: show message about pending status?
                     }
                 }
+            case .retryLoadProductsTapped:
+                return .run { await loadProducts(send: $0) }
             case .restorePurchasesTapped:
                 return .run { _ in
                     await tierProductsClient.restorePurchases()
@@ -76,6 +73,16 @@ struct TransylvaniaTierFeature: Reducer {
                 state.tierHistory = tierHistory
                 return .none
             }
+        }
+    }
+
+    private func loadProducts(send: Send<TransylvaniaTierFeature.Action>) async {
+        do {
+            let products = try await tierProductsClient.availableProducts()
+            let sortedProducts = IdentifiedArrayOf(uniqueElements: products.sorted(by: { $0.price < $1.price }))
+            await send(.availableProductsUpdated(.loaded(sortedProducts)))
+        } catch {
+            await send(.availableProductsUpdated(.loadingFailed(error.toEquatableError())))
         }
     }
 }
@@ -124,13 +131,19 @@ struct TranslyvaniaTierView: View {
                     if viewStore.availableProducts.isLoading {
                         ProgressView().padding()
                     }
-                    if let error = viewStore.availableProducts.errorMessage {
-                        Text(error)
-                            .font(.subheadline)
-                            .multilineTextAlignment(.center)
-                            .foregroundStyle(.red)
-                            .padding()
-                            .frame(maxWidth: .infinity)
+                    if viewStore.availableProducts.errorMessage != nil {
+                        GroupBox {
+                            Text("There was a problem loading the available tips.")
+                                .font(.headline)
+                                .multilineTextAlignment(.center)
+                                .foregroundStyle(.red)
+                                .padding()
+                                .frame(maxWidth: .infinity)
+                            Button("Try Again") {
+                                viewStore.send(.retryLoadProductsTapped)
+                            }
+                            .buttonStyle(.bordered)
+                        }
                     }
                     if let availableProducts = viewStore.availableProducts.value {
                         VStack(spacing: 16) {
