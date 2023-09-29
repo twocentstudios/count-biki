@@ -5,6 +5,7 @@ struct TransylvaniaTierFeature: Reducer {
     struct State: Equatable {
         var tierHistory: TierPurchaseHistory
         var availableProducts: DataState<IdentifiedArrayOf<TierProduct>> = .initialized
+        var confettiAnimation: Int = 0
         let canMakePayments: Bool = true // TODO: AppStore.canMakePayments
 
         var hasTranslyvaniaTier: Bool {
@@ -26,6 +27,7 @@ struct TransylvaniaTierFeature: Reducer {
         case retryLoadProductsTapped
         case restorePurchasesTapped
         case tierHistoryUpdated(TierPurchaseHistory)
+        case onSuccessfulPurchase
     }
 
     @Dependency(\.tierProductsClient) var tierProductsClient
@@ -42,6 +44,9 @@ struct TransylvaniaTierFeature: Reducer {
                     tierProductsClient.clearPurchaseHistory()
                 #endif
                 return .none
+            case .onSuccessfulPurchase:
+                state.confettiAnimation += 1
+                return .none
             case .onTask:
                 return .run { send in
                     await loadProducts(send: send)
@@ -54,8 +59,7 @@ struct TransylvaniaTierFeature: Reducer {
                     let result = try await tierProductsClient.purchase(product)
                     switch result {
                     case .success:
-                        break
-                    // TODO: confetti?
+                        await send(.onSuccessfulPurchase)
                     case .userCancelled:
                         break // Do nothing
                     case .pending:
@@ -102,6 +106,7 @@ struct TranslyvaniaTierView: View {
                             .font(.largeTitle)
                             .fontWeight(.black)
                             .foregroundStyle(LinearGradient(colors: [Color.red, Color.orange, Color.yellow], startPoint: .bottomLeading, endPoint: .topTrailing))
+                            .confettiCannon(counter: .constant(viewStore.confettiAnimation), num: 85, confettiSize: 7, rainHeight: 1000, fadesOut: false, opacity: 1.0, openingAngle: .degrees(20), closingAngle: .degrees(160), radius: 180, repetitions: 0, repetitionInterval: 2.0)
                         if viewStore.hasTranslyvaniaTier {
                             Text("Thanks for supporting development")
                                 .fontDesign(.default)
