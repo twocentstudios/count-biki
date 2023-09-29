@@ -120,9 +120,9 @@ struct TranslyvaniaTierView: View {
                     if viewStore.availableProducts.isLoading {
                         ProgressView().padding()
                     }
-                    if viewStore.availableProducts.errorMessage != nil {
+                    if let error = viewStore.availableProducts.errorMessage {
                         GroupBox {
-                            Text("There was a problem loading the available tips.")
+                            Text(error)
                                 .font(.headline)
                                 .multilineTextAlignment(.center)
                                 .foregroundStyle(.red)
