@@ -59,7 +59,7 @@ extension Topic.Category {
         case .counter: "Objects and more: Objects and more: 個、枚、人、..."
         }
     }
-    
+
     var symbolName: String {
         switch self {
         case .number: "number"
@@ -67,6 +67,18 @@ extension Topic.Category {
         case .duration: "clock"
         case .dateTime: "calendar"
         case .counter: "baseball"
+        }
+    }
+}
+
+extension Topic {
+    var shouldShowFormattedPendingSubmission: Bool {
+        switch category {
+        case .number: true
+        case .money: true
+        case .duration: false
+        case .dateTime: false
+        case .counter: true
         }
     }
 }

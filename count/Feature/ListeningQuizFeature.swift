@@ -263,6 +263,9 @@ extension ListeningQuizFeature.State {
     }
 
     var formattedPendingSubmissionValue: String? {
+        guard topic.shouldShowFormattedPendingSubmission else {
+            return nil
+        }
         guard let formatted = Int(pendingSubmissionValue)?.formatted(.number.grouping(.automatic)) else {
             return nil
         }
