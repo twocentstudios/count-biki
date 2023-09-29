@@ -160,7 +160,7 @@ struct AboutView: View {
                         } label: {
                             Label("Licenses", systemImage: "note.text")
                         }
-                        Link(destination: URL(string: "https://twocentstudios.com/apps/countbiki/privacy-policy")!) {
+                        Link(destination: GlobalURL.privacyPolicy) {
                             Label("Privacy policy", systemImage: "note.text")
                         }
                     } header: {
@@ -208,6 +208,10 @@ private func acknowledgements() -> String {
         return ""
     }
     return string
+}
+
+enum GlobalURL {
+    static let privacyPolicy = URL(string: "https://twocentstudios.com/apps/countbiki/privacy-policy")!
 }
 
 @MainActor private enum MailTo {

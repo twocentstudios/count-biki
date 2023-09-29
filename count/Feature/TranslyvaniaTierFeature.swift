@@ -170,29 +170,17 @@ struct TranslyvaniaTierView: View {
                                 )
                             }
                             .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
-                            Button {
-                                viewStore.send(.restorePurchasesTapped)
-                            } label: {
-                                Text("Restore Purchases")
+                            HStack(spacing: 20) {
+                                Button {
+                                    viewStore.send(.restorePurchasesTapped)
+                                } label: {
+                                    Text("Restore Purchases")
+                                        .font(.callout)
+                                }
+                                Link("Privacy Policy", destination: GlobalURL.privacyPolicy)
                                     .font(.callout)
                             }
                             .padding(.vertical, 0)
-                            HStack(spacing: 20) {
-                                Button {
-                                    // TODO: TOS
-                                } label: {
-                                    Text("Terms of Service")
-                                        .font(.callout)
-                                }
-                                .buttonStyle(.borderless)
-                                Button {
-                                    // TODO: Privacy Policy
-                                } label: {
-                                    Text("Privacy Policy")
-                                        .font(.callout)
-                                }
-                                .buttonStyle(.borderless)
-                            }
                             #if DEBUG
                                 Button {
                                     viewStore.send(.clearPurchaseHistory)
