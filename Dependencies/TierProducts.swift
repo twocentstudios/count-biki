@@ -116,7 +116,7 @@ extension TierProductsClient: DependencyKey {
         @Dependency(\.tierPurchaseHistoryClient) var purchaseHistoryClient
         let loadedHistory = purchaseHistoryClient.get()
         let purchaseHistory: LockIsolated<TierPurchaseHistory> = .init(loadedHistory)
-        let purchaseHistoryStream = AsyncStream.makeStream(of: TierPurchaseHistory.self)
+        let purchaseHistoryStream = AsyncStream.makeStream(of: TierPurchaseHistory.self) // TODO: use AsyncCurrentValueSubject
         return TierProductsClient(
             availableProducts: availableProducts,
             purchase: { tierProduct in
