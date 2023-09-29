@@ -103,6 +103,7 @@ struct TierProductsClient {
     var clearPurchaseHistory: @Sendable () -> Void
     var restorePurchases: @Sendable () async -> Void
     var monitorPurchases: @Sendable () async -> Void
+    var allowsPurchases: @Sendable () -> Bool
 }
 
 extension TierProductsClient: DependencyKey {
@@ -180,6 +181,9 @@ extension TierProductsClient: DependencyKey {
                         }
                     }
                 }
+            },
+            allowsPurchases: {
+                AppStore.canMakePayments
             }
         )
     }
@@ -217,7 +221,8 @@ extension TierProductsClient: TestDependencyKey {
             purchaseHistoryStream: unimplemented("purchaseHistoryStream"),
             clearPurchaseHistory: unimplemented("clearPurchaseHistory"),
             restorePurchases: unimplemented("restorePurchases"),
-            monitorPurchases: unimplemented("monitorPurchases")
+            monitorPurchases: unimplemented("monitorPurchases"),
+            allowsPurchases: unimplemented("allowsPurchases")
         )
     }
 }

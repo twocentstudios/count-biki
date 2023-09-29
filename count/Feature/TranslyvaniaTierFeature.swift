@@ -6,7 +6,6 @@ struct TransylvaniaTierFeature: Reducer {
         var tierHistory: TierPurchaseHistory
         var availableProducts: DataState<IdentifiedArrayOf<TierProduct>> = .initialized
         var confettiAnimation: Int = 0
-        let canMakePayments: Bool = true // TODO: AppStore.canMakePayments
 
         var hasTranslyvaniaTier: Bool {
             if case .unlocked = tierHistory.status { return true }
@@ -82,6 +81,12 @@ struct TransylvaniaTierFeature: Reducer {
 
     private func loadProducts(send: Send<TransylvaniaTierFeature.Action>) async {
         do {
+            guard tierProductsClient.allowsPurchases() else {
+                struct PurchasesNotAllowedError: LocalizedError {
+                    var errorDescription: String? { "Purchases are not allowed on this device." }
+                }
+                throw PurchasesNotAllowedError()
+            }
             let products = try await tierProductsClient.availableProducts()
             let sortedProducts = IdentifiedArrayOf(uniqueElements: products.sorted(by: { $0.price < $1.price }))
             await send(.availableProductsUpdated(.loaded(sortedProducts)))
