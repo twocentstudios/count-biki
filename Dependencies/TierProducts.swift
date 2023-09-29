@@ -87,6 +87,10 @@ struct TierTransaction: Equatable, Identifiable, Codable {
 }
 
 extension TierTransaction {
+    static let mock: Self = TierTransaction(id: 0, productID: .tip001, purchaseDate: .distantPast, originalPurchaseDate: .distantPast)
+}
+
+extension TierTransaction {
     init(_ transaction: Transaction) {
         id = transaction.id
         productID = transaction.productID

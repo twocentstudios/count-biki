@@ -8,12 +8,12 @@ struct AppIconFeature: Reducer {
         var selectedAppIcon: AppIcon?
         var isAppIconChangingAvailable: Bool
 
-        init(isAppIconChangingAvailable: Bool? = nil) {
+        init() {
             @Dependency(\.appIconClient) var appIconClient
             @Dependency(\.tierProductsClient.purchaseHistory) var purchaseHistory
             appIcons = appIconClient.allIcons()
             selectedAppIcon = nil
-            self.isAppIconChangingAvailable = isAppIconChangingAvailable ?? (purchaseHistory().status == .unlocked)
+            isAppIconChangingAvailable = purchaseHistory().status == .unlocked
         }
     }
 
@@ -117,8 +117,10 @@ struct AppIconView: View {
 }
 
 #Preview {
-    AppIconView(store: Store(initialState: .init(isAppIconChangingAvailable: true)) {
+    AppIconView(store: Store(initialState: .init()) {
         AppIconFeature()
+    } withDependencies: {
+        $0.tierProductsClient.purchaseHistory = { TierPurchaseHistory(transactions: IdentifiedArrayOf(uniqueElements: [TierTransaction.mock])) }
     })
     .fontDesign(.rounded)
 }
