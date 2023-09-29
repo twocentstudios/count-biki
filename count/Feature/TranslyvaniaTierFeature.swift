@@ -3,6 +3,7 @@ import SwiftUI
 
 struct TransylvaniaTierFeature: Reducer {
     struct State: Equatable {
+        @PresentationState var alert: AlertState<Never>?
         var tierHistory: TierPurchaseHistory
         var availableProducts: DataState<IdentifiedArrayOf<TierProduct>> = .initialized
         var confettiAnimation: Int = 0
@@ -19,14 +20,16 @@ struct TransylvaniaTierFeature: Reducer {
     }
 
     enum Action: Equatable {
+        case alert(PresentationAction<Never>)
         case availableProductsUpdated(DataState<IdentifiedArrayOf<TierProduct>>)
         case clearPurchaseHistory
+        case onPurchaseFailure(EquatableError)
+        case onPurchaseSuccess
         case onTask
         case purchaseButtonTapped(TierProduct)
         case retryLoadProductsTapped
         case restorePurchasesTapped
         case tierHistoryUpdated(TierPurchaseHistory)
-        case onSuccessfulPurchase
     }
 
     @Dependency(\.tierProductsClient) var tierProductsClient
@@ -35,6 +38,8 @@ struct TransylvaniaTierFeature: Reducer {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
+            case .alert:
+                return .none
             case let .availableProductsUpdated(products):
                 state.availableProducts = products
                 return .none
@@ -43,7 +48,10 @@ struct TransylvaniaTierFeature: Reducer {
                     tierProductsClient.clearPurchaseHistory()
                 #endif
                 return .none
-            case .onSuccessfulPurchase:
+            case let .onPurchaseFailure(error):
+                state.alert = .init(title: { TextState("Error") }, message: { TextState(error.localizedDescription) })
+                return .none
+            case .onPurchaseSuccess:
                 state.confettiAnimation += 1
                 return .none
             case .onTask:
@@ -58,13 +66,15 @@ struct TransylvaniaTierFeature: Reducer {
                     let result = try await tierProductsClient.purchase(product)
                     switch result {
                     case .success:
-                        await send(.onSuccessfulPurchase)
+                        await send(.onPurchaseSuccess)
                     case .userCancelled:
                         break // Do nothing
                     case .pending:
                         break
                         // TODO: show message about pending status?
                     }
+                } catch: { error, send in
+                    await send(.onPurchaseFailure(error.toEquatableError()))
                 }
             case .retryLoadProductsTapped:
                 return .run { await loadProducts(send: $0) }
@@ -77,6 +87,7 @@ struct TransylvaniaTierFeature: Reducer {
                 return .none
             }
         }
+        .ifLet(\.$alert, action: /Action.alert)
     }
 
     private func loadProducts(send: Send<TransylvaniaTierFeature.Action>) async {
@@ -158,6 +169,7 @@ struct TranslyvaniaTierView: View {
                                     }
                                 )
                             }
+                            .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
                             Button {
                                 viewStore.send(.restorePurchasesTapped)
                             } label: {
