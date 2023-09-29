@@ -43,10 +43,12 @@ struct TransylvaniaTierFeature: Reducer {
                 return .none
             case .onTask:
                 return .run { send in
-                    if let products = try? await tierProductsClient.availableProducts() {
-                        // TODO: handle error
+                    do {
+                        let products = try await tierProductsClient.availableProducts()
                         let sortedProducts = IdentifiedArrayOf(uniqueElements: products.sorted(by: { $0.price < $1.price }))
                         await send(.availableProductsUpdated(.loaded(sortedProducts)))
+                    } catch {
+                        await send(.availableProductsUpdated(.loadingFailed(error.toEquatableError())))
                     }
                     for await newHistory in tierProductsClient.purchaseHistoryStream() {
                         await send(.tierHistoryUpdated(newHistory))
@@ -119,6 +121,17 @@ struct TranslyvaniaTierView: View {
                             .frame(maxWidth: .infinity, alignment: .center)
                         }
                     }
+                    if viewStore.availableProducts.isLoading {
+                        ProgressView().padding()
+                    }
+                    if let error = viewStore.availableProducts.errorMessage {
+                        Text(error)
+                            .font(.subheadline)
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.red)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                    }
                     if let availableProducts = viewStore.availableProducts.value {
                         VStack(spacing: 16) {
                             ForEach(availableProducts) { product in
@@ -156,14 +169,14 @@ struct TranslyvaniaTierView: View {
                                 }
                                 .buttonStyle(.borderless)
                             }
-#if DEBUG
-                            Button {
-                                viewStore.send(.clearPurchaseHistory)
-                            } label: {
-                                Text("[DEBUG] Clear Purchase History")
-                                    .font(.callout)
-                            }
-#endif
+                            #if DEBUG
+                                Button {
+                                    viewStore.send(.clearPurchaseHistory)
+                                } label: {
+                                    Text("[DEBUG] Clear Purchase History")
+                                        .font(.callout)
+                                }
+                            #endif
                         }
                     }
                 }
