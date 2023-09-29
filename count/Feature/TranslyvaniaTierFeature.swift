@@ -200,6 +200,7 @@ struct TranslyvaniaTierView: View {
                     Text("")
                 }
             }
+            .toolbarBackground(.hidden, for: .navigationBar)
             .task {
                 await viewStore.send(.onTask).finish()
             }
