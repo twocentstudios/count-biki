@@ -74,7 +74,7 @@ struct AboutView: View {
                         NavigationLink {
                             AppIconView(store: store.scope(state: \.appIcon, action: { .appIcon($0) }))
                         } label: {
-                            Label("Choose app icon", systemImage: "app.badge")
+                            Label("Choose app icon", systemImage: viewStore.translyvaniaTier.hasTranslyvaniaTier ? "app.badge" : "lock")
                         }
                         if false { // TODO: choose Biki's outfit
                             Label("Choose Biki's outfit", systemImage: "tshirt")
