@@ -131,13 +131,13 @@ private final class SpeechSynthesisDelegate: NSObject, AVSpeechSynthesizerDelega
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didFinish utterance: AVSpeechUtterance) {
-        guard !isComplete.value else { assertionFailure("already complete"); return }
+        guard !isComplete.value else { XCTFail("already complete"); return }
         isComplete.setValue(true)
         didFinish()
     }
 
     func speechSynthesizer(_ synthesizer: AVSpeechSynthesizer, didCancel utterance: AVSpeechUtterance) {
-        guard !isComplete.value else { assertionFailure("already complete"); return }
+        guard !isComplete.value else { XCTFail("already complete"); return }
         isComplete.setValue(true)
         didCancel()
     }
