@@ -1,3 +1,4 @@
+import AsyncExtensions
 import Dependencies
 import IdentifiedCollections
 import StoreKit
@@ -14,7 +15,6 @@ extension TierProductID {
     static let tip001: Self = "countbiki_tip_001"
     static let tip002: Self = "countbiki_tip_002"
     static let tip003: Self = "countbiki_tip_003"
-    
 }
 
 struct TierProductItem: Equatable {
@@ -25,7 +25,7 @@ struct TierProductItem: Equatable {
 
 extension TierProduct {
     static let localIDs: [TierProductID] = [.tip001, .tip002, .tip003]
-    
+
     var item: TierProductItem? {
         switch id {
         case .tip001: .init(title: "Atomic Red Carrot", description: "A delicious, blood-red carrot preferred by vampiric rabbits.")
@@ -120,8 +120,7 @@ extension TierProductsClient: DependencyKey {
         }
         @Dependency(\.tierPurchaseHistoryClient) var purchaseHistoryClient
         let loadedHistory = purchaseHistoryClient.get()
-        let purchaseHistory: LockIsolated<TierPurchaseHistory> = .init(loadedHistory)
-        let purchaseHistoryStream = AsyncStream.makeStream(of: TierPurchaseHistory.self) // TODO: use AsyncCurrentValueSubject
+        let purchaseHistorySubject = AsyncCurrentValueSubject(loadedHistory)
         return TierProductsClient(
             availableProducts: availableProducts,
             purchase: { tierProduct in
@@ -132,20 +131,12 @@ extension TierProductsClient: DependencyKey {
                 let result = try await storeKitProduct.purchase()
                 switch result {
                 case let .success(.verified(transaction)):
-                    purchaseHistory.withValue {
-                        $0.transactions.append(TierTransaction(transaction))
-                        purchaseHistoryStream.continuation.yield($0)
-                        try? purchaseHistoryClient.set($0)
-                    }
+                    purchaseHistorySubject.value.transactions.append(TierTransaction(transaction))
                     await transaction.finish()
                     return .success
                 case let .success(.unverified(transaction, error)):
                     XCTFail("Transaction was unverified(???): \(error.localizedDescription)")
-                    purchaseHistory.withValue {
-                        $0.transactions.append(TierTransaction(transaction))
-                        purchaseHistoryStream.continuation.yield($0)
-                        try? purchaseHistoryClient.set($0)
-                    }
+                    purchaseHistorySubject.value.transactions.append(TierTransaction(transaction))
                     await transaction.finish()
                     return .success
                 case .pending:
@@ -158,17 +149,13 @@ extension TierProductsClient: DependencyKey {
                 }
             },
             purchaseHistory: {
-                purchaseHistory.value
+                purchaseHistorySubject.value
             },
             purchaseHistoryStream: {
-                purchaseHistoryStream.stream.eraseToStream()
+                purchaseHistorySubject.eraseToStream()
             },
             clearPurchaseHistory: {
-                purchaseHistory.withValue {
-                    $0.transactions = []
-                    purchaseHistoryStream.continuation.yield($0)
-                    try? purchaseHistoryClient.set($0)
-                }
+                purchaseHistorySubject.value.transactions = []
             },
             restorePurchases: {
                 try? await AppStore.sync()
@@ -178,11 +165,7 @@ extension TierProductsClient: DependencyKey {
                     switch result {
                     case let .unverified(transaction, _),
                          let .verified(transaction):
-                        purchaseHistory.withValue {
-                            $0.transactions.append(TierTransaction(transaction))
-                            purchaseHistoryStream.continuation.yield($0)
-                            try? purchaseHistoryClient.set($0)
-                        }
+                        purchaseHistorySubject.value.transactions.append(TierTransaction(transaction))
                     }
                 }
             },
