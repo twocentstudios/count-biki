@@ -88,6 +88,12 @@ struct TransylvaniaTierFeature: Reducer {
             }
             let products = try await tierProductsClient.availableProducts()
             let sortedProducts = IdentifiedArrayOf(uniqueElements: products.sorted(by: { $0.price < $1.price }))
+            guard !products.isEmpty else {
+                struct NoProductsError: LocalizedError {
+                    var errorDescription: String? { "No items are currently available for purchase." }
+                }
+                throw NoProductsError()
+            }
             await send(.availableProductsUpdated(.loaded(sortedProducts)))
         } catch {
             await send(.availableProductsUpdated(.loadingFailed(error.toEquatableError())))
