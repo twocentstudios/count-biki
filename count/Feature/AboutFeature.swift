@@ -7,19 +7,23 @@ struct AboutFeature: Reducer {
         var appIcon: AppIconFeature.State
         var transylvaniaTier: TransylvaniaTierFeature.State
 
-        init(appIcon: AppIconFeature.State = .init(), transylvaniaTier: TransylvaniaTierFeature.State = .init()) {
-            self.appIcon = appIcon
-            self.transylvaniaTier = transylvaniaTier
+        init() {
+            @Dependency(\.tierProductsClient.purchaseHistory) var purchaseHistory
+            appIcon = .init(isAppIconChangingAvailable: purchaseHistory().status == .unlocked)
+            transylvaniaTier = .init(tierHistory: purchaseHistory())
         }
     }
 
     enum Action: Equatable {
-        case doneButtonTapped
         case appIcon(AppIconFeature.Action)
+        case doneButtonTapped
+        case onPurchaseHistoryUpdated(TierPurchaseHistory)
+        case onTask
         case transylvaniaTier(TransylvaniaTierFeature.Action)
     }
 
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.tierProductsClient.purchaseHistoryStream) var purchaseHistoryStream
 
     var body: some ReducerOf<Self> {
         Scope(state: \.appIcon, action: /Action.appIcon) {
@@ -36,6 +40,16 @@ struct AboutFeature: Reducer {
                 return .none
             case .transylvaniaTier:
                 return .none
+            case let .onPurchaseHistoryUpdated(newHistory):
+                state.appIcon.isAppIconChangingAvailable = newHistory.status == .unlocked
+                state.transylvaniaTier.tierHistory = newHistory
+                return .none
+            case .onTask:
+                return .run { send in
+                    for await newHistory in purchaseHistoryStream() {
+                        await send(.onPurchaseHistoryUpdated(newHistory))
+                    }
+                }
             }
         }
     }
@@ -185,6 +199,9 @@ struct AboutView: View {
                     }
                 }
                 .toolbarBackground(.hidden, for: .navigationBar)
+                .task {
+                    viewStore.send(.onTask)
+                }
             }
         }
     }

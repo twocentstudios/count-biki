@@ -12,11 +12,6 @@ struct TransylvaniaTierFeature: Reducer {
             if case .unlocked = tierHistory.status { return true }
             return false
         }
-
-        init() {
-            @Dependency(\.tierProductsClient) var tierProductsClient
-            tierHistory = tierProductsClient.purchaseHistory()
-        }
     }
 
     enum Action: Equatable {
@@ -29,7 +24,6 @@ struct TransylvaniaTierFeature: Reducer {
         case purchaseButtonTapped(TierProduct)
         case retryLoadProductsTapped
         case restorePurchasesTapped
-        case tierHistoryUpdated(TierPurchaseHistory)
     }
 
     @Dependency(\.tierProductsClient) var tierProductsClient
@@ -57,9 +51,6 @@ struct TransylvaniaTierFeature: Reducer {
             case .onTask:
                 return .run { send in
                     await loadProducts(send: send)
-                    for await newHistory in tierProductsClient.purchaseHistoryStream() {
-                        await send(.tierHistoryUpdated(newHistory))
-                    }
                 }
             case let .purchaseButtonTapped(product):
                 return .run { send in
@@ -82,9 +73,6 @@ struct TransylvaniaTierFeature: Reducer {
                 return .run { _ in
                     await tierProductsClient.restorePurchases()
                 }
-            case let .tierHistoryUpdated(tierHistory):
-                state.tierHistory = tierHistory
-                return .none
             }
         }
         .ifLet(\.$alert, action: /Action.alert)
@@ -268,7 +256,7 @@ struct TipButton: View {
 
 #Preview {
     TranslyvaniaTierView(
-        store: Store(initialState: TransylvaniaTierFeature.State()) {
+        store: Store(initialState: TransylvaniaTierFeature.State(tierHistory: .init())) {
             TransylvaniaTierFeature()
                 ._printChanges()
         }

@@ -8,25 +8,22 @@ struct AppIconFeature: Reducer {
         var selectedAppIcon: AppIcon?
         var isAppIconChangingAvailable: Bool
 
-        init() {
+        init(isAppIconChangingAvailable: Bool) {
             @Dependency(\.appIconClient) var appIconClient
-            @Dependency(\.tierProductsClient.purchaseHistory) var purchaseHistory
             appIcons = appIconClient.allIcons()
             selectedAppIcon = nil
-            isAppIconChangingAvailable = purchaseHistory().status == .unlocked
+            self.isAppIconChangingAvailable = isAppIconChangingAvailable
         }
     }
 
     enum Action: Equatable {
         case appIconTapped(AppIcon)
         case appIconSet(AppIcon)
-        case onPurchaseHistoryUpdated(TierPurchaseHistory)
         case onTask
     }
 
     @Dependency(\.appIconClient) var appIconClient
     @Dependency(\.continuousClock) var clock
-    @Dependency(\.tierProductsClient.purchaseHistoryStream) var purchaseHistoryStream
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
@@ -50,13 +47,7 @@ struct AppIconFeature: Reducer {
                 return .run { send in
                     let currentAppIcon = await appIconClient.appIcon()
                     await send(.appIconSet(currentAppIcon))
-                    for await newHistory in purchaseHistoryStream() {
-                        await send(.onPurchaseHistoryUpdated(newHistory))
-                    }
                 }
-            case let .onPurchaseHistoryUpdated(newHistory):
-                state.isAppIconChangingAvailable = newHistory.status == .unlocked
-                return .none
             }
         }
     }
@@ -117,10 +108,8 @@ struct AppIconView: View {
 }
 
 #Preview {
-    AppIconView(store: Store(initialState: .init()) {
+    AppIconView(store: Store(initialState: .init(isAppIconChangingAvailable: true)) {
         AppIconFeature()
-    } withDependencies: {
-        $0.tierProductsClient.purchaseHistory = { TierPurchaseHistory(transactions: IdentifiedArrayOf(uniqueElements: [TierTransaction.mock])) }
     })
     .fontDesign(.rounded)
 }
