@@ -38,7 +38,7 @@ struct TopicsFeature: Reducer {
         case about(PresentationAction<AboutFeature.Action>)
         case aboutButtonTapped
         case quiz(PresentationAction<ListeningQuizFeature.Action>)
-        case selectTopic(UUID) // TODO: change to buttonTapped
+        case topicButtonTapped(UUID)
     }
 
     @Dependency(\.continuousClock) var clock
@@ -57,7 +57,7 @@ struct TopicsFeature: Reducer {
             case .quiz:
                 return .none
 
-            case let .selectTopic(topicID):
+            case let .topicButtonTapped(topicID):
                 state.quiz = .init(topicID: topicID)
                 return .none
             }
@@ -105,7 +105,7 @@ struct TopicsView: View {
                                                 title: topic.title,
                                                 subtitle: topic.description,
                                                 isFavorite: false,
-                                                tapped: { viewStore.send(.selectTopic(topic.id)) },
+                                                tapped: { viewStore.send(.topicButtonTapped(topic.id)) },
                                                 toggleFavoriteTapped: nil // TODO: favorite support
                                             )
                                         }
