@@ -115,7 +115,7 @@ struct PlanningTopicsView: View {
             } footer: {
                 Text("Listen to a clip and transcribe the number")
             }
-            
+
             Section {
                 NavigationLink {
                     List {
@@ -128,7 +128,7 @@ struct PlanningTopicsView: View {
                         }
                     }
                 } label: { CellView(title: "Counters", subtitle: "Objects and more: 個、枚、人、...") }
-                
+
                 NavigationLink {
                     List {
                         CellView(title: "Hours", subtitle: "1-48時間 (including 半)")
@@ -179,7 +179,6 @@ struct PlanningTopicsView: View {
             } footer: {
                 Text("Read a phrase and transcribe the hiragana")
             }
-            
         }
         .listStyle(.automatic)
         .navigationBarTitleDisplayMode(.inline)
@@ -215,12 +214,10 @@ private struct CellView: View {
         }
         .padding(.vertical, 2)
         .contextMenu {
-            Button {
-                // TODO:
-            }
-            label: {
-                Label(isFavorite ? "Remove Favorite" : "Add Favorite", systemImage: "star")
-            }
+            Button {}
+                label: {
+                    Label(isFavorite ? "Remove Favorite" : "Add Favorite", systemImage: "star")
+                }
         }
     }
 }
