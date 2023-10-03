@@ -7,6 +7,7 @@ struct TransylvaniaTierFeature: Reducer {
         var tierHistory: TierPurchaseHistory
         var availableProducts: DataState<IdentifiedArrayOf<TierProduct>> = .initialized
         var confettiAnimation: Int = 0
+        var isPurchasingProductId: TierProduct.ID?
 
         var hasTranslyvaniaTier: Bool {
             if case .unlocked = tierHistory.status { return true }
@@ -20,6 +21,7 @@ struct TransylvaniaTierFeature: Reducer {
         case clearPurchaseHistory
         case onPurchaseFailure(EquatableError)
         case onPurchaseSuccess
+        case onPurchaseCancelled
         case onTask
         case purchaseButtonTapped(TierProduct)
         case retryLoadProductsTapped
@@ -44,25 +46,36 @@ struct TransylvaniaTierFeature: Reducer {
                 return .none
             case let .onPurchaseFailure(error):
                 state.alert = .init(title: { TextState("Error") }, message: { TextState(error.localizedDescription) })
+                state.isPurchasingProductId = nil
+                return .none
+            case .onPurchaseCancelled:
+                state.isPurchasingProductId = nil
                 return .none
             case .onPurchaseSuccess:
                 state.confettiAnimation += 1
+                state.isPurchasingProductId = nil
                 return .none
             case .onTask:
                 return .run { send in
                     await loadProducts(send: send)
                 }
             case let .purchaseButtonTapped(product):
+                guard state.isPurchasingProductId == nil else {
+                    XCTFail("A purchase is already in progress")
+                    return .none
+                }
+                state.isPurchasingProductId = product.id
                 return .run { send in
                     let result = try await tierProductsClient.purchase(product)
                     switch result {
                     case .success:
                         await send(.onPurchaseSuccess)
                     case .userCancelled:
-                        break // Do nothing
+                        // Do nothing
+                        await send(.onPurchaseCancelled)
                     case .pending:
-                        break
                         // TODO: show message about pending status?
+                        await send(.onPurchaseCancelled)
                     }
                 } catch: { error, send in
                     await send(.onPurchaseFailure(error.toEquatableError()))
@@ -161,10 +174,12 @@ struct TranslyvaniaTierView: View {
                                     description: product.item?.description,
                                     price: product.displayPrice,
                                     purchaseCount: (count > 0) ? "\(count)" : nil,
+                                    isBeingPurchased: product.id == viewStore.isPurchasingProductId,
                                     action: {
                                         viewStore.send(.purchaseButtonTapped(product))
                                     }
                                 )
+                                .disabled(viewStore.isPurchasingProductId != nil)
                             }
                             .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
                             HStack(spacing: 20) {
@@ -212,6 +227,7 @@ struct TipButton: View {
     let description: String?
     let price: String
     let purchaseCount: String?
+    let isBeingPurchased: Bool
     var action: (() -> Void)?
 
     var body: some View {
@@ -237,6 +253,10 @@ struct TipButton: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     Spacer(minLength: 16)
+                    if isBeingPurchased {
+                        ProgressView()
+                            .padding(.horizontal, 6)
+                    }
                     Text(price)
                         .fontWeight(.semibold)
                         .padding(.vertical, 10)
