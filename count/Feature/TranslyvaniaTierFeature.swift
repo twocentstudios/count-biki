@@ -150,14 +150,17 @@ struct TranslyvaniaTierView: View {
                         }
                     }
                     if let availableProducts = viewStore.availableProducts.value {
+                        let productCounts = viewStore.tierHistory.productCounts
                         VStack(spacing: 16) {
                             ForEach(availableProducts) { product in
+                                let count = productCounts[product.id] ?? 0
                                 TipButton(
                                     imageName: nil,
                                     title: product.item?.title,
                                     subtitle: product.displayName,
                                     description: product.item?.description,
                                     price: product.displayPrice,
+                                    purchaseCount: (count > 0) ? "\(count)" : nil,
                                     action: {
                                         viewStore.send(.purchaseButtonTapped(product))
                                     }
@@ -208,6 +211,7 @@ struct TipButton: View {
     let subtitle: String
     let description: String?
     let price: String
+    let purchaseCount: String?
     var action: (() -> Void)?
 
     var body: some View {
@@ -245,7 +249,14 @@ struct TipButton: View {
                 }
                 .padding(.vertical, 40)
                 .padding(.horizontal, 20)
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .overlay(alignment: .bottom) {
+                    if let purchaseCount {
+                        Text("Purchased: \(purchaseCount)")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .padding(.bottom, 6)
+                    }
+                }
                 .background { RoundedRectangle(cornerRadius: 10).fill(Color(.secondarySystemFill)) }
             }
             .buttonStyle(.plain)
@@ -262,7 +273,7 @@ struct TipButton: View {
 
 #Preview {
     TranslyvaniaTierView(
-        store: Store(initialState: TransylvaniaTierFeature.State(tierHistory: .init())) {
+        store: Store(initialState: TransylvaniaTierFeature.State(tierHistory: .init(transactions: IdentifiedArray(uniqueElements: [.mock])))) {
             TransylvaniaTierFeature()
                 ._printChanges()
         }
