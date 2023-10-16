@@ -61,7 +61,6 @@
 		340A51D42A78EC79007DCA0C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		340A51DA2A78EC79007DCA0C /* countTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = countTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		340A51DE2A78EC79007DCA0C /* ListeningQuizFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningQuizFeatureTests.swift; sourceTree = "<group>"; };
-		340A51F72A790356007DCA0C /* count.playground */ = {isa = PBXFileReference; lastKnownFileType = file.playground; path = count.playground; sourceTree = SOURCE_ROOT; xcLanguageSpecificationIdentifier = xcode.lang.swift; };
 		340DDAE92A9F770B00E21308 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		340E70522A820E73004B124B /* SpeechSynthesis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSynthesis.swift; sourceTree = "<group>"; };
 		340E70572A83738F004B124B /* SpeechSynthesisSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSynthesisSettings.swift; sourceTree = "<group>"; };
@@ -143,7 +142,6 @@
 				3442422A2AC192FB001E2FC8 /* StoreKitConfiguration.storekit */,
 				341485592AB9FD27008EC2DE /* acknowledgements.md */,
 				340A51D22A78EC79007DCA0C /* count.entitlements */,
-				340A51F72A790356007DCA0C /* count.playground */,
 				348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */,
 				340DDAE92A9F770B00E21308 /* Info.plist */,
 				340A51D32A78EC79007DCA0C /* Preview Content */,
