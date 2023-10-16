@@ -21,3 +21,4 @@ exports/
 progress/
 *.xcschememanagement.plist
 count.xcodeproj/xcuserdata/ctrott.xcuserdatad/xcschemes/xcschememanagement.plist
+count.playground
