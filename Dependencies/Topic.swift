@@ -140,12 +140,17 @@ extension Topic {
 func numberQuestionGenerator(for range: ClosedRange<Int>, topicID: UUID) -> @Sendable (WithRandomNumberGenerator) throws -> (Question) {
     { rng in
         let answer = rng { Int.random(in: range, using: &$0) }
+        
+        /// Format spoken text without grouping so it's spoken properly.
+        let spokenText = answer.formatted(.number.grouping(.never))
+        
+        /// Format display text with digit separators specified in the user's preferred locale.
         let displayText = answer.formatted(.number.grouping(.automatic))
         let acceptedAnswer = String(answer)
         let question = Question(
             topicID: topicID,
             displayText: displayText,
-            spokenText: displayText,
+            spokenText: spokenText,
             answerPrefix: nil,
             answerPostfix: nil,
             acceptedAnswer: acceptedAnswer
@@ -159,12 +164,17 @@ func moneyGenerator(for range: ClosedRange<Int>, by byValue: Int, topicID: UUID)
         let byRange = Int(Double(range.lowerBound) / Double(byValue)) ... Int(Double(range.upperBound) / Double(byValue))
         let answer = rng { Int.random(in: byRange, using: &$0) * byValue }
         let prefix = "￥"
+        
+        /// Format spoken text without grouping so it's spoken properly.
+        let spokenText = "\(prefix)\(answer.formatted(.number.grouping(.never)))"
+        
+        /// Format display text with digit separators specified in the user's preferred locale.
         let displayText = "\(prefix)\(answer.formatted(.number.grouping(.automatic)))"
         let acceptedAnswer = String(answer)
         let question = Question(
             topicID: topicID,
             displayText: displayText,
-            spokenText: displayText,
+            spokenText: spokenText,
             answerPrefix: prefix,
             answerPostfix: nil,
             acceptedAnswer: acceptedAnswer
