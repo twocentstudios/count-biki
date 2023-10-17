@@ -301,7 +301,7 @@ struct ListeningQuizView: View {
 
                 answer(viewStore: viewStore)
 
-                Spacer()
+                Spacer().frame(maxHeight: 16).layoutPriority(-1)
 
                 playButton(viewStore: viewStore)
 
