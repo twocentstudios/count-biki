@@ -71,6 +71,7 @@ struct ListeningQuizFeature: Reducer {
         case answerSubmitButtonTapped
         case binding(BindingAction<State>)
         case destination(PresentationAction<Destination.Action>)
+        case endSessionButtonTapped
         case onPlaybackError
         case onPlaybackErrorTimeout
         case onPlaybackFinished
@@ -157,6 +158,11 @@ struct ListeningQuizFeature: Reducer {
 
             case .destination:
                 return .none
+
+            case .endSessionButtonTapped:
+                return .run { _ in
+                    await dismiss()
+                }
 
             case .onPlaybackFinished:
                 guard state.isSpeaking else { return .none }
@@ -361,7 +367,9 @@ struct ListeningQuizView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 HStack(spacing: 6) {
-                    Button {} label: {
+                    Button {
+                        viewStore.send(.endSessionButtonTapped)
+                    } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "door.right.hand.open")
                             ViewThatFits(in: .horizontal) {
