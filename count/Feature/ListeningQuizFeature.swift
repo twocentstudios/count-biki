@@ -315,6 +315,7 @@ struct ListeningQuizView: View {
             .safeAreaInset(edge: .bottom) {
                 submissionTextField(viewStore: viewStore)
             }
+            .dynamicTypeSize(.xSmall ... .accessibility2) // TODO: fix layout for accessibility sizes
             .task {
                 await viewStore.send(.onTask).finish()
             }
