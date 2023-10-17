@@ -299,12 +299,18 @@ struct ListeningQuizView: View {
                 Spacer()
 
                 answer(viewStore: viewStore)
-                    .padding(.bottom, 16)
+
+                Spacer()
+
                 playButton(viewStore: viewStore)
 
                 Spacer()
+
+                progressBar(viewStore: viewStore)
             }
-            .padding()
+            .padding(.top, 16)
+            .padding(.bottom, 6)
+            .padding(.horizontal, 16)
             .safeAreaInset(edge: .bottom) {
                 submissionTextField(viewStore: viewStore)
             }
@@ -326,104 +332,82 @@ struct ListeningQuizView: View {
 
     @ViewBuilder func header(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
         HStack(alignment: .top, spacing: 16) {
-            Button {
-                viewStore.send(.titleButtonTapped)
-            } label: {
-                VStack(alignment: .leading, spacing: 6) {
-                    ViewThatFits(in: .horizontal) {
-                        HStack(alignment: .top, spacing: 0) {
-                            HStack(alignment: .firstTextBaseline, spacing: 4) {
-                                Text(viewStore.topic.category.title)
-                                    .font(.title)
-                                    .fontWeight(.semibold)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.6)
-                                Text(viewStore.topic.title)
-                                    .font(.subheadline)
-                                    .fontWeight(.semibold)
-                                    .foregroundStyle(Color(.secondaryLabel))
+            VStack(spacing: 6) {
+                ViewThatFits(in: .horizontal) {
+                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                        Text(viewStore.topic.category.title)
+                            .font(.title)
+                            .fontWeight(.semibold)
+                            .lineLimit(1)
+                        Text(viewStore.topic.title)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(Color(.secondaryLabel))
+                            .lineLimit(1)
+                    }
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(viewStore.topic.category.title)
+                            .font(.title)
+                            .fontWeight(.semibold)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                        Text(viewStore.topic.title)
+                            .font(.subheadline)
+                            .fontWeight(.semibold)
+                            .foregroundStyle(Color(.secondaryLabel))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.6)
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                HStack(spacing: 6) {
+                    Button {} label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "door.right.hand.open")
+                            ViewThatFits(in: .horizontal) {
+                                Text("End Session")
+                                Text("End")
                             }
-                            Spacer()
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(Color(.secondaryLabel))
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 12)
+                        .contentShape(Rectangle())
+                        .background {
+                            RoundedRectangle(cornerRadius: 10.0, style: .continuous)
+                                .stroke(Color(.secondarySystemBackground))
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    Button {
+                        viewStore.send(.titleButtonTapped)
+                    } label: {
+                        HStack(spacing: 6) {
                             Image(systemName: "gearshape.fill")
-                                .font(.title3)
-                                .foregroundStyle(Color(.secondaryLabel))
-                        }
-                        VStack(alignment: .leading, spacing: 0) {
-                            HStack(alignment: .top, spacing: 0) {
-                                Text(viewStore.topic.category.title)
-                                    .font(.title)
-                                    .fontWeight(.semibold)
-                                    .lineLimit(1)
-                                    .minimumScaleFactor(0.6)
-                                Spacer()
-                                Image(systemName: "gearshape.fill")
-                                    .font(.title3)
-                                    .foregroundStyle(Color(.secondaryLabel))
+                            ViewThatFits(in: .horizontal) {
+                                Text("Settings")
+                                Text("")
                             }
-                            Text(viewStore.topic.title)
-                                .font(.subheadline)
-                                .fontWeight(.semibold)
-                                .foregroundStyle(Color(.secondaryLabel))
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(Color(.secondaryLabel))
+                        .padding(.vertical, 10)
+                        .padding(.horizontal, 12)
+                        .contentShape(Rectangle())
+                        .background {
+                            RoundedRectangle(cornerRadius: 10.0, style: .continuous)
+                                .stroke(Color(.secondarySystemBackground))
                         }
                     }
-                    HStack(spacing: 0) {
-                        IndeterminateProgressView(
-                            animationCount: viewStore.challengeCount,
-                            color1: Color(.tintColor),
-                            color2: Color(.systemBackground),
-                            barCount: 20,
-                            rotation: .degrees(50),
-                            animation: .snappy()
-                        )
-                        .clipShape(Capsule(style: .continuous))
-                        .frame(height: 10)
-                        .padding(.trailing, 6)
-                        Image(systemName: "infinity")
-                            .font(.caption)
-                            .bold()
-                            .foregroundColor(Color(.label))
-                            .padding(.trailing, 10)
-
-                        HStack(spacing: 0) {
-                            Image(systemName: "checkmark.circle")
-                                .foregroundColor(Color.green)
-                            Spacer().frame(width: 2)
-                            Text(String(viewStore.totalCorrect))
-                                .contentTransition(.numericText())
-                                .fontDesign(.monospaced)
-                                .foregroundColor(Color.green)
-                                .animation(.default, value: viewStore.totalCorrect)
-                            Spacer().frame(width: 8)
-                            Image(systemName: "xmark.circle")
-                                .foregroundColor(Color.red)
-                            Spacer().frame(width: 2)
-                            Text(String(viewStore.totalIncorrect))
-                                .contentTransition(.numericText())
-                                .fontDesign(.monospaced)
-                                .foregroundColor(Color.red)
-                                .animation(.default, value: viewStore.totalIncorrect)
-                        }
-                        .bold()
-                        .font(.caption)
-                        .saturation(0.9)
-                    }
+                    .buttonStyle(.plain)
                 }
-                .padding(.vertical, 6)
-                .padding(.horizontal, 6)
-                .overlay(alignment: .topTrailing) {}
-                .padding(.vertical, 10)
-                .padding(.horizontal, 10)
-                .background {
-                    RoundedRectangle(cornerRadius: 16.0, style: .continuous)
-                        .fill(Color(.secondarySystemBackground))
-                        .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
-                }
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
-            .buttonStyle(.plain)
 
             CountBikiView(bikiAnimation: viewStore.bikiAnimation)
                 .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: 100)
+                .frame(maxWidth: 90)
         }
         .frame(maxWidth: .infinity)
     }
@@ -432,7 +416,7 @@ struct ListeningQuizView: View {
         Text(viewStore.answerText)
             .font(.system(size: 80, weight: .bold))
             .lineLimit(1)
-            .minimumScaleFactor(0.1)
+            .minimumScaleFactor(0.6)
             .foregroundStyle(viewStore.isShowingAnswer ? Color.primary : Color.secondary)
             .blur(radius: viewStore.isShowingAnswer ? 0 : 18)
             .overlay {
@@ -492,6 +476,50 @@ struct ListeningQuizView: View {
                 }
             }
             .animation(.bouncy, value: viewStore.isShowingPlaybackError)
+        }
+    }
+
+    @ViewBuilder func progressBar(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
+        HStack(spacing: 0) {
+            IndeterminateProgressView(
+                animationCount: viewStore.challengeCount,
+                color1: Color(.tintColor),
+                color2: Color(.systemBackground),
+                barCount: 20,
+                rotation: .degrees(50),
+                animation: .snappy()
+            )
+            .clipShape(Capsule(style: .continuous))
+            .frame(height: 10)
+            .padding(.trailing, 6)
+            Image(systemName: "infinity")
+                .font(.caption)
+                .bold()
+                .foregroundColor(Color(.label))
+                .padding(.trailing, 10)
+
+            HStack(spacing: 0) {
+                Image(systemName: "checkmark.circle")
+                    .foregroundColor(Color.green)
+                Spacer().frame(width: 2)
+                Text(String(viewStore.totalCorrect))
+                    .contentTransition(.numericText())
+                    .fontDesign(.monospaced)
+                    .foregroundColor(Color.green)
+                    .animation(.default, value: viewStore.totalCorrect)
+                Spacer().frame(width: 8)
+                Image(systemName: "xmark.circle")
+                    .foregroundColor(Color.red)
+                Spacer().frame(width: 2)
+                Text(String(viewStore.totalIncorrect))
+                    .contentTransition(.numericText())
+                    .fontDesign(.monospaced)
+                    .foregroundColor(Color.red)
+                    .animation(.default, value: viewStore.totalIncorrect)
+            }
+            .bold()
+            .font(.caption)
+            .saturation(0.9)
         }
     }
 
