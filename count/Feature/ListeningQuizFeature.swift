@@ -151,11 +151,6 @@ struct ListeningQuizFeature: Reducer {
                 }
                 return .none
 
-            case .destination(.presented(.settings(.endSessionButtonTapped))):
-                return .run { _ in
-                    await dismiss()
-                }
-
             case .destination:
                 return .none
 
