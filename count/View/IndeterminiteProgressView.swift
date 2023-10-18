@@ -36,6 +36,7 @@ struct IndeterminateProgressView: View {
                     endPoint: .bottom
                 )
             }
+            .contentShape(Capsule(style: .continuous))
             .clipShape(Capsule(style: .continuous))
     }
 }
