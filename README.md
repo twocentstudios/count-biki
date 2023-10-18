@@ -1,6 +1,6 @@
 # Count Biki
 
-![App Icon](/count/Assets.xcassets/AppIcon.appiconset/icon05.png)
+<img width="250" src="/count/Assets.xcassets/AppIcon.appiconset/icon05.png">
 
 Count Biki is an iOS app for drilling Japanese numbers and more. It supports iOS 16.4+.
 
