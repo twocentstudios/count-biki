@@ -1,5 +1,5 @@
-import ComposableArchitecture
 import _NotificationDependency
+import ComposableArchitecture
 import SwiftUI
 
 struct SettingsFeature: Reducer {
@@ -52,7 +52,6 @@ struct SettingsFeature: Reducer {
         case binding(BindingAction<State>)
         case delegate(Delegate)
         case doneButtonTapped
-        case endSessionButtonTapped
         case onSceneWillEnterForeground
         case onTask
         case pitchLabelDoubleTapped
@@ -89,8 +88,6 @@ struct SettingsFeature: Reducer {
                 return .run { send in
                     await dismiss()
                 }
-            case .endSessionButtonTapped:
-                return .none
             case .pitchLabelDoubleTapped:
                 state.rawPitchMultiplier = speechClient.pitchMultiplierAttributes().defaultPitch
                 state.speechSettings.pitchMultiplier = state.rawPitchMultiplier
@@ -150,17 +147,6 @@ struct SettingsView: View {
                         }
                         .multilineTextAlignment(.leading)
                         .padding(.vertical, 2)
-
-                        Button {
-                            viewStore.send(.endSessionButtonTapped)
-                        } label: {
-                            HStack(spacing: 10) {
-                                Image(systemName: "door.right.hand.open")
-                                Text("End Session")
-                            }
-                            .foregroundStyle(.red)
-                            .frame(maxWidth: .infinity, alignment: .center)
-                        }
                     } header: {
                         Text("Topic")
                             .font(.subheadline)
