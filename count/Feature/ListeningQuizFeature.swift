@@ -420,7 +420,7 @@ struct ListeningQuizView: View {
         Text(viewStore.answerText)
             .font(.system(size: 80, weight: .bold))
             .lineLimit(1)
-            .minimumScaleFactor(0.6)
+            .minimumScaleFactor(0.4)
             .foregroundStyle(viewStore.isShowingAnswer ? Color.primary : Color.secondary)
             .blur(radius: viewStore.isShowingAnswer ? 0 : 18)
             .overlay {

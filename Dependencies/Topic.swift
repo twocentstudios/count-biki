@@ -137,9 +137,10 @@ extension Topic {
     )
 }
 
-func numberQuestionGenerator(for range: ClosedRange<Int>, topicID: UUID) -> @Sendable (WithRandomNumberGenerator) throws -> (Question) {
+func numberQuestionGenerator(for range: ClosedRange<Int>, by byValue: Int = 1, topicID: UUID) -> @Sendable (WithRandomNumberGenerator) throws -> (Question) {
     { rng in
-        let answer = rng { Int.random(in: range, using: &$0) }
+        let byRange = Int(Double(range.lowerBound) / Double(byValue)) ... Int(Double(range.upperBound) / Double(byValue))
+        let answer = rng { Int.random(in: byRange, using: &$0) * byValue }
         
         /// Format spoken text without grouping so it's spoken properly.
         let spokenText = answer.formatted(.number.grouping(.never))
@@ -230,13 +231,33 @@ extension TopicClient: DependencyKey {
             ),
             TopicGenerator(
                 topic: Topic(
-                    id: Topic.id(for: 005),
+                    id: Topic.id(for: 006),
                     skill: .listening,
                     category: .number,
-                    title: "Extreme",
-                    description: "Whole numbers between 1-1,000,000,000"
+                    title: "Master",
+                    description: "Whole numbers between 1-100,000"
                 ),
-                generateQuestion: numberQuestionGenerator(for: 1 ... 1_000_000_000, topicID: Topic.id(for: 005))
+                generateQuestion: numberQuestionGenerator(for: 1 ... 100_000, topicID: Topic.id(for: 006))
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 007),
+                    skill: .listening,
+                    category: .number,
+                    title: "億 Drills",
+                    description: "Whole numbers through 1 billion by 1 millions"
+                ),
+                generateQuestion: numberQuestionGenerator(for: 1_000_000 ... 1_000_000_000, by: 1_000_000, topicID: Topic.id(for: 007))
+            ),
+            TopicGenerator(
+                topic: Topic(
+                    id: Topic.id(for: 008),
+                    skill: .listening,
+                    category: .number,
+                    title: "兆 Drills",
+                    description: "Whole numbers through 10 trillion by 10 billions"
+                ),
+                generateQuestion: numberQuestionGenerator(for: 10_000_000_000 ... 10_000_000_000_000, by: 10_000_000_000, topicID: Topic.id(for: 008))
             ),
 
             /// Listening -> Money
