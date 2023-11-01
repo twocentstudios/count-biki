@@ -126,10 +126,11 @@ struct SessionSummaryView: View {
                     .font(.headline)
                     .padding(.vertical, 20)
                     .frame(maxWidth: .infinity)
-                    .background { RoundedRectangle(cornerRadius: 16.0).fill(Color(.tertiarySystemBackground)) }
+                    .background {
+                        RoundedRectangle(cornerRadius: 16.0)
+                            .fill(Color(.tertiarySystemBackground).shadow(.drop(color: Color.black.opacity(0.05), radius: 6)))
+                    }
                     .padding(.horizontal, 20)
-                    .compositingGroup()
-                    .shadow(color: Color.black.opacity(0.05), radius: 6)
                 }
                 // TODO: Button: retry session with same settings (if timed session was completed)
             }
