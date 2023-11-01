@@ -173,7 +173,7 @@ struct ListeningQuizFeature: Reducer {
                 return .none
 
             case .endSessionButtonTapped:
-                state.path.append(.summary(.init()))
+                state.path.append(.summary(.init(topicID: state.topicID, sessionChallenges: state.completedChallenges)))
                 return .none
 
             case .onPlaybackFinished:
