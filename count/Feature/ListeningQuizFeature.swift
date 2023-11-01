@@ -198,6 +198,11 @@ struct ListeningQuizFeature: Reducer {
             case .onTask:
                 return playBackEffect(state: &state)
 
+            case .path(.element(_, .summary(.delegate(.endSession)))):
+                return .run { _ in
+                    await dismiss()
+                }
+
             case .path:
                 return .none
 
