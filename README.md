@@ -14,10 +14,13 @@ Count Biki is an iOS app for drilling Japanese numbers and more. It supports iOS
 - Change voice pitch and speed.
 - Track correct/incorrect answers within a session.
 
-## Brief notes about the implementation
+## Blog posts
 
-- The app is written in Swift and SwiftUI with the opinionated [TCA](https://github.com/pointfreeco/swift-composable-architecture) architecture.
-- The character Count Biki was modeled and animated in 3D software Blender, then imported into a SceneKit scene for further customization.
+I wrote a few blog posts about version 1.1.
+
+- [Count Biki - Drill Japanese Numbers](https://twocentstudios.com/2023/10/29/count-biki-japanese-numbers/) - the motivation behind the app and the solution I’ve begun to explore from the learner (user) perspective
+- [Count Biki - App and Character Design](https://twocentstudios.com/2023/10/30/count-biki-app-and-character-design/) - the design process and specifics of creating the Count Biki character
+- [Count Biki - Developing the App for iOS](https://twocentstudios.com/2023/10/31/count-biki-developing-the-app-for-ios/) - the high-level implementation details
 
 ## Getting started
 
