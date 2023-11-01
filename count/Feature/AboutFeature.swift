@@ -135,10 +135,7 @@ struct AboutView: View {
                                 .resizable()
                                 .clipShape(Circle())
                                 .padding(2)
-                                .background {
-                                    Circle().fill(Color(.systemBackground))
-                                    Circle().stroke(Color(.secondarySystemBackground))
-                                }
+                                .background { Circle().fill(Color(.systemBackground), stroke: Color(.secondarySystemBackground)) }
                                 .aspectRatio(contentMode: .fit)
                                 .frame(width: 100, height: 100)
                                 .frame(maxWidth: .infinity, alignment: .center)
