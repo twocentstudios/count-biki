@@ -28,7 +28,7 @@ struct SessionSummaryFeature: Reducer {
 
     enum Action: Equatable {
         case delegate(Delegate)
-        
+
         enum Delegate: Equatable {
             case endSession
         }
@@ -112,23 +112,26 @@ struct SessionSummaryView: View {
                     Text("Results")
                         .font(.subheadline)
                 }
-                
+
                 // TODO: more detailed results
             }
             .safeAreaInset(edge: .bottom) {
                 Button {
                     viewStore.send(.delegate(.endSession))
                 } label: {
-                    Text("End Session")
-                        .font(.title3)
-                        .bold()
-                        .frame(height: 80)
-                        .frame(maxWidth: .infinity)
-                        .background { RoundedRectangle(cornerRadius: 16.0).fill(Color(.tertiarySystemBackground)) }
-                        .padding(.horizontal, 20)
-                        .compositingGroup()
-                        .shadow(color: Color.black.opacity(0.05), radius: 6)
+                    HStack(spacing: 6) {
+                        Image(systemName: "door.right.hand.open")
+                        Text("Back to Topics")
+                    }
+                    .font(.headline)
+                    .padding(.vertical, 20)
+                    .frame(maxWidth: .infinity)
+                    .background { RoundedRectangle(cornerRadius: 16.0).fill(Color(.tertiarySystemBackground)) }
+                    .padding(.horizontal, 20)
+                    .compositingGroup()
+                    .shadow(color: Color.black.opacity(0.05), radius: 6)
                 }
+                // TODO: Button: retry session with same settings (if timed session was completed)
             }
             .navigationBarBackButtonHidden(false) // TODO: hide back button on certain conditions (timer out, questions out)
             .navigationBarTitleDisplayMode(.inline)
