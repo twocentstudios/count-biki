@@ -13,15 +13,13 @@ struct SettingsFeature: Reducer {
         var speechSettings: SpeechSynthesisSettings
 
         let topic: Topic
-        let sessionChallenges: [Challenge]
 
-        init(topicID: UUID, speechSettings: SpeechSynthesisSettings, sessionChallenges: [Challenge]) {
+        init(topicID: UUID, speechSettings: SpeechSynthesisSettings) {
             @Dependency(\.speechSynthesisClient) var speechClient
             @Dependency(\.topicClient.allTopics) var allTopics
 
             topic = allTopics()[id: topicID]!
             self.speechSettings = speechSettings
-            self.sessionChallenges = sessionChallenges
 
             availableVoices = speechClient.availableVoices()
             rawVoiceIdentifier = speechSettings.voiceIdentifier ?? speechClient.defaultVoice()?.voiceIdentifier
@@ -33,18 +31,6 @@ struct SettingsFeature: Reducer {
             let pitchMultiplierAttributes = speechClient.pitchMultiplierAttributes()
             rawPitchMultiplier = speechSettings.pitchMultiplier ?? pitchMultiplierAttributes.defaultPitch
             pitchMultiplierRange = pitchMultiplierAttributes.minimumPitch ... pitchMultiplierAttributes.maximumPitch
-        }
-
-        var challengesTotal: Int { sessionChallenges.count }
-        var challengesCorrect: Int {
-            sessionChallenges
-                .filter { $0.submissions.allSatisfy { $0.kind == .correct } }
-                .count
-        }
-        var challengesIncorrect: Int {
-            sessionChallenges
-                .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
-                .count
         }
     }
 
@@ -153,47 +139,6 @@ struct SettingsView: View {
                     }
 
                     Section {
-                        HStack {
-                            Image(systemName: "tray.full")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 17)
-                            Text("Total")
-                            Spacer()
-                            Text("\(viewStore.challengesTotal)")
-                                .font(.headline)
-                        }
-                        .listRowInsets(.init(top: 0, leading: 20, bottom: 0, trailing: 20))
-                        HStack {
-                            Image(systemName: "checkmark.circle")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 17)
-                                .foregroundStyle(Color.green)
-                            Text("Correct")
-                            Spacer()
-                            Text("\(viewStore.challengesCorrect)")
-                                .font(.headline)
-                        }
-                        .listRowInsets(.init(top: 0, leading: 40, bottom: 0, trailing: 20))
-                        HStack {
-                            Image(systemName: "xmark.circle")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 17)
-                                .foregroundStyle(Color.red)
-                            Text("Incorrect & skipped")
-                            Spacer()
-                            Text("\(viewStore.challengesIncorrect)")
-                                .font(.headline)
-                        }
-                        .listRowInsets(.init(top: 0, leading: 40, bottom: 0, trailing: 20))
-                    } header: {
-                        Text("Results (so far)")
-                            .font(.subheadline)
-                    }
-
-                    Section {
                         if let $unwrappedVoiceIdentifier = Binding(viewStore.$rawVoiceIdentifier) {
                             Picker(selection: $unwrappedVoiceIdentifier) {
                                 ForEach(viewStore.availableVoices) { voice in
@@ -285,7 +230,7 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView(
-        store: Store(initialState: SettingsFeature.State(topicID: Topic.mockID, speechSettings: .mock, sessionChallenges: [])) {
+        store: Store(initialState: SettingsFeature.State(topicID: Topic.mockID, speechSettings: .mock)) {
             SettingsFeature()
                 ._printChanges()
         } withDependencies: { deps in

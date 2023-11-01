@@ -222,8 +222,7 @@ struct ListeningQuizFeature: Reducer {
             case .titleButtonTapped:
                 state.destination = .settings(.init(
                     topicID: state.topicID,
-                    speechSettings: state.speechSettings,
-                    sessionChallenges: state.completedChallenges
+                    speechSettings: state.speechSettings
                 ))
                 return .none
             }
