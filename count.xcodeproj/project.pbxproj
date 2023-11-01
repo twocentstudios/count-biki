@@ -12,6 +12,7 @@
 		340A51D12A78EC79007DCA0C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 340A51D02A78EC79007DCA0C /* Assets.xcassets */; };
 		340A51D52A78EC79007DCA0C /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 340A51D42A78EC79007DCA0C /* Preview Assets.xcassets */; };
 		340A51DF2A78EC79007DCA0C /* ListeningQuizFeatureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340A51DE2A78EC79007DCA0C /* ListeningQuizFeatureTests.swift */; };
+		340B48D12AE8ACDD0046B31C /* StrokeFillShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340B48D02AE8ACDD0046B31C /* StrokeFillShape.swift */; };
 		340E70532A820E73004B124B /* SpeechSynthesis.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340E70522A820E73004B124B /* SpeechSynthesis.swift */; };
 		340E70582A83738F004B124B /* SpeechSynthesisSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 340E70572A83738F004B124B /* SpeechSynthesisSettings.swift */; };
 		3414855A2AB9FD27008EC2DE /* acknowledgements.md in Resources */ = {isa = PBXBuildFile; fileRef = 341485592AB9FD27008EC2DE /* acknowledgements.md */; };
@@ -61,6 +62,7 @@
 		340A51D42A78EC79007DCA0C /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		340A51DA2A78EC79007DCA0C /* countTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = countTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		340A51DE2A78EC79007DCA0C /* ListeningQuizFeatureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningQuizFeatureTests.swift; sourceTree = "<group>"; };
+		340B48D02AE8ACDD0046B31C /* StrokeFillShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StrokeFillShape.swift; sourceTree = "<group>"; };
 		340DDAE92A9F770B00E21308 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		340E70522A820E73004B124B /* SpeechSynthesis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSynthesis.swift; sourceTree = "<group>"; };
 		340E70572A83738F004B124B /* SpeechSynthesisSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpeechSynthesisSettings.swift; sourceTree = "<group>"; };
@@ -217,6 +219,7 @@
 				348000E42A9CCD4700E7CCEE /* CountBikiView.swift */,
 				34BDC4942AA58A51001EF005 /* GetMoreVoicesView.swift */,
 				349802212A7BDDF200E352F5 /* IndeterminiteProgressView.swift */,
+				340B48D02AE8ACDD0046B31C /* StrokeFillShape.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -338,6 +341,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				340B48D12AE8ACDD0046B31C /* StrokeFillShape.swift in Sources */,
 				344242252ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift in Sources */,
 				34E2E3EA2AA8C821002B511A /* TopicsFeature.swift in Sources */,
 				3478331F2AA7343A005160DC /* PlanningTopicsFeature.swift in Sources */,
