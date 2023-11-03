@@ -58,7 +58,7 @@ struct TopicsFeature: Reducer {
                 return .none
 
             case let .topicButtonTapped(topicID):
-                state.quiz = .init(listeningQuiz: .init(topicID: topicID))
+                state.quiz = .init(topicID: topicID)
                 return .none
             }
         }

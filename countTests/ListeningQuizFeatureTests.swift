@@ -18,7 +18,7 @@ struct RandomNumberGeneratorWithSeed: RandomNumberGenerator {
 @MainActor final class ListeningQuizFeatureTests: XCTestCase {
     func testOnAppear() async throws {
         let speechExpectation = expectation(description: "speaks")
-        let store = TestStore(initialState: ListeningQuizFeature.State(topicID: Topic.mockID)) {
+        let store = TestStore(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, speechSettings: .mock)) {
             ListeningQuizFeature()
         } withDependencies: {
             $0.topicClient = .mock

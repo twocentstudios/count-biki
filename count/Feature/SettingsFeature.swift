@@ -36,17 +36,12 @@ struct SettingsFeature: Reducer {
 
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case delegate(Delegate)
         case doneButtonTapped
         case onSceneWillEnterForeground
         case onTask
         case pitchLabelDoubleTapped
         case rateLabelDoubleTapped
         case testVoiceButtonTapped
-
-        enum Delegate: Equatable {
-            case speechSettingsUpdated(SpeechSynthesisSettings)
-        }
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -67,8 +62,6 @@ struct SettingsFeature: Reducer {
                 state.speechSettings.pitchMultiplier = state.rawPitchMultiplier
                 return .none
             case .binding:
-                return .none
-            case .delegate:
                 return .none
             case .doneButtonTapped:
                 return .run { send in
@@ -104,11 +97,6 @@ struct SettingsFeature: Reducer {
                         }
                     }
                 }
-            }
-        }
-        .onChange(of: \.speechSettings) { _, newValue in
-            Reduce { _, _ in
-                .send(.delegate(.speechSettingsUpdated(newValue)))
             }
         }
     }
