@@ -149,7 +149,7 @@ struct SessionSummaryView: View {
 #Preview {
     NavigationStack {
         SessionSummaryView(
-            store: Store(initialState: SessionSummaryFeature.State(topicID: Topic.mockID, sessionChallenges: [])) {
+            store: Store(initialState: SessionSummaryFeature.State(topicID: Topic.mockID, sessionChallenges: [Topic.mockChallengeCorrect, Topic.mockChallengeSkipped, Topic.mockChallengeIncorrect])) {
                 SessionSummaryFeature()
                     ._printChanges()
             }
