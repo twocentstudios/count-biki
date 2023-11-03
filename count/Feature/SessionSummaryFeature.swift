@@ -13,16 +13,22 @@ struct SessionSummaryFeature: Reducer {
             self.sessionChallenges = sessionChallenges
         }
 
-        var challengesTotal: Int { sessionChallenges.count }
-        var challengesCorrect: Int {
-            sessionChallenges
-                .filter { $0.submissions.allSatisfy { $0.kind == .correct } }
-                .count
-        }
-        var challengesIncorrect: Int {
+        var challengesTotalCount: Int { sessionChallenges.count }
+        var challengesCorrectCount: Int { challengesCorrect.count }
+        var challengesIncorrectSkippedCount: Int {
             sessionChallenges
                 .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
                 .count
+        }
+
+        var challengesCorrect: [Challenge] {
+            sessionChallenges.filter { $0.submissions.allSatisfy { $0.kind == .correct } }
+        }
+        var challengesSkipped: [Challenge] {
+            sessionChallenges.filter { $0.submissions.contains(where: { $0.kind == .skip }) }
+        }
+        var challengesIncorrect: [Challenge] {
+            sessionChallenges.filter { !$0.submissions.contains(where: { $0.kind == .skip }) && $0.submissions.contains(where: { $0.kind == .incorrect }) }
         }
     }
 
@@ -80,7 +86,7 @@ struct SessionSummaryView: View {
                             .frame(width: 17)
                         Text("Total Answers")
                         Spacer()
-                        Text("\(viewStore.challengesTotal)")
+                        Text("\(viewStore.challengesTotalCount)")
                             .font(.headline)
                     }
                     .listRowInsets(.init(top: 0, leading: 20, bottom: 0, trailing: 20))
@@ -92,7 +98,7 @@ struct SessionSummaryView: View {
                             .foregroundStyle(Color.green)
                         Text("Correct")
                         Spacer()
-                        Text("\(viewStore.challengesCorrect)")
+                        Text("\(viewStore.challengesCorrectCount)")
                             .font(.headline)
                     }
                     .listRowInsets(.init(top: 0, leading: 40, bottom: 0, trailing: 20))
@@ -104,7 +110,7 @@ struct SessionSummaryView: View {
                             .foregroundStyle(Color.red)
                         Text("Incorrect & skipped")
                         Spacer()
-                        Text("\(viewStore.challengesIncorrect)")
+                        Text("\(viewStore.challengesIncorrectSkippedCount)")
                             .font(.headline)
                     }
                     .listRowInsets(.init(top: 0, leading: 40, bottom: 0, trailing: 20))
@@ -113,7 +119,71 @@ struct SessionSummaryView: View {
                         .font(.subheadline)
                 }
 
-                // TODO: more detailed results
+                let skipped = viewStore.state.challengesSkipped
+                if !skipped.isEmpty {
+                    Section {
+                        ForEach(skipped) { challenge in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(challenge.question.acceptedAnswer)
+                                if !challenge.submissions.filter({ $0.kind != .correct }).isEmpty {
+                                    ViewThatFits {
+                                        HStack {
+                                            ForEach(challenge.submissions) { submission in
+                                                if let value = submission.value {
+                                                    Text(value)
+                                                }
+                                            }
+                                        }
+                                        .strikethrough()
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(1)
+                                        
+                                        Text("\(challenge.submissions.count) attempts")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                    } header: {
+                        Text("Skipped Questions")
+                            .font(.subheadline)
+                    }
+                }
+
+                let incorrect = viewStore.state.challengesIncorrect
+                if !incorrect.isEmpty {
+                    Section {
+                        ForEach(incorrect) { challenge in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(challenge.question.acceptedAnswer)
+                                if !challenge.submissions.filter({ $0.kind != .correct }).isEmpty {
+                                    ViewThatFits {
+                                        HStack {
+                                            ForEach(challenge.submissions) { submission in
+                                                if let value = submission.value, submission.kind != .correct {
+                                                    Text(value)
+                                                }
+                                            }
+                                        }
+                                        .strikethrough()
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                        .lineLimit(1)
+                                        
+                                        Text("\(challenge.submissions.count) attempts")
+                                            .font(.caption)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                        }
+                    } header: {
+                        Text("Incorrect Questions")
+                            .font(.subheadline)
+                    }
+                }
             }
             .safeAreaInset(edge: .bottom) {
                 Button {
