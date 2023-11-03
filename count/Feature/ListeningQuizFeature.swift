@@ -79,7 +79,7 @@ struct ListeningQuizFeature: Reducer {
         case onTask
         case playbackButtonTapped
         case showAnswerButtonTapped
-        case titleButtonTapped
+        case settingsButtonTapped
 
         enum Delegate: Equatable {
             case wantsToShowSummary(SessionSummaryFeature.State)
@@ -206,7 +206,7 @@ struct ListeningQuizFeature: Reducer {
                 state.challenge.submissions.append(submission)
                 return .none
 
-            case .titleButtonTapped:
+            case .settingsButtonTapped:
                 state.destination = .settings(.init(
                     topicID: state.topicID,
                     speechSettings: state.speechSettings
@@ -395,7 +395,7 @@ struct ListeningQuizView: View {
                     }
                     .buttonStyle(.plain)
                     Button {
-                        viewStore.send(.titleButtonTapped)
+                        viewStore.send(.settingsButtonTapped)
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "gearshape.fill")
