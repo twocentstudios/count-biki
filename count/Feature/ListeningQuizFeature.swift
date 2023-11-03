@@ -20,7 +20,6 @@ struct ListeningQuizFeature: Reducer {
         @PresentationState var destination: Destination.State?
         var isShowingPlaybackError: Bool = false
         var isSpeaking: Bool = false
-        var path = StackState<Path.State>()
         @BindingState var pendingSubmissionValue: String = ""
         var speechSettings: SpeechSynthesisSettings
         let topic: Topic
@@ -71,16 +70,20 @@ struct ListeningQuizFeature: Reducer {
     enum Action: BindableAction, Equatable {
         case answerSubmitButtonTapped
         case binding(BindingAction<State>)
+        case delegate(Delegate)
         case destination(PresentationAction<Destination.Action>)
         case endSessionButtonTapped
         case onPlaybackError
         case onPlaybackErrorTimeout
         case onPlaybackFinished
         case onTask
-        case path(StackAction<Path.State, Path.Action>)
         case playbackButtonTapped
         case showAnswerButtonTapped
         case titleButtonTapped
+
+        enum Delegate: Equatable {
+            case wantsToShowSummary(SessionSummaryFeature.State)
+        }
     }
 
     struct Destination: Reducer {
@@ -95,22 +98,6 @@ struct ListeningQuizFeature: Reducer {
         var body: some ReducerOf<Self> {
             Scope(state: /State.settings, action: /Action.settings) {
                 SettingsFeature()
-            }
-        }
-    }
-
-    struct Path: Reducer {
-        enum State: Equatable {
-            case summary(SessionSummaryFeature.State)
-        }
-
-        enum Action: Equatable {
-            case summary(SessionSummaryFeature.Action)
-        }
-
-        var body: some ReducerOf<Self> {
-            Scope(state: /State.summary, action: /Action.summary) {
-                SessionSummaryFeature()
             }
         }
     }
@@ -169,17 +156,19 @@ struct ListeningQuizFeature: Reducer {
                 }
                 return .none
 
+            case .delegate:
+                return .none
+
             case .destination:
                 return .none
 
             case .endSessionButtonTapped:
-                if state.completedChallenges.isEmpty && state.challenge.submissions.isEmpty {
+                if state.completedChallenges.isEmpty, state.challenge.submissions.isEmpty {
                     return .run { _ in
                         await dismiss()
                     }
                 } else {
-                    state.path.append(.summary(.init(topicID: state.topicID, sessionChallenges: state.completedChallenges)))
-                    return .none
+                    return .send(.delegate(.wantsToShowSummary(.init(topicID: state.topicID, sessionChallenges: state.completedChallenges))))
                 }
 
             case .onPlaybackFinished:
@@ -204,14 +193,6 @@ struct ListeningQuizFeature: Reducer {
             case .onTask:
                 return playBackEffect(state: &state)
 
-            case .path(.element(_, .summary(.delegate(.endSession)))):
-                return .run { _ in
-                    await dismiss()
-                }
-
-            case .path:
-                return .none
-
             case .playbackButtonTapped:
                 if state.isSpeaking {
                     state.isSpeaking = false
@@ -235,9 +216,6 @@ struct ListeningQuizFeature: Reducer {
         }
         .ifLet(\.$destination, action: /Action.destination) {
             Destination()
-        }
-        .forEach(\.path, action: /Action.path) {
-            Path()
         }
     }
 
@@ -315,10 +293,7 @@ extension ListeningQuizFeature.State {
         store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID)) {
             ListeningQuizFeature()
                 ._printChanges()
-        } withDependencies: {
-            $0.topicClient.generateQuestion = { _ in .init(topicID: Topic.mockID, displayText: "1", spokenText: "1", answerPrefix: nil, answerPostfix: nil, acceptedAnswer: "1") }
-        }
-    )
+        })
 }
 
 struct ListeningQuizView: View {
@@ -326,54 +301,43 @@ struct ListeningQuizView: View {
     @FocusState private var answerFieldFocused: Bool
 
     var body: some View {
-        NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
-            WithViewStore(store, observe: { $0 }) { viewStore in
-                VStack(spacing: 0) {
-                    header(viewStore: viewStore)
+        WithViewStore(store, observe: { $0 }) { viewStore in
+            VStack(spacing: 0) {
+                header(viewStore: viewStore)
 
-                    Spacer()
+                Spacer()
 
-                    answer(viewStore: viewStore)
+                answer(viewStore: viewStore)
 
-                    Spacer().frame(maxHeight: 16).layoutPriority(-1)
+                Spacer().frame(maxHeight: 16).layoutPriority(-1)
 
-                    playButton(viewStore: viewStore)
+                playButton(viewStore: viewStore)
 
-                    Spacer()
+                Spacer()
 
-                    progressBar(viewStore: viewStore)
-                }
-                .padding(.top, 16)
-                .padding(.bottom, 6)
-                .padding(.horizontal, 16)
-                .safeAreaInset(edge: .bottom) {
-                    submissionTextField(viewStore: viewStore)
-                }
-                .navigationTitle("Quiz")
-                .toolbar(.hidden, for: .navigationBar)
-                .dynamicTypeSize(.xSmall ... .accessibility2) // TODO: fix layout for accessibility sizes
-                .task {
-                    await viewStore.send(.onTask).finish()
-                }
-                .onAppear {
-                    answerFieldFocused = true
-                }
-                .sheet(
-                    store: store.scope(state: \.$destination, action: { .destination($0) }),
-                    state: /ListeningQuizFeature.Destination.State.settings,
-                    action: ListeningQuizFeature.Destination.Action.settings
-                ) { store in
-                    SettingsView(store: store)
-                }
+                progressBar(viewStore: viewStore)
             }
-        } destination: {
-            switch $0 {
-            case .summary:
-                CaseLet(
-                    /ListeningQuizFeature.Path.State.summary,
-                    action: ListeningQuizFeature.Path.Action.summary,
-                    then: SessionSummaryView.init(store:)
-                )
+            .padding(.top, 16)
+            .padding(.bottom, 6)
+            .padding(.horizontal, 16)
+            .safeAreaInset(edge: .bottom) {
+                submissionTextField(viewStore: viewStore)
+            }
+            .navigationTitle("Quiz")
+            .toolbar(.hidden, for: .navigationBar)
+            .dynamicTypeSize(.xSmall ... .accessibility2) // TODO: fix layout for accessibility sizes
+            .task {
+                await viewStore.send(.onTask).finish()
+            }
+            .onAppear {
+                answerFieldFocused = true
+            }
+            .sheet(
+                store: store.scope(state: \.$destination, action: { .destination($0) }),
+                state: /ListeningQuizFeature.Destination.State.settings,
+                action: ListeningQuizFeature.Destination.Action.settings
+            ) { store in
+                SettingsView(store: store)
             }
         }
     }
