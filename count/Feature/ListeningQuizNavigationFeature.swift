@@ -1,7 +1,7 @@
 import ComposableArchitecture
 import SwiftUI
 
-struct ListeningQuizWrapperFeature: Reducer {
+struct ListeningQuizNavigationFeature: Reducer {
     struct State: Equatable {
         var listeningQuiz: ListeningQuizFeature.State
         var path = StackState<Path.State>()
@@ -95,8 +95,8 @@ struct ListeningQuizWrapperFeature: Reducer {
     }
 }
 
-struct ListeningQuizWrapperView: View {
-    let store: StoreOf<ListeningQuizWrapperFeature>
+struct ListeningQuizNavigationView: View {
+    let store: StoreOf<ListeningQuizNavigationFeature>
 
     var body: some View {
         NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
@@ -105,8 +105,8 @@ struct ListeningQuizWrapperView: View {
             switch $0 {
             case .summary:
                 CaseLet(
-                    /ListeningQuizWrapperFeature.Path.State.summary,
-                    action: ListeningQuizWrapperFeature.Path.Action.summary,
+                    /ListeningQuizNavigationFeature.Path.State.summary,
+                    action: ListeningQuizNavigationFeature.Path.Action.summary,
                     then: SessionSummaryView.init(store:)
                 )
             }
@@ -118,9 +118,9 @@ struct ListeningQuizWrapperView: View {
 }
 
 #Preview {
-    ListeningQuizWrapperView(
-        store: Store(initialState: ListeningQuizWrapperFeature.State(topicID: Topic.mockID)) {
-            ListeningQuizWrapperFeature()
+    ListeningQuizNavigationView(
+        store: Store(initialState: ListeningQuizNavigationFeature.State(topicID: Topic.mockID)) {
+            ListeningQuizNavigationFeature()
                 ._printChanges()
         }
     )

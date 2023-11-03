@@ -19,7 +19,7 @@ extension TopicCategory {
 
 struct TopicsFeature: Reducer {
     struct State: Equatable {
-        @PresentationState var quiz: ListeningQuizWrapperFeature.State?
+        @PresentationState var quiz: ListeningQuizNavigationFeature.State?
         @PresentationState var about: AboutFeature.State?
         let listeningCategories: IdentifiedArrayOf<TopicCategory>
 
@@ -37,7 +37,7 @@ struct TopicsFeature: Reducer {
     enum Action: Equatable {
         case about(PresentationAction<AboutFeature.Action>)
         case aboutButtonTapped
-        case quiz(PresentationAction<ListeningQuizWrapperFeature.Action>)
+        case quiz(PresentationAction<ListeningQuizNavigationFeature.Action>)
         case topicButtonTapped(UUID)
     }
 
@@ -63,7 +63,7 @@ struct TopicsFeature: Reducer {
             }
         }
         .ifLet(\.$quiz, action: /Action.quiz) {
-            ListeningQuizWrapperFeature()
+            ListeningQuizNavigationFeature()
         }
         .ifLet(\.$about, action: /Action.about) {
             AboutFeature()
@@ -169,7 +169,7 @@ struct TopicsView: View {
         .fullScreenCover(
             store: store.scope(state: \.$quiz, action: { .quiz($0) })
         ) { store in
-            ListeningQuizWrapperView(store: store)
+            ListeningQuizNavigationView(store: store)
         }
         .sheet(
             store: store.scope(state: \.$about, action: { .about($0) })
