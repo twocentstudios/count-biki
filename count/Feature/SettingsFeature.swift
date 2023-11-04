@@ -13,15 +13,13 @@ struct SettingsFeature: Reducer {
         var speechSettings: SpeechSynthesisSettings
 
         let topic: Topic
-        let sessionChallenges: [Challenge]
 
-        init(topicID: UUID, speechSettings: SpeechSynthesisSettings, sessionChallenges: [Challenge]) {
+        init(topicID: UUID, speechSettings: SpeechSynthesisSettings) {
             @Dependency(\.speechSynthesisClient) var speechClient
             @Dependency(\.topicClient.allTopics) var allTopics
 
             topic = allTopics()[id: topicID]!
             self.speechSettings = speechSettings
-            self.sessionChallenges = sessionChallenges
 
             availableVoices = speechClient.availableVoices()
             rawVoiceIdentifier = speechSettings.voiceIdentifier ?? speechClient.defaultVoice()?.voiceIdentifier
@@ -34,33 +32,16 @@ struct SettingsFeature: Reducer {
             rawPitchMultiplier = speechSettings.pitchMultiplier ?? pitchMultiplierAttributes.defaultPitch
             pitchMultiplierRange = pitchMultiplierAttributes.minimumPitch ... pitchMultiplierAttributes.maximumPitch
         }
-
-        var challengesTotal: Int { sessionChallenges.count }
-        var challengesCorrect: Int {
-            sessionChallenges
-                .filter { $0.submissions.allSatisfy { $0.kind == .correct } }
-                .count
-        }
-        var challengesIncorrect: Int {
-            sessionChallenges
-                .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
-                .count
-        }
     }
 
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case delegate(Delegate)
         case doneButtonTapped
         case onSceneWillEnterForeground
         case onTask
         case pitchLabelDoubleTapped
         case rateLabelDoubleTapped
         case testVoiceButtonTapped
-
-        enum Delegate: Equatable {
-            case speechSettingsUpdated(SpeechSynthesisSettings)
-        }
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -81,8 +62,6 @@ struct SettingsFeature: Reducer {
                 state.speechSettings.pitchMultiplier = state.rawPitchMultiplier
                 return .none
             case .binding:
-                return .none
-            case .delegate:
                 return .none
             case .doneButtonTapped:
                 return .run { send in
@@ -120,11 +99,6 @@ struct SettingsFeature: Reducer {
                 }
             }
         }
-        .onChange(of: \.speechSettings) { _, newValue in
-            Reduce { _, _ in
-                .send(.delegate(.speechSettingsUpdated(newValue)))
-            }
-        }
     }
 }
 
@@ -149,47 +123,6 @@ struct SettingsView: View {
                         .padding(.vertical, 2)
                     } header: {
                         Text("Topic")
-                            .font(.subheadline)
-                    }
-
-                    Section {
-                        HStack {
-                            Image(systemName: "tray.full")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 17)
-                            Text("Total")
-                            Spacer()
-                            Text("\(viewStore.challengesTotal)")
-                                .font(.headline)
-                        }
-                        .listRowInsets(.init(top: 0, leading: 20, bottom: 0, trailing: 20))
-                        HStack {
-                            Image(systemName: "checkmark.circle")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 17)
-                                .foregroundStyle(Color.green)
-                            Text("Correct")
-                            Spacer()
-                            Text("\(viewStore.challengesCorrect)")
-                                .font(.headline)
-                        }
-                        .listRowInsets(.init(top: 0, leading: 40, bottom: 0, trailing: 20))
-                        HStack {
-                            Image(systemName: "xmark.circle")
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .frame(width: 17)
-                                .foregroundStyle(Color.red)
-                            Text("Incorrect & skipped")
-                            Spacer()
-                            Text("\(viewStore.challengesIncorrect)")
-                                .font(.headline)
-                        }
-                        .listRowInsets(.init(top: 0, leading: 40, bottom: 0, trailing: 20))
-                    } header: {
-                        Text("Results (so far)")
                             .font(.subheadline)
                     }
 
@@ -285,7 +218,7 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView(
-        store: Store(initialState: SettingsFeature.State(topicID: Topic.mockID, speechSettings: .mock, sessionChallenges: [])) {
+        store: Store(initialState: SettingsFeature.State(topicID: Topic.mockID, speechSettings: .mock)) {
             SettingsFeature()
                 ._printChanges()
         } withDependencies: { deps in

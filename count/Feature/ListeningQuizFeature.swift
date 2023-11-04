@@ -17,7 +17,6 @@ struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
         var bikiAnimation: BikiAnimation?
         var confettiAnimation: Int = 0
-        @PresentationState var destination: Destination.State?
         var isShowingPlaybackError: Bool = false
         var isSpeaking: Bool = false
         @BindingState var pendingSubmissionValue: String = ""
@@ -49,7 +48,7 @@ struct ListeningQuizFeature: Reducer {
                 .count
         }
 
-        init(topicID: UUID) {
+        init(topicID: UUID, speechSettings: SpeechSynthesisSettings) {
             @Dependency(\.topicClient.allTopics) var allTopics
             topic = allTopics()[id: topicID]!
             self.topicID = topicID
@@ -61,8 +60,6 @@ struct ListeningQuizFeature: Reducer {
             let challenge = Challenge(id: uuid(), startDate: now, question: question, submissions: [])
             self.challenge = challenge
 
-            @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
-            let speechSettings = speechSettingsClient.get()
             self.speechSettings = speechSettings
         }
     }
@@ -70,7 +67,6 @@ struct ListeningQuizFeature: Reducer {
     enum Action: BindableAction, Equatable {
         case answerSubmitButtonTapped
         case binding(BindingAction<State>)
-        case destination(PresentationAction<Destination.Action>)
         case endSessionButtonTapped
         case onPlaybackError
         case onPlaybackErrorTimeout
@@ -78,23 +74,7 @@ struct ListeningQuizFeature: Reducer {
         case onTask
         case playbackButtonTapped
         case showAnswerButtonTapped
-        case titleButtonTapped
-    }
-
-    struct Destination: Reducer {
-        enum State: Equatable {
-            case settings(SettingsFeature.State)
-        }
-
-        enum Action: Equatable {
-            case settings(SettingsFeature.Action)
-        }
-
-        var body: some ReducerOf<Self> {
-            Scope(state: /State.settings, action: /Action.settings) {
-                SettingsFeature()
-            }
-        }
+        case settingsButtonTapped
     }
 
     private enum CancelID {
@@ -104,10 +84,8 @@ struct ListeningQuizFeature: Reducer {
     @Dependency(\.continuousClock) var clock
     @Dependency(\.hapticsClient) var haptics
     @Dependency(\.speechSynthesisClient) var speechClient
-    @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
     @Dependency(\.topicClient) var topicClient
     @Dependency(\.uuid) var uuid
-    @Dependency(\.dismiss) var dismiss
     @Dependency(\.date.now) var now
 
     var body: some ReducerOf<Self> {
@@ -142,22 +120,8 @@ struct ListeningQuizFeature: Reducer {
             case .binding:
                 return .none
 
-            case let .destination(.presented(.settings(.delegate(.speechSettingsUpdated(newSpeechSettings))))):
-                state.speechSettings = newSpeechSettings
-                do {
-                    try speechSettingsClient.set(newSpeechSettings)
-                } catch {
-                    XCTFail("SpeechSettingsClient unexpectedly failed to write")
-                }
-                return .none
-
-            case .destination:
-                return .none
-
             case .endSessionButtonTapped:
-                return .run { _ in
-                    await dismiss()
-                }
+                return .none
 
             case .onPlaybackFinished:
                 guard state.isSpeaking else { return .none }
@@ -194,17 +158,9 @@ struct ListeningQuizFeature: Reducer {
                 state.challenge.submissions.append(submission)
                 return .none
 
-            case .titleButtonTapped:
-                state.destination = .settings(.init(
-                    topicID: state.topicID,
-                    speechSettings: state.speechSettings,
-                    sessionChallenges: state.completedChallenges
-                ))
+            case .settingsButtonTapped:
                 return .none
             }
-        }
-        .ifLet(\.$destination, action: /Action.destination) {
-            Destination()
         }
     }
 
@@ -279,13 +235,10 @@ extension ListeningQuizFeature.State {
 
 #Preview {
     ListeningQuizView(
-        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID)) {
+        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, speechSettings: .mock)) {
             ListeningQuizFeature()
                 ._printChanges()
-        } withDependencies: {
-            $0.topicClient.generateQuestion = { _ in .init(topicID: Topic.mockID, displayText: "1", spokenText: "1", answerPrefix: nil, answerPostfix: nil, acceptedAnswer: "1") }
-        }
-    )
+        })
 }
 
 struct ListeningQuizView: View {
@@ -315,19 +268,14 @@ struct ListeningQuizView: View {
             .safeAreaInset(edge: .bottom) {
                 submissionTextField(viewStore: viewStore)
             }
+            .navigationTitle("Quiz")
+            .toolbar(.hidden, for: .navigationBar)
             .dynamicTypeSize(.xSmall ... .accessibility2) // TODO: fix layout for accessibility sizes
             .task {
                 await viewStore.send(.onTask).finish()
             }
             .onAppear {
                 answerFieldFocused = true
-            }
-            .sheet(
-                store: store.scope(state: \.$destination, action: { .destination($0) }),
-                state: /ListeningQuizFeature.Destination.State.settings,
-                action: ListeningQuizFeature.Destination.Action.settings
-            ) { store in
-                SettingsView(store: store)
             }
         }
     }
@@ -385,7 +333,7 @@ struct ListeningQuizView: View {
                     }
                     .buttonStyle(.plain)
                     Button {
-                        viewStore.send(.titleButtonTapped)
+                        viewStore.send(.settingsButtonTapped)
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "gearshape.fill")

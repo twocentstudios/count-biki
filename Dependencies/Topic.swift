@@ -131,9 +131,36 @@ extension Topic {
             title: "Mock topic",
             description: "Just the number 1"
         ),
-        generateQuestion: { _ in
-            Question(topicID: Self.mockID, displayText: "1", spokenText: "1", answerPrefix: nil, answerPostfix: nil, acceptedAnswer: "1")
-        }
+        generateQuestion: { _ in mockQuestion }
+    )
+    static let mockQuestion = Question(topicID: Self.mockID, displayText: "1", spokenText: "1", answerPrefix: nil, answerPostfix: nil, acceptedAnswer: "1")
+    static let mockChallengeCorrect = Challenge(
+        id: UUID(),
+        startDate: .init(timeIntervalSince1970: 0),
+        question: mockQuestion,
+        submissions: [
+            Submission(id: UUID(), date: .init(timeIntervalSince1970: 1), kind: .correct, value: "1"),
+        ]
+    )
+    static let mockChallengeIncorrect = Challenge(
+        id: UUID(),
+        startDate: .init(timeIntervalSince1970: 10),
+        question: mockQuestion,
+        submissions: [
+            Submission(id: UUID(), date: .init(timeIntervalSince1970: 11), kind: .incorrect, value: "3"),
+            Submission(id: UUID(), date: .init(timeIntervalSince1970: 12), kind: .incorrect, value: "2"),
+            Submission(id: UUID(), date: .init(timeIntervalSince1970: 13), kind: .correct, value: "1"),
+        ]
+    )
+    static let mockChallengeSkipped = Challenge(
+        id: UUID(),
+        startDate: .init(timeIntervalSince1970: 20),
+        question: mockQuestion,
+        submissions: [
+            Submission(id: UUID(), date: .init(timeIntervalSince1970: 21), kind: .incorrect, value: "3"),
+            Submission(id: UUID(), date: .init(timeIntervalSince1970: 22), kind: .incorrect, value: "2"),
+            Submission(id: UUID(), date: .init(timeIntervalSince1970: 23), kind: .skip, value: nil),
+        ]
     )
 }
 
@@ -141,10 +168,10 @@ func numberQuestionGenerator(for range: ClosedRange<Int>, by byValue: Int = 1, t
     { rng in
         let byRange = Int(Double(range.lowerBound) / Double(byValue)) ... Int(Double(range.upperBound) / Double(byValue))
         let answer = rng { Int.random(in: byRange, using: &$0) * byValue }
-        
+
         /// Format spoken text without grouping so it's spoken properly.
         let spokenText = answer.formatted(.number.grouping(.never))
-        
+
         /// Format display text with digit separators specified in the user's preferred locale.
         let displayText = answer.formatted(.number.grouping(.automatic))
         let acceptedAnswer = String(answer)
@@ -165,10 +192,10 @@ func moneyGenerator(for range: ClosedRange<Int>, by byValue: Int, topicID: UUID)
         let byRange = Int(Double(range.lowerBound) / Double(byValue)) ... Int(Double(range.upperBound) / Double(byValue))
         let answer = rng { Int.random(in: byRange, using: &$0) * byValue }
         let prefix = "￥"
-        
+
         /// Format spoken text without grouping so it's spoken properly.
         let spokenText = "\(prefix)\(answer.formatted(.number.grouping(.never)))"
-        
+
         /// Format display text with digit separators specified in the user's preferred locale.
         let displayText = "\(prefix)\(answer.formatted(.number.grouping(.automatic)))"
         let acceptedAnswer = String(answer)

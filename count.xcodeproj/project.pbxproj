@@ -33,10 +33,12 @@
 		348000E32A9CC0A800E7CCEE /* CountBiki.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */; };
 		348000E52A9CCD4700E7CCEE /* CountBikiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348000E42A9CCD4700E7CCEE /* CountBikiView.swift */; };
 		349802222A7BDDF200E352F5 /* IndeterminiteProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349802212A7BDDF200E352F5 /* IndeterminiteProgressView.swift */; };
+		349A81732AF517AD00782538 /* ListeningQuizNavigationFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349A81722AF517AD00782538 /* ListeningQuizNavigationFeature.swift */; };
 		349D047A2A84EB3A008AFD0A /* SettingsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D04792A84EB3A008AFD0A /* SettingsFeature.swift */; };
 		349D047D2A88E569008AFD0A /* Topic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D047C2A88E569008AFD0A /* Topic.swift */; };
 		349D04802A88F23F008AFD0A /* TopicSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 349D047F2A88F23F008AFD0A /* TopicSettings.swift */; };
 		34A9749A2A7AB0E600E6F672 /* ComposableArchitecture in Frameworks */ = {isa = PBXBuildFile; productRef = 34A974992A7AB0E600E6F672 /* ComposableArchitecture */; };
+		34AD2C9A2AF276DB00422C2B /* SessionSummaryFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34AD2C992AF276DB00422C2B /* SessionSummaryFeature.swift */; };
 		34BDC4952AA58A51001EF005 /* GetMoreVoicesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BDC4942AA58A51001EF005 /* GetMoreVoicesView.swift */; };
 		34BDC4972AA5C2B6001EF005 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34BDC4962AA5C2B6001EF005 /* Haptics.swift */; };
 		34E2E3EA2AA8C821002B511A /* TopicsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E2E3E92AA8C821002B511A /* TopicsFeature.swift */; };
@@ -81,9 +83,11 @@
 		348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */ = {isa = PBXFileReference; lastKnownFileType = wrapper.scnassets; path = CountBiki.scnassets; sourceTree = "<group>"; };
 		348000E42A9CCD4700E7CCEE /* CountBikiView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CountBikiView.swift; sourceTree = "<group>"; };
 		349802212A7BDDF200E352F5 /* IndeterminiteProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IndeterminiteProgressView.swift; sourceTree = "<group>"; };
+		349A81722AF517AD00782538 /* ListeningQuizNavigationFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningQuizNavigationFeature.swift; sourceTree = "<group>"; };
 		349D04792A84EB3A008AFD0A /* SettingsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsFeature.swift; sourceTree = "<group>"; };
 		349D047C2A88E569008AFD0A /* Topic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Topic.swift; sourceTree = "<group>"; };
 		349D047F2A88F23F008AFD0A /* TopicSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicSettings.swift; sourceTree = "<group>"; };
+		34AD2C992AF276DB00422C2B /* SessionSummaryFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionSummaryFeature.swift; sourceTree = "<group>"; };
 		34BDC4942AA58A51001EF005 /* GetMoreVoicesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetMoreVoicesView.swift; sourceTree = "<group>"; };
 		34BDC4962AA5C2B6001EF005 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 		34E2E3E92AA8C821002B511A /* TopicsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicsFeature.swift; sourceTree = "<group>"; };
@@ -205,6 +209,8 @@
 				344242222ABDD814001E2FC8 /* AppIconFeature.swift */,
 				344242242ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift */,
 				340A51CE2A78EC78007DCA0C /* ListeningQuizFeature.swift */,
+				349A81722AF517AD00782538 /* ListeningQuizNavigationFeature.swift */,
+				34AD2C992AF276DB00422C2B /* SessionSummaryFeature.swift */,
 				3478331E2AA7343A005160DC /* PlanningTopicsFeature.swift */,
 				349D04792A84EB3A008AFD0A /* SettingsFeature.swift */,
 				34276FBE2AB34EB600647AE9 /* TextSpeechFeature.swift */,
@@ -342,6 +348,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				340B48D12AE8ACDD0046B31C /* StrokeFillShape.swift in Sources */,
+				34AD2C9A2AF276DB00422C2B /* SessionSummaryFeature.swift in Sources */,
 				344242252ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift in Sources */,
 				34E2E3EA2AA8C821002B511A /* TopicsFeature.swift in Sources */,
 				3478331F2AA7343A005160DC /* PlanningTopicsFeature.swift in Sources */,
@@ -362,6 +369,7 @@
 				340A51CD2A78EC78007DCA0C /* App.swift in Sources */,
 				344242232ABDD814001E2FC8 /* AppIconFeature.swift in Sources */,
 				344242372AC41F9C001E2FC8 /* EquatableError.swift in Sources */,
+				349A81732AF517AD00782538 /* ListeningQuizNavigationFeature.swift in Sources */,
 				34276FC42AB5899C00647AE9 /* AboutFeature.swift in Sources */,
 				349D047D2A88E569008AFD0A /* Topic.swift in Sources */,
 			);
