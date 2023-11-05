@@ -56,6 +56,14 @@ extension SessionSummaryFeature.State {
     var challengesIncorrect: [Challenge] {
         sessionChallenges.filter { !$0.submissions.contains(where: { $0.kind == .skip }) && $0.submissions.contains(where: { $0.kind == .incorrect }) }
     }
+    var quizModeTitle: String {
+        switch quizMode {
+        case .infinite:
+            "Infinite"
+        case let .questionAttack(limit):
+            "\(limit) question limit"
+        }
+    }
 }
 
 struct SessionSummaryView: View {
@@ -76,6 +84,12 @@ struct SessionSummaryView: View {
                     }
                     .multilineTextAlignment(.leading)
                     .padding(.vertical, 2)
+                    HStack {
+                        Text("Quiz Mode:")
+                            .foregroundStyle(Color(.secondaryLabel))
+                        Text(viewStore.quizModeTitle)
+                    }
+                    .font(.subheadline)
                 } header: {
                     Text("Topic")
                         .font(.subheadline)
