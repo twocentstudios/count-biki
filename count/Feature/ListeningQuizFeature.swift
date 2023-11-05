@@ -34,6 +34,22 @@ extension ListeningQuizFeature.State {
             .filter { $0.submissions.allSatisfy { $0.kind == .correct } }
             .count
     }
+    var determiniteProgressPercentage: Double {
+        switch quizMode {
+        case .infinite:
+            1.0
+        case let .questionAttack(limit):
+            Double(limit - completedChallenges.count) / Double(limit)
+        }
+    }
+    var determiniteChallengesRemaining: String {
+        switch quizMode {
+        case .infinite:
+            ""
+        case let .questionAttack(limit):
+            "\(limit - completedChallenges.count)"
+        }
+    }
 }
 
 enum QuizMode: Equatable {
@@ -474,9 +490,9 @@ struct ListeningQuizView: View {
                     .bold()
                     .foregroundColor(Color(.secondaryLabel))
                     .padding(.trailing, 10)
-            case let .questionAttack(limit):
+            case .questionAttack:
                 DeterminateProgressView(
-                    percentage: Double(limit - viewStore.completedChallenges.count) / Double(limit),
+                    percentage: viewStore.determiniteProgressPercentage,
                     backgroundColor: Color(.systemBackground),
                     foregroundColor: Color(.tintColor),
                     animation: .snappy
@@ -485,7 +501,7 @@ struct ListeningQuizView: View {
                 .padding(.trailing, 6)
                 HStack(spacing: 3) {
                     Image(systemName: "tray.fill")
-                    Text("\(limit - viewStore.completedChallenges.count)")
+                    Text(viewStore.determiniteChallengesRemaining)
                         .bold()
                 }
                 .font(.caption)
