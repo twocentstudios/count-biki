@@ -36,6 +36,10 @@ extension ListeningQuizFeature.State {
     }
 }
 
+enum QuizMode: Equatable {
+    case infinite
+}
+
 struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
         var bikiAnimation: BikiAnimation?
@@ -43,6 +47,7 @@ struct ListeningQuizFeature: Reducer {
         var isShowingPlaybackError: Bool = false
         var isSpeaking: Bool = false
         @BindingState var pendingSubmissionValue: String = ""
+        let quizMode: QuizMode
         var speechSettings: SpeechSynthesisSettings
         let topic: Topic
         let topicID: UUID
@@ -50,10 +55,12 @@ struct ListeningQuizFeature: Reducer {
         var completedChallenges: [Challenge] = []
         var challenge: Challenge
 
-        init(topicID: UUID, speechSettings: SpeechSynthesisSettings) {
+        init(topicID: UUID, quizMode: QuizMode, speechSettings: SpeechSynthesisSettings) {
             @Dependency(\.topicClient.allTopics) var allTopics
             topic = allTopics()[id: topicID]!
             self.topicID = topicID
+            
+            self.quizMode = quizMode
 
             @Dependency(\.topicClient.generateQuestion) var generateQuestion
             @Dependency(\.uuid) var uuid
@@ -237,7 +244,7 @@ extension ListeningQuizFeature.State {
 
 #Preview {
     ListeningQuizView(
-        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, speechSettings: .mock)) {
+        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .infinite, speechSettings: .mock)) {
             ListeningQuizFeature()
                 ._printChanges()
         })

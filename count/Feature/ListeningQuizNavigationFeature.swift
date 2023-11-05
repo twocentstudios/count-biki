@@ -7,11 +7,11 @@ struct ListeningQuizNavigationFeature: Reducer {
         var path = StackState<Path.State>()
         @PresentationState var settings: SettingsFeature.State?
 
-        init(topicID: UUID) {
+        init(topicID: UUID, quizMode: QuizMode) {
             @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
             let speechSettings = speechSettingsClient.get()
 
-            listeningQuiz = .init(topicID: topicID, speechSettings: speechSettings)
+            listeningQuiz = .init(topicID: topicID, quizMode: quizMode, speechSettings: speechSettings)
         }
     }
 
@@ -119,7 +119,7 @@ struct ListeningQuizNavigationView: View {
 
 #Preview {
     ListeningQuizNavigationView(
-        store: Store(initialState: ListeningQuizNavigationFeature.State(topicID: Topic.mockID)) {
+        store: Store(initialState: ListeningQuizNavigationFeature.State(topicID: Topic.mockID, quizMode: .infinite)) {
             ListeningQuizNavigationFeature()
                 ._printChanges()
         }
