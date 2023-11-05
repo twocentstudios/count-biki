@@ -456,22 +456,42 @@ struct ListeningQuizView: View {
 
     @ViewBuilder func progressBar(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
         HStack(spacing: 0) {
-            IndeterminateProgressView(
-                animationCount: viewStore.challengeCount,
-                color1: Color(.tintColor),
-                color2: Color(.systemBackground),
-                barCount: 20,
-                rotation: .degrees(50),
-                animation: .snappy()
-            )
-            .clipShape(Capsule(style: .continuous))
-            .frame(height: 10)
-            .padding(.trailing, 6)
-            Image(systemName: "infinity")
+            switch viewStore.quizMode {
+            case .infinite:
+                IndeterminateProgressView(
+                    animationCount: viewStore.challengeCount,
+                    color1: Color(.tintColor),
+                    color2: Color(.systemBackground),
+                    barCount: 20,
+                    rotation: .degrees(50),
+                    animation: .snappy()
+                )
+                .clipShape(Capsule(style: .continuous))
+                .frame(height: 10)
+                .padding(.trailing, 6)
+                Image(systemName: "infinity")
+                    .font(.caption)
+                    .bold()
+                    .foregroundColor(Color(.secondaryLabel))
+                    .padding(.trailing, 10)
+            case let .questionAttack(limit):
+                DeterminateProgressView(
+                    percentage: Double(limit - viewStore.completedChallenges.count) / Double(limit),
+                    backgroundColor: Color(.systemBackground),
+                    foregroundColor: Color(.tintColor),
+                    animation: .snappy
+                )
+                .frame(height: 10)
+                .padding(.trailing, 6)
+                HStack(spacing: 3) {
+                    Image(systemName: "tray.fill")
+                    Text("\(limit - viewStore.completedChallenges.count)")
+                        .bold()
+                }
                 .font(.caption)
-                .bold()
-                .foregroundColor(Color(.label))
+                .foregroundColor(Color(.secondaryLabel))
                 .padding(.trailing, 10)
+            }
 
             HStack(spacing: 0) {
                 Image(systemName: "checkmark.circle")
