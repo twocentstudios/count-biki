@@ -59,6 +59,12 @@ struct ListeningQuizNavigationFeature: Reducer {
                     state.settings = .init(topicID: state.listeningQuiz.topicID, speechSettings: state.listeningQuiz.speechSettings)
                     return .none
 
+                case .listeningQuiz(.answerSubmitButtonTapped):
+                    if state.listeningQuiz.isSessionComplete {
+                        state.path.append(.summary(.init(topicID: state.listeningQuiz.topicID, sessionChallenges: state.listeningQuiz.completedChallenges)))
+                    }
+                    return .none
+
                 case .listeningQuiz:
                     return .none
 
