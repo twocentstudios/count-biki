@@ -61,6 +61,8 @@ extension SessionSummaryFeature.State {
             "Infinite"
         case let .questionAttack(limit):
             "\(limit) question limit"
+        case let .timeAttack(limit):
+            "\(limit) seconds limit" // TODO: format
         }
     }
 }

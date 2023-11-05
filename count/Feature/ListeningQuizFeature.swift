@@ -39,22 +39,44 @@ extension ListeningQuizFeature.State {
         case .infinite:
             1.0
         case let .questionAttack(limit):
-            Double(limit - completedChallenges.count) / Double(limit)
+            (Double(limit - completedChallenges.count) / Double(limit)).clampedPercentage()
+        case let .timeAttack(limit):
+            (Double(limit - secondsElapsed) / Double(limit)).clampedPercentage()
         }
     }
-    var determiniteChallengesRemaining: String {
+    var determiniteIconName: String {
+        switch quizMode {
+        case .infinite: ""
+        case .questionAttack: "tray.fill"
+        case .timeAttack: "stopwatch"
+        }
+    }
+    var determiniteRemainingTitle: String {
         switch quizMode {
         case .infinite:
             ""
         case let .questionAttack(limit):
             "\(limit - completedChallenges.count)"
+        case let .timeAttack(limit):
+            "\((limit - secondsElapsed).clamped(to: 0 ... limit))" // TODO: format
         }
     }
 }
 
 enum QuizMode: Equatable {
     case infinite
-    case questionAttack(Int)
+    case questionAttack(Int) // > 0
+    case timeAttack(Int) // > 0
+}
+
+extension QuizMode {
+    var shouldStartTimer: Bool {
+        switch self {
+        case .infinite: false
+        case .questionAttack: false
+        case .timeAttack: true
+        }
+    }
 }
 
 struct ListeningQuizFeature: Reducer {
@@ -66,6 +88,7 @@ struct ListeningQuizFeature: Reducer {
         var isSpeaking: Bool = false
         @BindingState var pendingSubmissionValue: String = ""
         let quizMode: QuizMode
+        var secondsElapsed: Int = 0
         var speechSettings: SpeechSynthesisSettings
         let topic: Topic
         let topicID: UUID
@@ -99,6 +122,7 @@ struct ListeningQuizFeature: Reducer {
         case onPlaybackErrorTimeout
         case onPlaybackFinished
         case onTask
+        case onTimerTick
         case playbackButtonTapped
         case showAnswerButtonTapped
         case settingsButtonTapped
@@ -114,6 +138,7 @@ struct ListeningQuizFeature: Reducer {
     @Dependency(\.topicClient) var topicClient
     @Dependency(\.uuid) var uuid
     @Dependency(\.date.now) var now
+    @Dependency(\.application.applicationState) var applicationState
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -125,6 +150,9 @@ struct ListeningQuizFeature: Reducer {
                     state.completedChallenges.append(state.challenge)
                     switch state.quizMode {
                     case let .questionAttack(limit) where state.completedChallenges.count >= limit:
+                        state.isSessionComplete = true
+                        return .none
+                    case let .timeAttack(limit) where state.secondsElapsed >= limit:
                         state.isSessionComplete = true
                         return .none
                     default:
@@ -141,6 +169,9 @@ struct ListeningQuizFeature: Reducer {
                     state.confettiAnimation += 1
                     switch state.quizMode {
                     case let .questionAttack(limit) where state.completedChallenges.count >= limit:
+                        state.isSessionComplete = true
+                        return .none
+                    case let .timeAttack(limit) where state.secondsElapsed >= limit:
                         state.isSessionComplete = true
                         return .none
                     default:
@@ -182,7 +213,20 @@ struct ListeningQuizFeature: Reducer {
                 return .none
 
             case .onTask:
+                let shouldStartTimer = state.quizMode.shouldStartTimer
                 return playBackEffect(state: &state)
+                    .merge(with: .run { send in
+                        if shouldStartTimer {
+                            for await _ in clock.timer(interval: .seconds(1)) {
+                                await send(.onTimerTick)
+                            }
+                        }
+                    })
+            case .onTimerTick:
+                if applicationState == .active {
+                    state.secondsElapsed += 1
+                }
+                return .none
 
             case .playbackButtonTapped:
                 if state.isSpeaking {
@@ -490,7 +534,7 @@ struct ListeningQuizView: View {
                     .bold()
                     .foregroundColor(Color(.secondaryLabel))
                     .padding(.trailing, 10)
-            case .questionAttack:
+            case .questionAttack, .timeAttack:
                 DeterminateProgressView(
                     percentage: viewStore.determiniteProgressPercentage,
                     backgroundColor: Color(.systemBackground),
@@ -500,9 +544,12 @@ struct ListeningQuizView: View {
                 .frame(height: 10)
                 .padding(.trailing, 6)
                 HStack(spacing: 3) {
-                    Image(systemName: "tray.fill")
-                    Text(viewStore.determiniteChallengesRemaining)
+                    Image(systemName: viewStore.determiniteIconName)
+                    Text(viewStore.determiniteRemainingTitle)
+                        .contentTransition(.numericText())
                         .bold()
+                        .fontDesign(.monospaced)
+                        .animation(.default, value: viewStore.determiniteRemainingTitle)
                 }
                 .font(.caption)
                 .foregroundColor(Color(.secondaryLabel))
