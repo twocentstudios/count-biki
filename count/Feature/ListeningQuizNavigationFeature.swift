@@ -68,7 +68,7 @@ struct ListeningQuizNavigationFeature: Reducer {
                 case .listeningQuiz:
                     return .none
 
-                case .path(.element(_, .summary(.delegate(.endSession)))):
+                case .path(.element(_, .summary(.endSessionButtonTapped))):
                     return .run { _ in await dismiss() }
 
                 case .path:

@@ -33,11 +33,7 @@ struct SessionSummaryFeature: Reducer {
     }
 
     enum Action: Equatable {
-        case delegate(Delegate)
-
-        enum Delegate: Equatable {
-            case endSession
-        }
+        case endSessionButtonTapped
     }
 
     @Dependency(\.continuousClock) var clock
@@ -46,7 +42,7 @@ struct SessionSummaryFeature: Reducer {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .delegate:
+            case .endSessionButtonTapped:
                 return .run { send in
                     await haptics.success()
                 }
@@ -187,7 +183,7 @@ struct SessionSummaryView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 Button {
-                    viewStore.send(.delegate(.endSession))
+                    viewStore.send(.endSessionButtonTapped)
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "door.right.hand.open")
