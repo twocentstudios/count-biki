@@ -550,7 +550,7 @@ struct ListeningQuizView: View {
                         .fontDesign(.monospaced)
                         .animation(.default, value: viewStore.determiniteRemainingTitle)
                 }
-                .font(.caption)
+                .font(.system(.caption, design: .monospaced))
                 .foregroundColor(Color(.secondaryLabel))
                 .padding(.trailing, 10)
             }
