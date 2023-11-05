@@ -38,12 +38,14 @@ extension ListeningQuizFeature.State {
 
 enum QuizMode: Equatable {
     case infinite
+    case questionAttack(Int)
 }
 
 struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
         var bikiAnimation: BikiAnimation?
         var confettiAnimation: Int = 0
+        var isSessionComplete: Bool = false
         var isShowingPlaybackError: Bool = false
         var isSpeaking: Bool = false
         @BindingState var pendingSubmissionValue: String = ""
@@ -59,8 +61,8 @@ struct ListeningQuizFeature: Reducer {
             @Dependency(\.topicClient.allTopics) var allTopics
             topic = allTopics()[id: topicID]!
             self.topicID = topicID
-            
             self.quizMode = quizMode
+
 
             @Dependency(\.topicClient.generateQuestion) var generateQuestion
             @Dependency(\.uuid) var uuid
@@ -105,9 +107,15 @@ struct ListeningQuizFeature: Reducer {
                 if state.isShowingAnswer {
                     state.pendingSubmissionValue = ""
                     state.completedChallenges.append(state.challenge)
-                    generateChallenge(state: &state)
-                    return .run { _ in await haptics.error() }
-                        .merge(with: playBackEffect(state: &state))
+                    switch state.quizMode {
+                    case let .questionAttack(limit) where state.completedChallenges.count >= limit:
+                        state.isSessionComplete = true
+                        return .none
+                    default:
+                        generateChallenge(state: &state)
+                        return .run { _ in await haptics.error() }
+                            .merge(with: playBackEffect(state: &state))
+                    }
                 } else if state.question.acceptedAnswer == state.pendingSubmissionValue {
                     let submission = Submission(id: uuid(), date: now, kind: .correct, value: state.pendingSubmissionValue)
                     state.challenge.submissions.append(submission)
@@ -115,9 +123,15 @@ struct ListeningQuizFeature: Reducer {
                     state.pendingSubmissionValue = ""
                     state.bikiAnimation = .init(id: uuid(), kind: .correct)
                     state.confettiAnimation += 1
-                    generateChallenge(state: &state)
-                    return .run { _ in await haptics.success() }
-                        .merge(with: playBackEffect(state: &state))
+                    switch state.quizMode {
+                    case let .questionAttack(limit) where state.completedChallenges.count >= limit:
+                        state.isSessionComplete = true
+                        return .none
+                    default:
+                        generateChallenge(state: &state)
+                        return .run { _ in await haptics.success() }
+                            .merge(with: playBackEffect(state: &state))
+                    }
                 } else {
                     let submission = Submission(id: uuid(), date: now, kind: .incorrect, value: state.pendingSubmissionValue)
                     state.challenge.submissions.append(submission)
