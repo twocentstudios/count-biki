@@ -48,10 +48,17 @@ struct ListeningQuizNavigationFeature: Reducer {
             Reduce { state, action in
                 switch action {
                 case .listeningQuiz(.endSessionButtonTapped):
-                    if state.listeningQuiz.completedChallenges.isEmpty, state.listeningQuiz.challenge.submissions.isEmpty {
+                    if state.listeningQuiz.completedChallenges.isEmpty,
+                       state.listeningQuiz.challenge.submissions.isEmpty
+                    {
                         return .run { _ in await dismiss() }
                     } else {
-                        state.path.append(.summary(.init(topicID: state.listeningQuiz.topicID, sessionChallenges: state.listeningQuiz.completedChallenges)))
+                        state.path.append(.summary(.init(
+                            topicID: state.listeningQuiz.topicID,
+                            sessionChallenges: state.listeningQuiz.completedChallenges,
+                            quizMode: state.listeningQuiz.quizMode,
+                            isSessionComplete: state.listeningQuiz.isSessionComplete
+                        )))
                         return .none
                     }
 
@@ -61,7 +68,12 @@ struct ListeningQuizNavigationFeature: Reducer {
 
                 case .listeningQuiz(.answerSubmitButtonTapped):
                     if state.listeningQuiz.isSessionComplete {
-                        state.path.append(.summary(.init(topicID: state.listeningQuiz.topicID, sessionChallenges: state.listeningQuiz.completedChallenges)))
+                        state.path.append(.summary(.init(
+                            topicID: state.listeningQuiz.topicID,
+                            sessionChallenges: state.listeningQuiz.completedChallenges,
+                            quizMode: state.listeningQuiz.quizMode,
+                            isSessionComplete: state.listeningQuiz.isSessionComplete
+                        )))
                     }
                     return .none
 

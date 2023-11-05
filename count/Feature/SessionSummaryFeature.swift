@@ -5,12 +5,17 @@ struct SessionSummaryFeature: Reducer {
     struct State: Equatable {
         let topic: Topic
         let sessionChallenges: [Challenge]
+        let quizMode: QuizMode
+        let isSessionComplete: Bool
 
-        init(topicID: UUID, sessionChallenges: [Challenge]) {
+        init(topicID: UUID, sessionChallenges: [Challenge], quizMode: QuizMode, isSessionComplete: Bool) {
             @Dependency(\.topicClient.allTopics) var allTopics
 
             topic = allTopics()[id: topicID]!
             self.sessionChallenges = sessionChallenges
+
+            self.quizMode = quizMode
+            self.isSessionComplete = isSessionComplete
         }
     }
 
@@ -202,7 +207,7 @@ struct SessionSummaryView: View {
                 }
                 // TODO: Button: retry session with same settings (if timed session was completed)
             }
-            .navigationBarBackButtonHidden(false) // TODO: hide back button on certain conditions (timer out, questions out)
+            .navigationBarBackButtonHidden(viewStore.isSessionComplete)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -217,7 +222,14 @@ struct SessionSummaryView: View {
 #Preview {
     NavigationStack {
         SessionSummaryView(
-            store: Store(initialState: SessionSummaryFeature.State(topicID: Topic.mockID, sessionChallenges: [Topic.mockChallengeCorrect, Topic.mockChallengeSkipped, Topic.mockChallengeIncorrect])) {
+            store: Store(
+                initialState: SessionSummaryFeature.State(
+                    topicID: Topic.mockID,
+                    sessionChallenges: [Topic.mockChallengeCorrect, Topic.mockChallengeSkipped, Topic.mockChallengeIncorrect],
+                    quizMode: .infinite,
+                    isSessionComplete: true
+                )
+            ) {
                 SessionSummaryFeature()
                     ._printChanges()
             }
