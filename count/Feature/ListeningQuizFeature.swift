@@ -13,6 +13,29 @@ struct BikiAnimation: Equatable {
     let kind: Kind
 }
 
+extension ListeningQuizFeature.State {
+    var challengeCount: Int { completedChallenges.count }
+    var lastSubmittedIncorrectValue: String? {
+        challenge.submissions.last(where: { $0.kind == .incorrect })?.value
+    }
+    var isShowingAnswer: Bool {
+        challenge.submissions.last?.kind == .skip
+    }
+    var question: Question {
+        challenge.question
+    }
+    var totalIncorrect: Int {
+        completedChallenges
+            .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
+            .count
+    }
+    var totalCorrect: Int {
+        completedChallenges
+            .filter { $0.submissions.allSatisfy { $0.kind == .correct } }
+            .count
+    }
+}
+
 struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
         var bikiAnimation: BikiAnimation?
@@ -26,27 +49,6 @@ struct ListeningQuizFeature: Reducer {
 
         var completedChallenges: [Challenge] = []
         var challenge: Challenge
-
-        var challengeCount: Int { completedChallenges.count }
-        var lastSubmittedIncorrectValue: String? {
-            challenge.submissions.last(where: { $0.kind == .incorrect })?.value
-        }
-        var isShowingAnswer: Bool {
-            challenge.submissions.last?.kind == .skip
-        }
-        var question: Question {
-            challenge.question
-        }
-        var totalIncorrect: Int {
-            completedChallenges
-                .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
-                .count
-        }
-        var totalCorrect: Int {
-            completedChallenges
-                .filter { $0.submissions.allSatisfy { $0.kind == .correct } }
-                .count
-        }
 
         init(topicID: UUID, speechSettings: SpeechSynthesisSettings) {
             @Dependency(\.topicClient.allTopics) var allTopics
