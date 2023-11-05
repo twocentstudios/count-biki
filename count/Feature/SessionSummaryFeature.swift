@@ -23,7 +23,6 @@ struct SessionSummaryFeature: Reducer {
         case endSessionButtonTapped
     }
 
-    @Dependency(\.continuousClock) var clock
     @Dependency(\.hapticsClient) var haptics
 
     var body: some ReducerOf<Self> {
