@@ -14,6 +14,16 @@ struct BikiAnimation: Equatable {
 }
 
 extension ListeningQuizFeature.State {
+    var isSessionComplete: Bool {
+        switch quizMode {
+        case let .questionAttack(limit) where completedChallenges.count >= limit:
+            true
+        case let .timeAttack(limit) where secondsElapsed >= limit:
+            true
+        default:
+            false
+        }
+    }
     var challengeCount: Int { completedChallenges.count }
     var lastSubmittedIncorrectValue: String? {
         challenge.submissions.last(where: { $0.kind == .incorrect })?.value
@@ -83,7 +93,6 @@ struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
         var bikiAnimation: BikiAnimation?
         var confettiAnimation: Int = 0
-        var isSessionComplete: Bool = false
         var isShowingPlaybackError: Bool = false
         var isSpeaking: Bool = false
         @BindingState var pendingSubmissionValue: String = ""
@@ -148,14 +157,9 @@ struct ListeningQuizFeature: Reducer {
                 if state.isShowingAnswer {
                     state.pendingSubmissionValue = ""
                     state.completedChallenges.append(state.challenge)
-                    switch state.quizMode {
-                    case let .questionAttack(limit) where state.completedChallenges.count >= limit:
-                        state.isSessionComplete = true
-                        return .none
-                    case let .timeAttack(limit) where state.secondsElapsed >= limit:
-                        state.isSessionComplete = true
-                        return .none
-                    default:
+                    if state.isSessionComplete {
+                        return .run { _ in await haptics.error() }
+                    } else {
                         generateChallenge(state: &state)
                         return .run { _ in await haptics.error() }
                             .merge(with: playBackEffect(state: &state))
@@ -167,14 +171,9 @@ struct ListeningQuizFeature: Reducer {
                     state.pendingSubmissionValue = ""
                     state.bikiAnimation = .init(id: uuid(), kind: .correct)
                     state.confettiAnimation += 1
-                    switch state.quizMode {
-                    case let .questionAttack(limit) where state.completedChallenges.count >= limit:
-                        state.isSessionComplete = true
-                        return .none
-                    case let .timeAttack(limit) where state.secondsElapsed >= limit:
-                        state.isSessionComplete = true
-                        return .none
-                    default:
+                    if state.isSessionComplete {
+                        return .run { _ in await haptics.success() }
+                    } else {
                         generateChallenge(state: &state)
                         return .run { _ in await haptics.success() }
                             .merge(with: playBackEffect(state: &state))
