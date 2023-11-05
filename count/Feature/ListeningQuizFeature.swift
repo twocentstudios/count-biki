@@ -68,7 +68,7 @@ extension ListeningQuizFeature.State {
         case let .questionAttack(limit):
             "\(limit - completedChallenges.count)"
         case let .timeAttack(limit):
-            "\((limit - secondsElapsed).clamped(to: 0 ... limit))" // TODO: format
+            Duration.seconds((limit - secondsElapsed).clamped(to: 0 ... limit)).formatted(.time(pattern: .minuteSecond))
         }
     }
 }

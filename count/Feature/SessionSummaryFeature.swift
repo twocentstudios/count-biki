@@ -62,7 +62,7 @@ extension SessionSummaryFeature.State {
         case let .questionAttack(limit):
             "\(limit) question limit"
         case let .timeAttack(limit):
-            "\(limit) seconds limit" // TODO: format
+            "\(Duration.seconds(limit).formatted(.units(width: .abbreviated))) limit"
         }
     }
 }
