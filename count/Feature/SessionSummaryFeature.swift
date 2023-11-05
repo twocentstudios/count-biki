@@ -12,24 +12,6 @@ struct SessionSummaryFeature: Reducer {
             topic = allTopics()[id: topicID]!
             self.sessionChallenges = sessionChallenges
         }
-
-        var challengesTotalCount: Int { sessionChallenges.count }
-        var challengesCorrectCount: Int { challengesCorrect.count }
-        var challengesIncorrectSkippedCount: Int {
-            sessionChallenges
-                .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
-                .count
-        }
-
-        var challengesCorrect: [Challenge] {
-            sessionChallenges.filter { $0.submissions.allSatisfy { $0.kind == .correct } }
-        }
-        var challengesSkipped: [Challenge] {
-            sessionChallenges.filter { $0.submissions.contains(where: { $0.kind == .skip }) }
-        }
-        var challengesIncorrect: [Challenge] {
-            sessionChallenges.filter { !$0.submissions.contains(where: { $0.kind == .skip }) && $0.submissions.contains(where: { $0.kind == .incorrect }) }
-        }
     }
 
     enum Action: Equatable {
@@ -48,6 +30,26 @@ struct SessionSummaryFeature: Reducer {
                 }
             }
         }
+    }
+}
+
+extension SessionSummaryFeature.State {
+    var challengesTotalCount: Int { sessionChallenges.count }
+    var challengesCorrectCount: Int { challengesCorrect.count }
+    var challengesIncorrectSkippedCount: Int {
+        sessionChallenges
+            .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
+            .count
+    }
+
+    var challengesCorrect: [Challenge] {
+        sessionChallenges.filter { $0.submissions.allSatisfy { $0.kind == .correct } }
+    }
+    var challengesSkipped: [Challenge] {
+        sessionChallenges.filter { $0.submissions.contains(where: { $0.kind == .skip }) }
+    }
+    var challengesIncorrect: [Challenge] {
+        sessionChallenges.filter { !$0.submissions.contains(where: { $0.kind == .skip }) && $0.submissions.contains(where: { $0.kind == .incorrect }) }
     }
 }
 
@@ -134,7 +136,7 @@ struct SessionSummaryView: View {
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
-                                        
+
                                         Text("\(challenge.submissions.count) attempts")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
@@ -167,7 +169,7 @@ struct SessionSummaryView: View {
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
-                                        
+
                                         Text("\(challenge.submissions.count) attempts")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
