@@ -44,6 +44,7 @@
 		34E2E3EA2AA8C821002B511A /* TopicsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E2E3E92AA8C821002B511A /* TopicsFeature.swift */; };
 		34E2E3EE2AA9C86A002B511A /* ConfettiSwiftUI in Frameworks */ = {isa = PBXBuildFile; productRef = 34E2E3ED2AA9C86A002B511A /* ConfettiSwiftUI */; };
 		34E53DC42AF793DC007E4BAE /* DeterminiteProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E53DC32AF793DC007E4BAE /* DeterminiteProgressView.swift */; };
+		34E53DC62AF7AD32007E4BAE /* Clamped.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E53DC52AF7AD32007E4BAE /* Clamped.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -93,6 +94,7 @@
 		34BDC4962AA5C2B6001EF005 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 		34E2E3E92AA8C821002B511A /* TopicsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopicsFeature.swift; sourceTree = "<group>"; };
 		34E53DC32AF793DC007E4BAE /* DeterminiteProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeterminiteProgressView.swift; sourceTree = "<group>"; };
+		34E53DC52AF7AD32007E4BAE /* Clamped.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clamped.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -200,6 +202,7 @@
 			children = (
 				344242312AC41EAD001E2FC8 /* DataState.swift */,
 				344242362AC41F9C001E2FC8 /* EquatableError.swift */,
+				34E53DC52AF7AD32007E4BAE /* Clamped.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -352,6 +355,7 @@
 			files = (
 				340B48D12AE8ACDD0046B31C /* StrokeFillShape.swift in Sources */,
 				34AD2C9A2AF276DB00422C2B /* SessionSummaryFeature.swift in Sources */,
+				34E53DC62AF7AD32007E4BAE /* Clamped.swift in Sources */,
 				344242252ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift in Sources */,
 				34E2E3EA2AA8C821002B511A /* TopicsFeature.swift in Sources */,
 				3478331F2AA7343A005160DC /* PlanningTopicsFeature.swift in Sources */,
