@@ -7,10 +7,19 @@ struct SessionSettingsClient {
 }
 
 struct SessionSettings: Equatable, Codable {
-    enum QuizMode: Equatable, Codable {
+    enum QuizMode: Equatable, Identifiable, Codable, CaseIterable {
         case infinite
         case questionAttack
         case timeAttack
+
+        var id: Self { self }
+        var title: String {
+            switch self {
+            case .infinite: "Infinite"
+            case .questionAttack: "Question Limit"
+            case .timeAttack: "Time Limit"
+            }
+        }
     }
     var quizMode: QuizMode
     var questionLimit: Int
@@ -24,6 +33,9 @@ struct SessionSettings: Equatable, Codable {
 
 extension SessionSettings {
     static let `default`: Self = .init(quizMode: .infinite, questionLimit: 10, timeLimit: 60, showProgress: true, showBiki: true, showConfetti: true, playHaptics: true)
+    
+    static let questionLimitValues: [Int] = [5, 10, 20, 30, 50, 100]
+    static let timeLimitValues: [Int] = [1, 3, 5, 10, 20, 60].map { $0 * 60 }
 }
 
 extension SessionSettingsClient: DependencyKey {
