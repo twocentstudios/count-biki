@@ -95,7 +95,7 @@ struct TopicsFeature: Reducer {
             case let .topicButtonTapped(topicID):
                 state.destination = nil
                 return .run { send in
-                    await send(.setDestination(.quiz(.init(topicID: topicID, quizMode: .infinite))))
+                    await send(.setDestination(.quiz(.init(topicID: topicID))))
                 }
             }
         }

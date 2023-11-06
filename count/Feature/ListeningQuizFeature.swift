@@ -87,6 +87,17 @@ extension QuizMode {
         case .timeLimit: true
         }
     }
+
+    init(_ sessionSettings: SessionSettings) {
+        switch sessionSettings.quizMode {
+        case .infinite:
+            self = .infinite
+        case .questionLimit:
+            self = .questionLimit(sessionSettings.questionLimit)
+        case .timeLimit:
+            self = .timeLimit(sessionSettings.timeLimit)
+        }
+    }
 }
 
 struct ListeningQuizFeature: Reducer {
@@ -110,7 +121,6 @@ struct ListeningQuizFeature: Reducer {
             topic = allTopics()[id: topicID]!
             self.topicID = topicID
             self.quizMode = quizMode
-
 
             @Dependency(\.topicClient.generateQuestion) var generateQuestion
             @Dependency(\.uuid) var uuid
