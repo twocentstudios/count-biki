@@ -66,7 +66,7 @@ struct PreSettingsFeature: Reducer {
             case .binding(\.$rawQuestionLimit):
                 state.sessionSettings.questionLimit = state.rawQuestionLimit
                 return .none
-            case .binding(\.$rawQuizMode):
+            case .binding(\.$rawTimeLimit):
                 state.sessionSettings.timeLimit = state.rawTimeLimit
                 return .none
             case .binding(\.$rawSpeechRate):
@@ -112,22 +112,22 @@ struct PreSettingsFeature: Reducer {
                 }
             }
         }
-        .onChange(of: \.speechSettings) { _, newValue in
-            Reduce { _, _ in
-                do {
-                    try speechSettingsClient.set(newValue)
-                } catch {
-                    XCTFail("SpeechSettingsClient unexpectedly failed to write")
-                }
-                return .none
-            }
-        }
         .onChange(of: \.sessionSettings) { _, newValue in
             Reduce { _, _ in
                 do {
                     try sessionSettingsClient.set(newValue)
                 } catch {
                     XCTFail("SessionSettingsClient unexpectedly failed to write")
+                }
+                return .none
+            }
+        }
+        .onChange(of: \.speechSettings) { _, newValue in
+            Reduce { _, _ in
+                do {
+                    try speechSettingsClient.set(newValue)
+                } catch {
+                    XCTFail("SpeechSettingsClient unexpectedly failed to write")
                 }
                 return .none
             }
