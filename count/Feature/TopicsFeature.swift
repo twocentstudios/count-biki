@@ -19,8 +19,7 @@ extension TopicCategory {
 
 struct TopicsFeature: Reducer {
     struct State: Equatable {
-        @PresentationState var quiz: ListeningQuizNavigationFeature.State?
-        @PresentationState var about: AboutFeature.State?
+        @PresentationState var destination: Destination.State?
         let listeningCategories: IdentifiedArrayOf<TopicCategory>
 
         init() {
@@ -31,14 +30,41 @@ struct TopicsFeature: Reducer {
                 .filtered(allTopics(), skill: .listening, category: .duration),
                 .filtered(allTopics(), skill: .listening, category: .dateTime),
             ]
+            destination = .preSettings(.init())
         }
     }
 
-    enum Action: Equatable {
-        case about(PresentationAction<AboutFeature.Action>)
+    enum Action: Equatable, Sendable {
         case aboutButtonTapped
-        case quiz(PresentationAction<ListeningQuizNavigationFeature.Action>)
+        case destination(PresentationAction<Destination.Action>)
         case topicButtonTapped(UUID)
+        case setDestination(Destination.State)
+    }
+
+    struct Destination: Reducer {
+        enum State: Equatable, Sendable {
+            case preSettings(PreSettingsFeature.State)
+            case quiz(ListeningQuizNavigationFeature.State)
+            case about(AboutFeature.State)
+        }
+
+        enum Action: Equatable, Sendable {
+            case preSettings(PreSettingsFeature.Action)
+            case quiz(ListeningQuizNavigationFeature.Action)
+            case about(AboutFeature.Action)
+        }
+
+        var body: some ReducerOf<Self> {
+            Scope(state: /State.preSettings, action: /Action.preSettings) {
+                PreSettingsFeature()
+            }
+            Scope(state: /State.quiz, action: /Action.quiz) {
+                ListeningQuizNavigationFeature()
+            }
+            Scope(state: /State.about, action: /Action.about) {
+                AboutFeature()
+            }
+        }
     }
 
     @Dependency(\.continuousClock) var clock
@@ -47,26 +73,34 @@ struct TopicsFeature: Reducer {
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .about:
-                return .none
-
             case .aboutButtonTapped:
-                state.about = .init()
+                state.destination = nil
+                return .run { send in
+                    await send(.setDestination(.about(.init())))
+                }
+
+            case .destination(.dismiss):
+                // Re-present the preSettings half-modal when any other destination is dismissed
+                return .run { send in
+                    await send(.setDestination(.preSettings(.init())))
+                }
+
+            case .destination:
                 return .none
 
-            case .quiz:
+            case let .setDestination(destination):
+                state.destination = destination
                 return .none
 
             case let .topicButtonTapped(topicID):
-                state.quiz = .init(topicID: topicID, quizMode: .infinite)
-                return .none
+                state.destination = nil
+                return .run { send in
+                    await send(.setDestination(.quiz(.init(topicID: topicID, quizMode: .infinite))))
+                }
             }
         }
-        .ifLet(\.$quiz, action: /Action.quiz) {
-            ListeningQuizNavigationFeature()
-        }
-        .ifLet(\.$about, action: /Action.about) {
-            AboutFeature()
+        .ifLet(\.$destination, action: /Action.destination) {
+            Destination()
         }
     }
 }
@@ -167,14 +201,29 @@ struct TopicsView: View {
             }
         }
         .fullScreenCover(
-            store: store.scope(state: \.$quiz, action: { .quiz($0) })
+            store: store.scope(state: \.$destination, action: { .destination($0) }),
+            state: /TopicsFeature.Destination.State.quiz,
+            action: TopicsFeature.Destination.Action.quiz
         ) { store in
             ListeningQuizNavigationView(store: store)
         }
         .sheet(
-            store: store.scope(state: \.$about, action: { .about($0) })
+            store: store.scope(state: \.$destination, action: { .destination($0) }),
+            state: /TopicsFeature.Destination.State.about,
+            action: TopicsFeature.Destination.Action.about
         ) { store in
             AboutView(store: store)
+        }
+        .sheet(
+            store: store.scope(state: \.$destination, action: { .destination($0) }),
+            state: /TopicsFeature.Destination.State.preSettings,
+            action: TopicsFeature.Destination.Action.preSettings
+        ) { store in
+            PreSettingsView(store: store)
+                .presentationDragIndicator(.visible)
+                .presentationDetents([.fraction(0.1), .medium, .large])
+                .presentationBackgroundInteraction(.enabled)
+                .interactiveDismissDisabled(true)
         }
     }
 }
