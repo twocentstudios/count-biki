@@ -9,15 +9,15 @@ struct SessionSettingsClient {
 struct SessionSettings: Equatable, Codable {
     enum QuizMode: Equatable, Identifiable, Codable, CaseIterable {
         case infinite
-        case questionAttack
-        case timeAttack
+        case questionLimit // TODO: rename to questionLimit
+        case timeLimit
 
         var id: Self { self }
         var title: String {
             switch self {
             case .infinite: "Infinite"
-            case .questionAttack: "Question Limit"
-            case .timeAttack: "Time Limit"
+            case .questionLimit: "Question Limit"
+            case .timeLimit: "Time Limit"
             }
         }
     }

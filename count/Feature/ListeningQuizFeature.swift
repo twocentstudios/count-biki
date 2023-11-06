@@ -16,9 +16,9 @@ struct BikiAnimation: Equatable {
 extension ListeningQuizFeature.State {
     var isSessionComplete: Bool {
         switch quizMode {
-        case let .questionAttack(limit) where completedChallenges.count >= limit:
+        case let .questionLimit(limit) where completedChallenges.count >= limit:
             true
-        case let .timeAttack(limit) where secondsElapsed >= limit:
+        case let .timeLimit(limit) where secondsElapsed >= limit:
             true
         default:
             false
@@ -48,26 +48,26 @@ extension ListeningQuizFeature.State {
         switch quizMode {
         case .infinite:
             1.0
-        case let .questionAttack(limit):
+        case let .questionLimit(limit):
             (Double(limit - completedChallenges.count) / Double(limit)).clampedPercentage()
-        case let .timeAttack(limit):
+        case let .timeLimit(limit):
             (Double(limit - secondsElapsed) / Double(limit)).clampedPercentage()
         }
     }
     var determiniteIconName: String {
         switch quizMode {
         case .infinite: ""
-        case .questionAttack: "tray.fill"
-        case .timeAttack: "stopwatch"
+        case .questionLimit: "tray.fill"
+        case .timeLimit: "stopwatch"
         }
     }
     var determiniteRemainingTitle: String {
         switch quizMode {
         case .infinite:
             ""
-        case let .questionAttack(limit):
+        case let .questionLimit(limit):
             "\(limit - completedChallenges.count)"
-        case let .timeAttack(limit):
+        case let .timeLimit(limit):
             Duration.seconds((limit - secondsElapsed).clamped(to: 0 ... limit)).formatted(.time(pattern: .minuteSecond))
         }
     }
@@ -75,16 +75,16 @@ extension ListeningQuizFeature.State {
 
 enum QuizMode: Equatable {
     case infinite
-    case questionAttack(Int) // > 0
-    case timeAttack(Int) // > 0
+    case questionLimit(Int) // > 0
+    case timeLimit(Int) // > 0
 }
 
 extension QuizMode {
     var shouldStartTimer: Bool {
         switch self {
         case .infinite: false
-        case .questionAttack: false
-        case .timeAttack: true
+        case .questionLimit: false
+        case .timeLimit: true
         }
     }
 }
@@ -533,7 +533,7 @@ struct ListeningQuizView: View {
                     .bold()
                     .foregroundColor(Color(.secondaryLabel))
                     .padding(.trailing, 10)
-            case .questionAttack, .timeAttack:
+            case .questionLimit, .timeLimit:
                 DeterminateProgressView(
                     percentage: viewStore.determiniteProgressPercentage,
                     backgroundColor: Color(.systemBackground),

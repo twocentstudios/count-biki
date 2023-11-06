@@ -59,9 +59,9 @@ extension SessionSummaryFeature.State {
         switch quizMode {
         case .infinite:
             "Infinite"
-        case let .questionAttack(limit):
+        case let .questionLimit(limit):
             "\(limit) question limit"
-        case let .timeAttack(limit):
+        case let .timeLimit(limit):
             "\(Duration.seconds(limit).formatted(.units(width: .abbreviated))) limit"
         }
     }

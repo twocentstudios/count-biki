@@ -14,7 +14,6 @@ struct PreSettingsFeature: Reducer {
         let pitchMultiplierRange: ClosedRange<Float>
         let speechRateRange: ClosedRange<Float>
         var speechSettings: SpeechSynthesisSettings
-
         var sessionSettings: SessionSettings
 
         init() {
@@ -157,7 +156,7 @@ struct PreSettingsView: View {
                         switch viewStore.sessionSettings.quizMode {
                         case .infinite:
                             EmptyView()
-                        case .questionAttack:
+                        case .questionLimit:
                             Picker(selection: viewStore.$rawQuestionLimit) {
                                 ForEach(SessionSettings.questionLimitValues, id: \.self) { value in
                                     Text("\(value)")
@@ -167,7 +166,7 @@ struct PreSettingsView: View {
                                 Text("Question Limit")
                             }
                             .pickerStyle(.segmented)
-                        case .timeAttack:
+                        case .timeLimit:
                             Picker(selection: viewStore.$rawTimeLimit) {
                                 ForEach(SessionSettings.timeLimitValues, id: \.self) { value in
                                     Text("\(Duration.seconds(value).formatted(.units(width: .condensedAbbreviated)))")
