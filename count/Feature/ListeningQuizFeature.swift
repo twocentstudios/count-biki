@@ -536,7 +536,7 @@ struct ListeningQuizView: View {
             case .infinite:
                 IndeterminateProgressView(
                     animationCount: viewStore.challengeCount,
-                    color1: Color(.tintColor),
+                    color1: Color(.systemFill),
                     color2: Color(.systemBackground),
                     barCount: 20,
                     rotation: .degrees(50),
@@ -554,7 +554,7 @@ struct ListeningQuizView: View {
                 DeterminateProgressView(
                     percentage: viewStore.determiniteProgressPercentage,
                     backgroundColor: Color(.systemBackground),
-                    foregroundColor: Color(.tintColor),
+                    foregroundColor: Color(.systemFill),
                     animation: .snappy
                 )
                 .frame(height: 10)

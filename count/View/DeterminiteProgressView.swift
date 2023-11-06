@@ -8,7 +8,7 @@ struct DeterminateProgressView: View {
 
     var body: some View {
         Capsule(style: .continuous)
-            .fill(backgroundColor.shadow(.inner(color: .primary.opacity(0.10), radius: 1)))
+            .fill(backgroundColor.shadow(.inner(color: .primary.opacity(0.15), radius: 1)))
             .overlay(alignment: .topLeading) {
                 GeometryReader { proxy in
                     Capsule(style: .continuous)
