@@ -325,9 +325,16 @@ extension ListeningQuizFeature.State {
     }
 }
 
-#Preview {
+#Preview("Infinite") {
     ListeningQuizView(
         store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .infinite, speechSettings: .mock)) {
+            ListeningQuizFeature()
+                ._printChanges()
+        })
+}
+#Preview("Time Limit") {
+    ListeningQuizView(
+        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .timeLimit(60), speechSettings: .mock)) {
             ListeningQuizFeature()
                 ._printChanges()
         })
