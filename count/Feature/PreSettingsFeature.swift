@@ -141,7 +141,7 @@ struct PreSettingsView: View {
     var body: some View {
         WithViewStore(store, observe: { $0 }) { viewStore in
             NavigationStack {
-                List {
+                Form {
                     Section {
                         Picker(selection: viewStore.$rawQuizMode) {
                             ForEach(SessionSettings.QuizMode.allCases) { quizMode in
