@@ -65,7 +65,7 @@ struct ListeningQuizNavigationFeature: Reducer {
                     }
 
                 case .listeningQuiz(.settingsButtonTapped):
-                    state.settings = .init(topicID: state.listeningQuiz.topicID, speechSettings: state.listeningQuiz.speechSettings)
+                    state.settings = .init(topicID: state.listeningQuiz.topicID)
                     return .none
 
                 case .listeningQuiz(.answerSubmitButtonTapped):
@@ -99,19 +99,19 @@ struct ListeningQuizNavigationFeature: Reducer {
                 Path()
             }
         }
-        .onChange(of: \.settings?.speechSettings) { _, newValue in
-            // Play back speechSettings changes to listeningQuiz and client.
-            Reduce { state, _ in
-                guard let newValue else { return .none }
-                state.listeningQuiz.speechSettings = newValue
-                do {
-                    try speechSettingsClient.set(newValue)
-                } catch {
-                    XCTFail("SpeechSettingsClient unexpectedly failed to write")
-                }
-                return .none
-            }
-        }
+//        .onChange(of: \.settings?.speechSettings) { _, newValue in
+//            // Play back speechSettings changes to listeningQuiz and client.
+//            Reduce { state, _ in
+//                guard let newValue else { return .none }
+//                state.listeningQuiz.speechSettings = newValue
+//                do {
+//                    try speechSettingsClient.set(newValue)
+//                } catch {
+//                    XCTFail("SpeechSettingsClient unexpectedly failed to write")
+//                }
+//                return .none
+//            }
+//        }
     }
 }
 
