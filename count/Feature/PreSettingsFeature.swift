@@ -4,22 +4,14 @@ import SwiftUI
 
 struct PreSettingsFeature: Reducer {
     struct State: Equatable {
-        var availableVoices: [SpeechSynthesisVoice]
         @BindingState var rawQuizMode: SessionSettings.QuizMode
         @BindingState var rawQuestionLimit: Int
         @BindingState var rawTimeLimit: Int
-        @BindingState var rawSpeechRate: Float
-        @BindingState var rawVoiceIdentifier: String?
-        @BindingState var rawPitchMultiplier: Float
-        let pitchMultiplierRange: ClosedRange<Float>
-        let speechRateRange: ClosedRange<Float>
-        var speechSettings: SpeechSynthesisSettings
+        var speechSettings: SpeechSettingsFeature.State
         var sessionSettings: SessionSettings
 
-        init() {
+        init(speechSettings: SpeechSettingsFeature.State = .init()) {
             @Dependency(\.sessionSettingsClient) var sessionSettingsClient
-            @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
-            @Dependency(\.speechSynthesisClient) var speechClient
             @Dependency(\.topicClient.allTopics) var allTopics
 
             sessionSettings = sessionSettingsClient.get()
@@ -27,37 +19,24 @@ struct PreSettingsFeature: Reducer {
             rawQuestionLimit = sessionSettings.questionLimit // TODO: validate input
             rawTimeLimit = sessionSettings.timeLimit // TODO: validate input
 
-            speechSettings = speechSettingsClient.get()
-
-            availableVoices = speechClient.availableVoices()
-            rawVoiceIdentifier = speechSettings.voiceIdentifier ?? speechClient.defaultVoice()?.voiceIdentifier
-
-            let speechRateAttributes = speechClient.speechRateAttributes()
-            rawSpeechRate = speechSettings.rate ?? speechRateAttributes.defaultRate
-            speechRateRange = speechRateAttributes.minimumRate ... speechRateAttributes.maximumRate
-
-            let pitchMultiplierAttributes = speechClient.pitchMultiplierAttributes()
-            rawPitchMultiplier = speechSettings.pitchMultiplier ?? pitchMultiplierAttributes.defaultPitch
-            pitchMultiplierRange = pitchMultiplierAttributes.minimumPitch ... pitchMultiplierAttributes.maximumPitch
+            self.speechSettings = speechSettings
         }
     }
 
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case onSceneWillEnterForeground
         case onTask
-        case pitchLabelDoubleTapped
-        case rateLabelDoubleTapped
-        case testVoiceButtonTapped
+        case speechSettings(SpeechSettingsFeature.Action)
     }
 
-    @Dependency.Notification(\.sceneWillEnterForeground) var sceneWillEnterForeground
     @Dependency(\.speechSynthesisClient) var speechClient
     @Dependency(\.sessionSettingsClient) var sessionSettingsClient
-    @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
 
     var body: some ReducerOf<Self> {
         BindingReducer()
+        Scope(state: \.speechSettings, action: /Action.speechSettings) {
+            SpeechSettingsFeature()
+        }
         Reduce { state, action in
             switch action {
             case .binding(\.$rawQuizMode):
@@ -69,47 +48,12 @@ struct PreSettingsFeature: Reducer {
             case .binding(\.$rawTimeLimit):
                 state.sessionSettings.timeLimit = state.rawTimeLimit
                 return .none
-            case .binding(\.$rawSpeechRate):
-                state.speechSettings.rate = state.rawSpeechRate
-                return .none
-            case .binding(\.$rawVoiceIdentifier):
-                state.speechSettings.voiceIdentifier = state.rawVoiceIdentifier
-                return .none
-            case .binding(\.$rawPitchMultiplier):
-                state.speechSettings.pitchMultiplier = state.rawPitchMultiplier
-                return .none
             case .binding:
                 return .none
-            case .pitchLabelDoubleTapped:
-                state.rawPitchMultiplier = speechClient.pitchMultiplierAttributes().defaultPitch
-                state.speechSettings.pitchMultiplier = state.rawPitchMultiplier
-                return .none
-            case .rateLabelDoubleTapped:
-                state.rawSpeechRate = speechClient.speechRateAttributes().defaultRate
-                state.speechSettings.rate = state.rawSpeechRate
-                return .none
-            case .onSceneWillEnterForeground:
-                state.availableVoices = speechClient.availableVoices()
-                return .none
             case .onTask:
-                return .run { send in
-                    for await _ in sceneWillEnterForeground {
-                        await send(.onSceneWillEnterForeground)
-                    }
-                }
-            case .testVoiceButtonTapped:
-                let spokenText = "1234"
-                enum CancelID { case speakAction }
-                return .run { [settings = state.speechSettings] send in
-                    await withTaskCancellation(id: CancelID.speakAction, cancelInFlight: true) {
-                        do {
-                            let utterance = SpeechSynthesisUtterance(speechString: spokenText, settings: settings)
-                            try await speechClient.speak(utterance)
-                        } catch {
-                            assertionFailure(error.localizedDescription)
-                        }
-                    }
-                }
+                return .send(.speechSettings(.onTask))
+            case .speechSettings:
+                return .none
             }
         }
         .onChange(of: \.sessionSettings) { _, newValue in
@@ -118,16 +62,6 @@ struct PreSettingsFeature: Reducer {
                     try sessionSettingsClient.set(newValue)
                 } catch {
                     XCTFail("SessionSettingsClient unexpectedly failed to write")
-                }
-                return .none
-            }
-        }
-        .onChange(of: \.speechSettings) { _, newValue in
-            Reduce { _, _ in
-                do {
-                    try speechSettingsClient.set(newValue)
-                } catch {
-                    XCTFail("SpeechSettingsClient unexpectedly failed to write")
                 }
                 return .none
             }
@@ -183,71 +117,9 @@ struct PreSettingsView: View {
                     }
                     .listRowBackground(Color(.tertiarySystemBackground))
 
-                    Section {
-                        if let $unwrappedVoiceIdentifier = Binding(viewStore.$rawVoiceIdentifier) {
-                            Picker(selection: $unwrappedVoiceIdentifier) {
-                                ForEach(viewStore.availableVoices) { voice in
-                                    Text(voice.name)
-                                        .tag(Optional(voice.voiceIdentifier))
-                                }
-                            } label: {
-                                Text("Voice name")
-                            }
-                            .pickerStyle(.navigationLink)
-                            NavigationLink {
-                                GetMoreVoicesView()
-                            } label: {
-                                Text("Get more voices")
-                            }
-                            HStack {
-                                Text("Rate")
-                                    .onTapGesture(count: 2) {
-                                        viewStore.send(.rateLabelDoubleTapped)
-                                    }
-                                Slider(value: viewStore.$rawSpeechRate, in: viewStore.speechRateRange, step: 0.05) {
-                                    Text("Speech rate")
-                                } minimumValueLabel: {
-                                    Image(systemName: "tortoise")
-                                } maximumValueLabel: {
-                                    Image(systemName: "hare")
-                                }
-                            }
-                            HStack {
-                                Text("Pitch")
-                                    .onTapGesture(count: 2) {
-                                        viewStore.send(.pitchLabelDoubleTapped)
-                                    }
-                                Slider(value: viewStore.$rawPitchMultiplier, in: viewStore.pitchMultiplierRange, step: 0.05) {
-                                    Text("Pitch")
-                                } minimumValueLabel: {
-                                    Image(systemName: "dial.low")
-                                } maximumValueLabel: {
-                                    Image(systemName: "dial.high")
-                                }
-                            }
-                            Button {
-                                viewStore.send(.testVoiceButtonTapped)
-                            } label: {
-                                HStack(spacing: 10) {
-                                    Image(systemName: "person.wave.2")
-                                    Text("Test Voice")
-                                }
-                                .frame(maxWidth: .infinity, alignment: .center)
-                            }
-                        } else {
-                            NavigationLink {
-                                GetMoreVoicesView()
-                            } label: {
-                                HStack {
-                                    Text("Error: no voices found on device")
-                                        .foregroundStyle(Color.red)
-                                }
-                            }
-                        }
-                    } header: {
-                        Text("Voice Settings")
-                            .font(.subheadline)
-                    }
+                    SpeechSettingsSection(
+                        store: store.scope(state: \.speechSettings, action: { .speechSettings($0) })
+                    )
                     .listRowBackground(Color(.systemGroupedBackground))
                 }
                 .scrollContentBackground(.hidden)

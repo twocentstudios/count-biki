@@ -8,7 +8,6 @@ struct SettingsFeature: Reducer {
         let topic: Topic
 
         init(topicID: UUID, speechSettings: SpeechSettingsFeature.State = .init()) {
-            @Dependency(\.speechSynthesisClient) var speechClient
             @Dependency(\.topicClient.allTopics) var allTopics
 
             topic = allTopics()[id: topicID]!
