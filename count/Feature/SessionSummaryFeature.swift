@@ -5,52 +5,64 @@ struct SessionSummaryFeature: Reducer {
     struct State: Equatable {
         let topic: Topic
         let sessionChallenges: [Challenge]
+        let quizMode: QuizMode
+        let isSessionComplete: Bool
 
-        init(topicID: UUID, sessionChallenges: [Challenge]) {
+        init(topicID: UUID, sessionChallenges: [Challenge], quizMode: QuizMode, isSessionComplete: Bool) {
             @Dependency(\.topicClient.allTopics) var allTopics
 
             topic = allTopics()[id: topicID]!
             self.sessionChallenges = sessionChallenges
-        }
 
-        var challengesTotalCount: Int { sessionChallenges.count }
-        var challengesCorrectCount: Int { challengesCorrect.count }
-        var challengesIncorrectSkippedCount: Int {
-            sessionChallenges
-                .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
-                .count
-        }
-
-        var challengesCorrect: [Challenge] {
-            sessionChallenges.filter { $0.submissions.allSatisfy { $0.kind == .correct } }
-        }
-        var challengesSkipped: [Challenge] {
-            sessionChallenges.filter { $0.submissions.contains(where: { $0.kind == .skip }) }
-        }
-        var challengesIncorrect: [Challenge] {
-            sessionChallenges.filter { !$0.submissions.contains(where: { $0.kind == .skip }) && $0.submissions.contains(where: { $0.kind == .incorrect }) }
+            self.quizMode = quizMode
+            self.isSessionComplete = isSessionComplete
         }
     }
 
     enum Action: Equatable {
-        case delegate(Delegate)
-
-        enum Delegate: Equatable {
-            case endSession
-        }
+        case endSessionButtonTapped
     }
 
-    @Dependency(\.continuousClock) var clock
     @Dependency(\.hapticsClient) var haptics
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
-            case .delegate:
+            case .endSessionButtonTapped:
                 return .run { send in
                     await haptics.success()
                 }
             }
+        }
+    }
+}
+
+extension SessionSummaryFeature.State {
+    var challengesTotalCount: Int { sessionChallenges.count }
+    var challengesCorrectCount: Int { challengesCorrect.count }
+    var challengesIncorrectSkippedCount: Int {
+        sessionChallenges
+            .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
+            .count
+    }
+
+    var challengesCorrect: [Challenge] {
+        sessionChallenges.filter { $0.submissions.allSatisfy { $0.kind == .correct } }
+    }
+    var challengesSkipped: [Challenge] {
+        sessionChallenges.filter { $0.submissions.contains(where: { $0.kind == .skip }) }
+    }
+    var challengesIncorrect: [Challenge] {
+        sessionChallenges.filter { !$0.submissions.contains(where: { $0.kind == .skip }) && $0.submissions.contains(where: { $0.kind == .incorrect }) }
+    }
+    var quizModeTitle: String {
+        switch quizMode {
+        case .infinite:
+            "Infinite"
+        case let .questionLimit(limit):
+            "\(limit) question limit"
+        case let .timeLimit(limit):
+            "\(Duration.seconds(limit).formatted(.units(width: .abbreviated))) limit"
         }
     }
 }
@@ -73,6 +85,12 @@ struct SessionSummaryView: View {
                     }
                     .multilineTextAlignment(.leading)
                     .padding(.vertical, 2)
+                    HStack {
+                        Text("Quiz Mode:")
+                            .foregroundStyle(Color(.secondaryLabel))
+                        Text(viewStore.quizModeTitle)
+                    }
+                    .font(.subheadline)
                 } header: {
                     Text("Topic")
                         .font(.subheadline)
@@ -138,7 +156,7 @@ struct SessionSummaryView: View {
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
-                                        
+
                                         Text("\(challenge.submissions.count) attempts")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
@@ -171,7 +189,7 @@ struct SessionSummaryView: View {
                                         .font(.caption)
                                         .foregroundStyle(.secondary)
                                         .lineLimit(1)
-                                        
+
                                         Text("\(challenge.submissions.count) attempts")
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
@@ -187,7 +205,7 @@ struct SessionSummaryView: View {
             }
             .safeAreaInset(edge: .bottom) {
                 Button {
-                    viewStore.send(.delegate(.endSession))
+                    viewStore.send(.endSessionButtonTapped)
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "door.right.hand.open")
@@ -204,7 +222,7 @@ struct SessionSummaryView: View {
                 }
                 // TODO: Button: retry session with same settings (if timed session was completed)
             }
-            .navigationBarBackButtonHidden(false) // TODO: hide back button on certain conditions (timer out, questions out)
+            .navigationBarBackButtonHidden(viewStore.isSessionComplete)
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
@@ -219,7 +237,14 @@ struct SessionSummaryView: View {
 #Preview {
     NavigationStack {
         SessionSummaryView(
-            store: Store(initialState: SessionSummaryFeature.State(topicID: Topic.mockID, sessionChallenges: [Topic.mockChallengeCorrect, Topic.mockChallengeSkipped, Topic.mockChallengeIncorrect])) {
+            store: Store(
+                initialState: SessionSummaryFeature.State(
+                    topicID: Topic.mockID,
+                    sessionChallenges: [Topic.mockChallengeCorrect, Topic.mockChallengeSkipped, Topic.mockChallengeIncorrect],
+                    quizMode: .infinite,
+                    isSessionComplete: true
+                )
+            ) {
                 SessionSummaryFeature()
                     ._printChanges()
             }

@@ -13,6 +13,93 @@ struct BikiAnimation: Equatable {
     let kind: Kind
 }
 
+extension ListeningQuizFeature.State {
+    var isSessionComplete: Bool {
+        switch quizMode {
+        case let .questionLimit(limit) where completedChallenges.count >= limit:
+            true
+        case let .timeLimit(limit) where secondsElapsed >= limit:
+            true
+        default:
+            false
+        }
+    }
+    var challengeCount: Int { completedChallenges.count }
+    var lastSubmittedIncorrectValue: String? {
+        challenge.submissions.last(where: { $0.kind == .incorrect })?.value
+    }
+    var isShowingAnswer: Bool {
+        challenge.submissions.last?.kind == .skip
+    }
+    var question: Question {
+        challenge.question
+    }
+    var totalIncorrect: Int {
+        completedChallenges
+            .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
+            .count
+    }
+    var totalCorrect: Int {
+        completedChallenges
+            .filter { $0.submissions.allSatisfy { $0.kind == .correct } }
+            .count
+    }
+    var determiniteProgressPercentage: Double {
+        switch quizMode {
+        case .infinite:
+            1.0
+        case let .questionLimit(limit):
+            (Double(limit - completedChallenges.count) / Double(limit)).clampedPercentage()
+        case let .timeLimit(limit):
+            (Double(limit - secondsElapsed) / Double(limit)).clampedPercentage()
+        }
+    }
+    var determiniteIconName: String {
+        switch quizMode {
+        case .infinite: ""
+        case .questionLimit: "tray.fill"
+        case .timeLimit: "stopwatch"
+        }
+    }
+    var determiniteRemainingTitle: String {
+        switch quizMode {
+        case .infinite:
+            ""
+        case let .questionLimit(limit):
+            "\(limit - completedChallenges.count)"
+        case let .timeLimit(limit):
+            Duration.seconds((limit - secondsElapsed).clamped(to: 0 ... limit)).formatted(.time(pattern: .minuteSecond))
+        }
+    }
+}
+
+enum QuizMode: Equatable {
+    case infinite
+    case questionLimit(Int) // > 0
+    case timeLimit(Int) // > 0
+}
+
+extension QuizMode {
+    var shouldStartTimer: Bool {
+        switch self {
+        case .infinite: false
+        case .questionLimit: false
+        case .timeLimit: true
+        }
+    }
+
+    init(_ sessionSettings: SessionSettings) {
+        switch sessionSettings.quizMode {
+        case .infinite:
+            self = .infinite
+        case .questionLimit:
+            self = .questionLimit(sessionSettings.questionLimit)
+        case .timeLimit:
+            self = .timeLimit(sessionSettings.timeLimit)
+        }
+    }
+}
+
 struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
         var bikiAnimation: BikiAnimation?
@@ -20,6 +107,8 @@ struct ListeningQuizFeature: Reducer {
         var isShowingPlaybackError: Bool = false
         var isSpeaking: Bool = false
         @BindingState var pendingSubmissionValue: String = ""
+        let quizMode: QuizMode
+        var secondsElapsed: Int = 0
         var speechSettings: SpeechSynthesisSettings
         let topic: Topic
         let topicID: UUID
@@ -27,31 +116,11 @@ struct ListeningQuizFeature: Reducer {
         var completedChallenges: [Challenge] = []
         var challenge: Challenge
 
-        var challengeCount: Int { completedChallenges.count }
-        var lastSubmittedIncorrectValue: String? {
-            challenge.submissions.last(where: { $0.kind == .incorrect })?.value
-        }
-        var isShowingAnswer: Bool {
-            challenge.submissions.last?.kind == .skip
-        }
-        var question: Question {
-            challenge.question
-        }
-        var totalIncorrect: Int {
-            completedChallenges
-                .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
-                .count
-        }
-        var totalCorrect: Int {
-            completedChallenges
-                .filter { $0.submissions.allSatisfy { $0.kind == .correct } }
-                .count
-        }
-
-        init(topicID: UUID, speechSettings: SpeechSynthesisSettings) {
+        init(topicID: UUID, quizMode: QuizMode, speechSettings: SpeechSynthesisSettings) {
             @Dependency(\.topicClient.allTopics) var allTopics
             topic = allTopics()[id: topicID]!
             self.topicID = topicID
+            self.quizMode = quizMode
 
             @Dependency(\.topicClient.generateQuestion) var generateQuestion
             @Dependency(\.uuid) var uuid
@@ -72,6 +141,7 @@ struct ListeningQuizFeature: Reducer {
         case onPlaybackErrorTimeout
         case onPlaybackFinished
         case onTask
+        case onTimerTick
         case playbackButtonTapped
         case showAnswerButtonTapped
         case settingsButtonTapped
@@ -87,6 +157,7 @@ struct ListeningQuizFeature: Reducer {
     @Dependency(\.topicClient) var topicClient
     @Dependency(\.uuid) var uuid
     @Dependency(\.date.now) var now
+    @Dependency(\.application.applicationState) var applicationState
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -96,9 +167,13 @@ struct ListeningQuizFeature: Reducer {
                 if state.isShowingAnswer {
                     state.pendingSubmissionValue = ""
                     state.completedChallenges.append(state.challenge)
-                    generateChallenge(state: &state)
-                    return .run { _ in await haptics.error() }
-                        .merge(with: playBackEffect(state: &state))
+                    if state.isSessionComplete {
+                        return .run { _ in await haptics.error() }
+                    } else {
+                        generateChallenge(state: &state)
+                        return .run { _ in await haptics.error() }
+                            .merge(with: playBackEffect(state: &state))
+                    }
                 } else if state.question.acceptedAnswer == state.pendingSubmissionValue {
                     let submission = Submission(id: uuid(), date: now, kind: .correct, value: state.pendingSubmissionValue)
                     state.challenge.submissions.append(submission)
@@ -106,9 +181,13 @@ struct ListeningQuizFeature: Reducer {
                     state.pendingSubmissionValue = ""
                     state.bikiAnimation = .init(id: uuid(), kind: .correct)
                     state.confettiAnimation += 1
-                    generateChallenge(state: &state)
-                    return .run { _ in await haptics.success() }
-                        .merge(with: playBackEffect(state: &state))
+                    if state.isSessionComplete {
+                        return .run { _ in await haptics.success() }
+                    } else {
+                        generateChallenge(state: &state)
+                        return .run { _ in await haptics.success() }
+                            .merge(with: playBackEffect(state: &state))
+                    }
                 } else {
                     let submission = Submission(id: uuid(), date: now, kind: .incorrect, value: state.pendingSubmissionValue)
                     state.challenge.submissions.append(submission)
@@ -143,7 +222,20 @@ struct ListeningQuizFeature: Reducer {
                 return .none
 
             case .onTask:
+                let shouldStartTimer = state.quizMode.shouldStartTimer
                 return playBackEffect(state: &state)
+                    .merge(with: .run { send in
+                        if shouldStartTimer {
+                            for await _ in clock.timer(interval: .seconds(1)) {
+                                await send(.onTimerTick)
+                            }
+                        }
+                    })
+            case .onTimerTick:
+                if applicationState == .active {
+                    state.secondsElapsed += 1
+                }
+                return .none
 
             case .playbackButtonTapped:
                 if state.isSpeaking {
@@ -233,9 +325,16 @@ extension ListeningQuizFeature.State {
     }
 }
 
-#Preview {
+#Preview("Infinite") {
     ListeningQuizView(
-        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, speechSettings: .mock)) {
+        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .infinite, speechSettings: .mock)) {
+            ListeningQuizFeature()
+                ._printChanges()
+        })
+}
+#Preview("Time Limit") {
+    ListeningQuizView(
+        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .timeLimit(60), speechSettings: .mock)) {
             ListeningQuizFeature()
                 ._printChanges()
         })
@@ -433,22 +532,45 @@ struct ListeningQuizView: View {
 
     @ViewBuilder func progressBar(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
         HStack(spacing: 0) {
-            IndeterminateProgressView(
-                animationCount: viewStore.challengeCount,
-                color1: Color(.tintColor),
-                color2: Color(.systemBackground),
-                barCount: 20,
-                rotation: .degrees(50),
-                animation: .snappy()
-            )
-            .clipShape(Capsule(style: .continuous))
-            .frame(height: 10)
-            .padding(.trailing, 6)
-            Image(systemName: "infinity")
-                .font(.caption)
-                .bold()
-                .foregroundColor(Color(.label))
+            switch viewStore.quizMode {
+            case .infinite:
+                IndeterminateProgressView(
+                    animationCount: viewStore.challengeCount,
+                    color1: Color(.systemFill),
+                    color2: Color(.systemBackground),
+                    barCount: 20,
+                    rotation: .degrees(50),
+                    animation: .snappy()
+                )
+                .clipShape(Capsule(style: .continuous))
+                .frame(height: 10)
+                .padding(.trailing, 6)
+                Image(systemName: "infinity")
+                    .font(.caption)
+                    .bold()
+                    .foregroundColor(Color(.secondaryLabel))
+                    .padding(.trailing, 10)
+            case .questionLimit, .timeLimit:
+                DeterminateProgressView(
+                    percentage: viewStore.determiniteProgressPercentage,
+                    backgroundColor: Color(.systemBackground),
+                    foregroundColor: Color(.systemFill),
+                    animation: .snappy
+                )
+                .frame(height: 10)
+                .padding(.trailing, 6)
+                HStack(spacing: 3) {
+                    Image(systemName: viewStore.determiniteIconName)
+                    Text(viewStore.determiniteRemainingTitle)
+                        .contentTransition(.numericText())
+                        .bold()
+                        .fontDesign(.monospaced)
+                        .animation(.default, value: viewStore.determiniteRemainingTitle)
+                }
+                .font(.system(.caption, design: .monospaced))
+                .foregroundColor(Color(.secondaryLabel))
                 .padding(.trailing, 10)
+            }
 
             HStack(spacing: 0) {
                 Image(systemName: "checkmark.circle")

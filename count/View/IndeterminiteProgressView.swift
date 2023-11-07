@@ -27,10 +27,10 @@ struct IndeterminateProgressView: View {
             .overlay {
                 LinearGradient(
                     stops: [
-                        .init(color: .primary.opacity(0.05), location: 0),
+                        .init(color: .primary.opacity(0.1), location: 0),
                         .init(color: .clear, location: 0.2),
                         .init(color: .clear, location: 0.9),
-                        .init(color: .primary.opacity(0.05), location: 1.0),
+                        .init(color: .primary.opacity(0.1), location: 1.0),
                     ],
                     startPoint: .top,
                     endPoint: .bottom

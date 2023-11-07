@@ -10,8 +10,10 @@ struct ListeningQuizNavigationFeature: Reducer {
         init(topicID: UUID) {
             @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
             let speechSettings = speechSettingsClient.get()
+            @Dependency(\.sessionSettingsClient) var sessionSettingsClient
+            let sessionSettings = sessionSettingsClient.get()
 
-            listeningQuiz = .init(topicID: topicID, speechSettings: speechSettings)
+            listeningQuiz = .init(topicID: topicID, quizMode: .init(sessionSettings), speechSettings: speechSettings)
         }
     }
 
@@ -48,10 +50,17 @@ struct ListeningQuizNavigationFeature: Reducer {
             Reduce { state, action in
                 switch action {
                 case .listeningQuiz(.endSessionButtonTapped):
-                    if state.listeningQuiz.completedChallenges.isEmpty, state.listeningQuiz.challenge.submissions.isEmpty {
+                    if state.listeningQuiz.completedChallenges.isEmpty,
+                       state.listeningQuiz.challenge.submissions.isEmpty
+                    {
                         return .run { _ in await dismiss() }
                     } else {
-                        state.path.append(.summary(.init(topicID: state.listeningQuiz.topicID, sessionChallenges: state.listeningQuiz.completedChallenges)))
+                        state.path.append(.summary(.init(
+                            topicID: state.listeningQuiz.topicID,
+                            sessionChallenges: state.listeningQuiz.completedChallenges,
+                            quizMode: state.listeningQuiz.quizMode,
+                            isSessionComplete: state.listeningQuiz.isSessionComplete
+                        )))
                         return .none
                     }
 
@@ -59,10 +68,21 @@ struct ListeningQuizNavigationFeature: Reducer {
                     state.settings = .init(topicID: state.listeningQuiz.topicID, speechSettings: state.listeningQuiz.speechSettings)
                     return .none
 
+                case .listeningQuiz(.answerSubmitButtonTapped):
+                    if state.listeningQuiz.isSessionComplete {
+                        state.path.append(.summary(.init(
+                            topicID: state.listeningQuiz.topicID,
+                            sessionChallenges: state.listeningQuiz.completedChallenges,
+                            quizMode: state.listeningQuiz.quizMode,
+                            isSessionComplete: state.listeningQuiz.isSessionComplete
+                        )))
+                    }
+                    return .none
+
                 case .listeningQuiz:
                     return .none
 
-                case .path(.element(_, .summary(.delegate(.endSession)))):
+                case .path(.element(_, .summary(.endSessionButtonTapped))):
                     return .run { _ in await dismiss() }
 
                 case .path:

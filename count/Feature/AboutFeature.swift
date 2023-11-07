@@ -3,7 +3,7 @@ import StoreKit
 import SwiftUI
 
 struct AboutFeature: Reducer {
-    struct State: Equatable {
+    struct State: Equatable, Sendable {
         var appIcon: AppIconFeature.State
         var transylvaniaTier: TransylvaniaTierFeature.State
 

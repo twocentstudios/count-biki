@@ -2,7 +2,7 @@ import ComposableArchitecture
 import SwiftUI
 
 struct TransylvaniaTierFeature: Reducer {
-    struct State: Equatable {
+    struct State: Equatable, Sendable {
         @PresentationState var alert: AlertState<Never>?
         var tierHistory: TierPurchaseHistory
         var availableProducts: DataState<IdentifiedArrayOf<TierProduct>> = .initialized
