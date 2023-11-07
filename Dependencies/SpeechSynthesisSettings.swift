@@ -1,15 +1,11 @@
+import AsyncExtensions
 import DependenciesAdditions
 import Foundation
 
 struct SpeechSynthesisSettingsClient {
     var get: @Sendable () -> (SpeechSynthesisSettings)
     var set: @Sendable (SpeechSynthesisSettings) throws -> Void
-}
-
-extension SpeechSynthesisSettingsClient {
-    enum Error: Swift.Error {
-        case settingsUnset
-    }
+    var observe: @Sendable () -> AsyncStream<SpeechSynthesisSettings>
 }
 
 extension SpeechSynthesisSettingsClient: DependencyKey {
@@ -36,6 +32,15 @@ extension SpeechSynthesisSettingsClient: DependencyKey {
             set: { newSettings in
                 let data = try encode(newSettings)
                 userDefaults.set(data, forKey: settingsKey)
+            },
+            observe: {
+                userDefaults.dataValues(forKey: settingsKey)
+                    .compactMap { maybeData in
+                        guard let data = maybeData else { return nil }
+                        guard let value = try? decode(SpeechSynthesisSettings.self, from: data) else { return nil }
+                        return value
+                    }
+                    .eraseToStream()
             }
         )
     }
@@ -43,18 +48,20 @@ extension SpeechSynthesisSettingsClient: DependencyKey {
 
 extension SpeechSynthesisSettingsClient: TestDependencyKey {
     static var previewValue: Self {
-        let storage = LockIsolated(SpeechSynthesisSettings.mockNil)
+        let storage = AsyncCurrentValueSubject(SpeechSynthesisSettings.mockNil)
         return .init(
             get: { storage.value },
-            set: { storage.setValue($0) }
+            set: { storage.send($0) },
+            observe: { storage.eraseToStream() }
         )
     }
 
     static var testValue: Self {
-        let storage = LockIsolated(SpeechSynthesisSettings.mockNil)
+        let storage = AsyncCurrentValueSubject(SpeechSynthesisSettings.mockNil)
         return .init(
             get: { storage.value },
-            set: { storage.setValue($0) }
+            set: { storage.send($0) },
+            observe: { storage.eraseToStream() }
         )
     }
 }
