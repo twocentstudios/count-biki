@@ -39,7 +39,7 @@ extension SessionSettings {
 }
 
 extension SessionSettingsClient: DependencyKey {
-    static let settingsKey = "SessionSettingsClient.settings"
+    static let settingsKey = "SessionSettingsClient_Settings"
     static var liveValue: Self {
         @Dependency(\.userDefaults) var userDefaults
         @Dependency(\.encode) var encode

@@ -13,14 +13,19 @@ extension SpeechSynthesisSettingsClient {
 }
 
 extension SpeechSynthesisSettingsClient: DependencyKey {
-    static let settingsKey = "SpeechSynthesisSettingsClient.Settings"
+    static let deprecatedSettingsKey = "SpeechSynthesisSettingsClient.Settings"
+    static let settingsKey = "SpeechSynthesisSettingsClient_Settings"
     static var liveValue: Self {
         @Dependency(\.userDefaults) var userDefaults
         @Dependency(\.encode) var encode
         @Dependency(\.decode) var decode
         return .init(
             get: {
-                guard let data = userDefaults.data(forKey: settingsKey) else { return SpeechSynthesisSettings() }
+                guard
+                    let data = userDefaults.data(forKey: settingsKey) ?? userDefaults.data(forKey: deprecatedSettingsKey)
+                else {
+                    return SpeechSynthesisSettings()
+                }
                 do {
                     let value = try decode(SpeechSynthesisSettings.self, from: data)
                     return value
