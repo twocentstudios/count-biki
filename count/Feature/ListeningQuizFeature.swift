@@ -116,7 +116,7 @@ struct ListeningQuizFeature: Reducer {
         var completedChallenges: [Challenge] = []
         var challenge: Challenge
 
-        init(topicID: UUID, quizMode: QuizMode, speechSettings: SpeechSynthesisSettings) {
+        init(topicID: UUID, quizMode: QuizMode) {
             @Dependency(\.topicClient.allTopics) var allTopics
             topic = allTopics()[id: topicID]!
             self.topicID = topicID
@@ -129,7 +129,8 @@ struct ListeningQuizFeature: Reducer {
             let challenge = Challenge(id: uuid(), startDate: now, question: question, submissions: [])
             self.challenge = challenge
 
-            self.speechSettings = speechSettings
+            @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
+            speechSettings = speechSettingsClient.get()
         }
     }
 
@@ -137,6 +138,7 @@ struct ListeningQuizFeature: Reducer {
         case answerSubmitButtonTapped
         case binding(BindingAction<State>)
         case endSessionButtonTapped
+        case onSpeechSettingsUpdated(SpeechSynthesisSettings)
         case onPlaybackError
         case onPlaybackErrorTimeout
         case onPlaybackFinished
@@ -154,6 +156,7 @@ struct ListeningQuizFeature: Reducer {
     @Dependency(\.continuousClock) var clock
     @Dependency(\.hapticsClient) var haptics
     @Dependency(\.speechSynthesisClient) var speechClient
+    @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
     @Dependency(\.topicClient) var topicClient
     @Dependency(\.uuid) var uuid
     @Dependency(\.date.now) var now
@@ -202,6 +205,10 @@ struct ListeningQuizFeature: Reducer {
             case .endSessionButtonTapped:
                 return .none
 
+            case let .onSpeechSettingsUpdated(newValue):
+                state.speechSettings = newValue
+                return .none
+
             case .onPlaybackFinished:
                 guard state.isSpeaking else { return .none }
                 state.isSpeaking = false
@@ -231,6 +238,12 @@ struct ListeningQuizFeature: Reducer {
                             }
                         }
                     })
+                    .merge(with: .run { send in
+                        for await newValue in speechSettingsClient.observe() {
+                            await send(.onSpeechSettingsUpdated(newValue))
+                        }
+                    })
+                    
             case .onTimerTick:
                 if applicationState == .active {
                     state.secondsElapsed += 1
@@ -327,14 +340,14 @@ extension ListeningQuizFeature.State {
 
 #Preview("Infinite") {
     ListeningQuizView(
-        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .infinite, speechSettings: .mock)) {
+        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .infinite)) {
             ListeningQuizFeature()
                 ._printChanges()
         })
 }
 #Preview("Time Limit") {
     ListeningQuizView(
-        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .timeLimit(60), speechSettings: .mock)) {
+        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .timeLimit(60))) {
             ListeningQuizFeature()
                 ._printChanges()
         })
