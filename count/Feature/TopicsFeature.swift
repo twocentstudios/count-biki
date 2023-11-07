@@ -199,31 +199,31 @@ struct TopicsView: View {
                     }
                 }
             }
-        }
-        .fullScreenCover(
-            store: store.scope(state: \.$destination, action: { .destination($0) }),
-            state: /TopicsFeature.Destination.State.quiz,
-            action: TopicsFeature.Destination.Action.quiz
-        ) { store in
-            ListeningQuizNavigationView(store: store)
-        }
-        .sheet(
-            store: store.scope(state: \.$destination, action: { .destination($0) }),
-            state: /TopicsFeature.Destination.State.about,
-            action: TopicsFeature.Destination.Action.about
-        ) { store in
-            AboutView(store: store)
-        }
-        .sheet(
-            store: store.scope(state: \.$destination, action: { .destination($0) }),
-            state: /TopicsFeature.Destination.State.preSettings,
-            action: TopicsFeature.Destination.Action.preSettings
-        ) { store in
-            PreSettingsView(store: store)
-                .presentationDragIndicator(.visible)
-                .presentationDetents([.fraction(0.1), .medium, .large])
-                .presentationBackgroundInteraction(.enabled)
-                .interactiveDismissDisabled(true)
+            .fullScreenCover(
+                store: store.scope(state: \.$destination, action: { .destination($0) }),
+                state: /TopicsFeature.Destination.State.quiz,
+                action: TopicsFeature.Destination.Action.quiz
+            ) { store in
+                ListeningQuizNavigationView(store: store)
+            }
+            .sheet(
+                store: store.scope(state: \.$destination, action: { .destination($0) }),
+                state: /TopicsFeature.Destination.State.about,
+                action: TopicsFeature.Destination.Action.about
+            ) { store in
+                AboutView(store: store)
+            }
+            .sheet(
+                store: store.scope(state: \.$destination, action: { .destination($0) }),
+                state: /TopicsFeature.Destination.State.preSettings,
+                action: TopicsFeature.Destination.Action.preSettings
+            ) { store in
+                PreSettingsView(store: store)
+                    .presentationDragIndicator(.visible)
+                    .presentationDetents([.fraction(0.1), .medium, .large])
+                    .presentationBackgroundInteraction(.enabled)
+                    .interactiveDismissDisabled(true)
+            }
         }
     }
 }
