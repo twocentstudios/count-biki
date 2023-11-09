@@ -181,6 +181,9 @@ struct SpeechSettingsSection: View {
                 Text("Voice Settings")
                     .font(.subheadline)
             }
+            .task {
+                await viewStore.send(.onTask).finish()
+            }
         }
     }
 }

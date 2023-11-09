@@ -7,10 +7,9 @@ struct PreSettingsFeature: Reducer {
         @BindingState var rawQuizMode: SessionSettings.QuizMode
         @BindingState var rawQuestionLimit: Int
         @BindingState var rawTimeLimit: Int
-        var speechSettings: SpeechSettingsFeature.State
         var sessionSettings: SessionSettings
 
-        init(speechSettings: SpeechSettingsFeature.State = .init()) {
+        init() {
             @Dependency(\.sessionSettingsClient) var sessionSettingsClient
             @Dependency(\.topicClient.allTopics) var allTopics
 
@@ -18,15 +17,11 @@ struct PreSettingsFeature: Reducer {
             rawQuizMode = sessionSettings.quizMode
             rawQuestionLimit = sessionSettings.questionLimit // TODO: validate input
             rawTimeLimit = sessionSettings.timeLimit // TODO: validate input
-
-            self.speechSettings = speechSettings
         }
     }
 
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
-        case onTask
-        case speechSettings(SpeechSettingsFeature.Action)
     }
 
     @Dependency(\.speechSynthesisClient) var speechClient
@@ -34,9 +29,6 @@ struct PreSettingsFeature: Reducer {
 
     var body: some ReducerOf<Self> {
         BindingReducer()
-        Scope(state: \.speechSettings, action: /Action.speechSettings) {
-            SpeechSettingsFeature()
-        }
         Reduce { state, action in
             switch action {
             case .binding(\.$rawQuizMode):
@@ -49,10 +41,6 @@ struct PreSettingsFeature: Reducer {
                 state.sessionSettings.timeLimit = state.rawTimeLimit
                 return .none
             case .binding:
-                return .none
-            case .onTask:
-                return .send(.speechSettings(.onTask))
-            case .speechSettings:
                 return .none
             }
         }
@@ -118,9 +106,10 @@ struct PreSettingsView: View {
                     .listRowBackground(Color(.tertiarySystemBackground))
 
                     SpeechSettingsSection(
-                        store: store.scope(state: \.speechSettings, action: { .speechSettings($0) })
-                    )
-                    .listRowBackground(Color(.systemGroupedBackground))
+                        store: Store(initialState: .init()) {
+                            SpeechSettingsFeature()
+                        })
+                        .listRowBackground(Color(.systemGroupedBackground))
                 }
                 .scrollContentBackground(.hidden)
                 .background(Color(.tertiarySystemBackground))
@@ -132,9 +121,6 @@ struct PreSettingsView: View {
                             .font(.headline)
                     }
                 }
-            }
-            .task {
-                await viewStore.send(.onTask).finish()
             }
         }
     }

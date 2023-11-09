@@ -3,40 +3,28 @@ import SwiftUI
 
 struct SettingsFeature: Reducer {
     struct State: Equatable {
-        var speechSettings: SpeechSettingsFeature.State
-
         let topic: Topic
 
-        init(topicID: UUID, speechSettings: SpeechSettingsFeature.State = .init()) {
+        init(topicID: UUID) {
             @Dependency(\.topicClient.allTopics) var allTopics
 
             topic = allTopics()[id: topicID]!
-            self.speechSettings = speechSettings
         }
     }
 
     enum Action: Equatable {
         case doneButtonTapped
-        case onTask
-        case speechSettings(SpeechSettingsFeature.Action)
     }
 
     @Dependency(\.dismiss) var dismiss
 
     var body: some ReducerOf<Self> {
-        Scope(state: \.speechSettings, action: /Action.speechSettings) {
-            SpeechSettingsFeature()
-        }
         Reduce { state, action in
             switch action {
             case .doneButtonTapped:
                 return .run { send in
                     await dismiss()
                 }
-            case .onTask:
-                return .send(.speechSettings(.onTask))
-            case .speechSettings:
-                return .none
             }
         }
     }
@@ -67,8 +55,9 @@ struct SettingsView: View {
                     }
 
                     SpeechSettingsSection(
-                        store: store.scope(state: \.speechSettings, action: { .speechSettings($0) })
-                    )
+                        store: Store(initialState: .init()) {
+                            SpeechSettingsFeature()
+                        })
                 }
                 .navigationBarTitleDisplayMode(.inline)
                 .navigationTitle("Session")
@@ -86,9 +75,6 @@ struct SettingsView: View {
                         }
                     }
                 }
-            }
-            .task {
-                await viewStore.send(.onTask).finish()
             }
         }
     }
