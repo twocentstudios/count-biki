@@ -7,14 +7,19 @@ struct TierPurchaseHistoryClient {
 }
 
 extension TierPurchaseHistoryClient: DependencyKey {
-    static let key = "TierPurchaseHistoryClient.purchaseHistory"
+    static let deprecatedKey = "TierPurchaseHistoryClient.purchaseHistory"
+    static let key = "TierPurchaseHistoryClient_PurchaseHistory"
     static var liveValue: Self {
         @Dependency(\.userDefaults) var userDefaults
         @Dependency(\.encode) var encode
         @Dependency(\.decode) var decode
         return .init(
             get: {
-                guard let data = userDefaults.data(forKey: key) else { return TierPurchaseHistory() }
+                guard
+                    let data = userDefaults.data(forKey: key) ?? userDefaults.data(forKey: deprecatedKey)
+                else {
+                    return TierPurchaseHistory()
+                }
                 do {
                     let value = try decode(TierPurchaseHistory.self, from: data)
                     return value

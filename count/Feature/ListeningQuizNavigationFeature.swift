@@ -8,12 +8,10 @@ struct ListeningQuizNavigationFeature: Reducer {
         @PresentationState var settings: SettingsFeature.State?
 
         init(topicID: UUID) {
-            @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
-            let speechSettings = speechSettingsClient.get()
             @Dependency(\.sessionSettingsClient) var sessionSettingsClient
             let sessionSettings = sessionSettingsClient.get()
 
-            listeningQuiz = .init(topicID: topicID, quizMode: .init(sessionSettings), speechSettings: speechSettings)
+            listeningQuiz = .init(topicID: topicID, quizMode: .init(sessionSettings))
         }
     }
 
@@ -40,7 +38,6 @@ struct ListeningQuizNavigationFeature: Reducer {
     }
 
     @Dependency(\.dismiss) var dismiss
-    @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
 
     var body: some ReducerOf<Self> {
         CombineReducers {
@@ -65,7 +62,7 @@ struct ListeningQuizNavigationFeature: Reducer {
                     }
 
                 case .listeningQuiz(.settingsButtonTapped):
-                    state.settings = .init(topicID: state.listeningQuiz.topicID, speechSettings: state.listeningQuiz.speechSettings)
+                    state.settings = .init(topicID: state.listeningQuiz.topicID)
                     return .none
 
                 case .listeningQuiz(.answerSubmitButtonTapped):
@@ -97,19 +94,6 @@ struct ListeningQuizNavigationFeature: Reducer {
             }
             .forEach(\.path, action: /Action.path) {
                 Path()
-            }
-        }
-        .onChange(of: \.settings?.speechSettings) { _, newValue in
-            // Play back speechSettings changes to listeningQuiz and client.
-            Reduce { state, _ in
-                guard let newValue else { return .none }
-                state.listeningQuiz.speechSettings = newValue
-                do {
-                    try speechSettingsClient.set(newValue)
-                } catch {
-                    XCTFail("SpeechSettingsClient unexpectedly failed to write")
-                }
-                return .none
             }
         }
     }
