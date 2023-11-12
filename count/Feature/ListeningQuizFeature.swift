@@ -243,7 +243,7 @@ struct ListeningQuizFeature: Reducer {
                             await send(.onSpeechSettingsUpdated(newValue))
                         }
                     })
-                    
+
             case .onTimerTick:
                 if applicationState == .active {
                     state.secondsElapsed += 1
