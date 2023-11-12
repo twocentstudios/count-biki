@@ -101,10 +101,12 @@ struct SpeechSettingsFeature: Reducer {
                 .run { _ in
                     try await withTaskCancellation(id: CancelID.saveDebounce, cancelInFlight: true) {
                         try await clock.sleep(for: .seconds(0.25))
-                        try speechSettingsClient.set(newValue)
+                        do {
+                            try await speechSettingsClient.set(newValue)
+                        } catch {
+                            XCTFail("SpeechSettingsClient unexpectedly failed to write: \(error)")
+                        }
                     }
-                } catch: { _, _ in
-                    XCTFail("SpeechSettingsClient unexpectedly failed to write")
                 }
             }
         }
