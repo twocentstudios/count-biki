@@ -104,6 +104,7 @@ struct ListeningQuizFeature: Reducer {
     struct State: Equatable {
         var bikiAnimation: BikiAnimation?
         var confettiAnimation: Int = 0
+        var isViewFrontmost: Bool = true
         var isShowingPlaybackError: Bool = false
         var isSpeaking: Bool = false
         @BindingState var pendingSubmissionValue: String = ""
@@ -245,7 +246,7 @@ struct ListeningQuizFeature: Reducer {
                     })
 
             case .onTimerTick:
-                if applicationState == .active {
+                if state.isViewFrontmost && applicationState == .active {
                     state.secondsElapsed += 1
                 }
                 return .none

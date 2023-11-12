@@ -40,61 +40,63 @@ struct ListeningQuizNavigationFeature: Reducer {
     @Dependency(\.dismiss) var dismiss
 
     var body: some ReducerOf<Self> {
-        CombineReducers {
-            Scope(state: \.listeningQuiz, action: /Action.listeningQuiz) {
-                ListeningQuizFeature()
-            }
-            Reduce { state, action in
-                switch action {
-                case .listeningQuiz(.endSessionButtonTapped):
-                    if state.listeningQuiz.completedChallenges.isEmpty,
-                       state.listeningQuiz.challenge.submissions.isEmpty
-                    {
-                        return .run { _ in await dismiss() }
-                    } else {
-                        state.path.append(.summary(.init(
-                            topicID: state.listeningQuiz.topicID,
-                            sessionChallenges: state.listeningQuiz.completedChallenges,
-                            quizMode: state.listeningQuiz.quizMode,
-                            isSessionComplete: state.listeningQuiz.isSessionComplete
-                        )))
-                        return .none
-                    }
-
-                case .listeningQuiz(.settingsButtonTapped):
-                    state.settings = .init(topicID: state.listeningQuiz.topicID)
-                    return .none
-
-                case .listeningQuiz(.answerSubmitButtonTapped):
-                    if state.listeningQuiz.isSessionComplete {
-                        state.path.append(.summary(.init(
-                            topicID: state.listeningQuiz.topicID,
-                            sessionChallenges: state.listeningQuiz.completedChallenges,
-                            quizMode: state.listeningQuiz.quizMode,
-                            isSessionComplete: state.listeningQuiz.isSessionComplete
-                        )))
-                    }
-                    return .none
-
-                case .listeningQuiz:
-                    return .none
-
-                case .path(.element(_, .summary(.endSessionButtonTapped))):
+        Scope(state: \.listeningQuiz, action: /Action.listeningQuiz) {
+            ListeningQuizFeature()
+        }
+        Reduce { state, action in
+            switch action {
+            case .listeningQuiz(.endSessionButtonTapped):
+                if state.listeningQuiz.completedChallenges.isEmpty,
+                   state.listeningQuiz.challenge.submissions.isEmpty
+                {
                     return .run { _ in await dismiss() }
-
-                case .path:
-                    return .none
-
-                case .settings:
+                } else {
+                    state.path.append(.summary(.init(
+                        topicID: state.listeningQuiz.topicID,
+                        sessionChallenges: state.listeningQuiz.completedChallenges,
+                        quizMode: state.listeningQuiz.quizMode,
+                        isSessionComplete: state.listeningQuiz.isSessionComplete
+                    )))
                     return .none
                 }
+
+            case .listeningQuiz(.settingsButtonTapped):
+                state.settings = .init(topicID: state.listeningQuiz.topicID)
+                return .none
+
+            case .listeningQuiz(.answerSubmitButtonTapped):
+                if state.listeningQuiz.isSessionComplete {
+                    state.path.append(.summary(.init(
+                        topicID: state.listeningQuiz.topicID,
+                        sessionChallenges: state.listeningQuiz.completedChallenges,
+                        quizMode: state.listeningQuiz.quizMode,
+                        isSessionComplete: state.listeningQuiz.isSessionComplete
+                    )))
+                }
+                return .none
+
+            case .listeningQuiz:
+                return .none
+
+            case .path(.element(_, .summary(.endSessionButtonTapped))):
+                return .run { _ in await dismiss() }
+
+            case .path:
+                return .none
+
+            case .settings:
+                return .none
             }
-            .ifLet(\.$settings, action: /Action.settings) {
-                SettingsFeature()
-            }
-            .forEach(\.path, action: /Action.path) {
-                Path()
-            }
+        }
+        .ifLet(\.$settings, action: /Action.settings) {
+            SettingsFeature()
+        }
+        .forEach(\.path, action: /Action.path) {
+            Path()
+        }
+        Reduce { state, action in
+            state.listeningQuiz.isViewFrontmost = state.path.isEmpty && state.settings == nil
+            return .none
         }
     }
 }
