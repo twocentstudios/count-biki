@@ -4,7 +4,7 @@ import Foundation
 
 struct SpeechSynthesisSettingsClient {
     var get: @Sendable () -> (SpeechSynthesisSettings)
-    var set: @Sendable (SpeechSynthesisSettings) throws -> Void
+    var set: @Sendable (SpeechSynthesisSettings) async throws -> Void
     var observe: @Sendable () -> AsyncStream<SpeechSynthesisSettings>
 }
 
