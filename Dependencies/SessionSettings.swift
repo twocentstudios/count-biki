@@ -1,9 +1,11 @@
+import AsyncExtensions
 import DependenciesAdditions
 import Foundation
 
 struct SessionSettingsClient {
     var get: @Sendable () -> (SessionSettings)
-    var set: @Sendable (SessionSettings) throws -> Void
+    var set: @Sendable (SessionSettings) async throws -> Void
+    var observe: @Sendable () -> AsyncStream<SessionSettings>
 }
 
 struct SessionSettings: Equatable, Codable {
@@ -25,14 +27,13 @@ struct SessionSettings: Equatable, Codable {
     var questionLimit: Int
     var timeLimit: Int // seconds
 
-    var showProgress: Bool
-    var showBiki: Bool
-    var showConfetti: Bool
-    var playHaptics: Bool
+    var isShowingProgress: Bool
+    var isShowingBiki: Bool
+    var isShowingConfetti: Bool
 }
 
 extension SessionSettings {
-    static let `default`: Self = .init(quizMode: .infinite, questionLimit: 10, timeLimit: 60, showProgress: true, showBiki: true, showConfetti: true, playHaptics: true)
+    static let `default`: Self = .init(quizMode: .infinite, questionLimit: 10, timeLimit: 60, isShowingProgress: true, isShowingBiki: true, isShowingConfetti: true)
 
     static let questionLimitValues: [Int] = [5, 10, 20, 30, 50, 100]
     static let timeLimitValues: [Int] = [30, 1 * 60, 3 * 60, 5 * 60, 10 * 60, 20 * 60]
@@ -58,6 +59,15 @@ extension SessionSettingsClient: DependencyKey {
             set: { newValue in
                 let data = try encode(newValue)
                 userDefaults.set(data, forKey: settingsKey)
+            },
+            observe: {
+                userDefaults.dataValues(forKey: settingsKey)
+                    .compactMap { maybeData in
+                        guard let data = maybeData else { return nil }
+                        guard let value = try? decode(SessionSettings.self, from: data) else { return nil }
+                        return value
+                    }
+                    .eraseToStream()
             }
         )
     }
@@ -65,18 +75,20 @@ extension SessionSettingsClient: DependencyKey {
 
 extension SessionSettingsClient: TestDependencyKey {
     static var previewValue: Self {
-        let storage = LockIsolated(SessionSettings.default)
+        let storage = AsyncCurrentValueSubject(SessionSettings.default)
         return .init(
             get: { storage.value },
-            set: { storage.setValue($0) }
+            set: { storage.send($0) },
+            observe: { storage.eraseToStream() }
         )
     }
 
     static var testValue: Self {
-        let storage = LockIsolated(SessionSettings.default)
+        let storage = AsyncCurrentValueSubject(SessionSettings.default)
         return .init(
             get: { storage.value },
-            set: { storage.setValue($0) }
+            set: { storage.send($0) },
+            observe: { storage.eraseToStream() }
         )
     }
 }

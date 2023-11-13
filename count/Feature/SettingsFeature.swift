@@ -3,27 +3,56 @@ import SwiftUI
 
 struct SettingsFeature: Reducer {
     struct State: Equatable {
+        @BindingState var sessionSettings: SessionSettings
         let topic: Topic
 
         init(topicID: UUID) {
             @Dependency(\.topicClient.allTopics) var allTopics
+            @Dependency(\.sessionSettingsClient) var sessionSettingsClient
 
             topic = allTopics()[id: topicID]!
+            sessionSettings = sessionSettingsClient.get()
         }
     }
 
-    enum Action: Equatable {
+    enum Action: BindableAction, Equatable {
+        case binding(BindingAction<State>)
         case doneButtonTapped
     }
 
+    private enum CancelID {
+        case saveDebounce
+    }
+
+    @Dependency(\.continuousClock) var clock
     @Dependency(\.dismiss) var dismiss
+    @Dependency(\.sessionSettingsClient.set) var setSessionSettings
 
     var body: some ReducerOf<Self> {
-        Reduce { state, action in
-            switch action {
-            case .doneButtonTapped:
-                return .run { send in
-                    await dismiss()
+        CombineReducers {
+            BindingReducer()
+            Reduce { state, action in
+                switch action {
+                case .binding:
+                    return .none
+                case .doneButtonTapped:
+                    return .run { send in
+                        await dismiss()
+                    }
+                }
+            }
+        }
+        .onChange(of: \.sessionSettings) { _, newValue in
+            Reduce { state, _ in
+                .run { _ in
+                    try await withTaskCancellation(id: CancelID.saveDebounce, cancelInFlight: true) {
+                        try await clock.sleep(for: .seconds(0.25))
+                        do {
+                            try await setSessionSettings(newValue)
+                        } catch {
+                            XCTFail("SpeechSettingsClient unexpectedly failed to write: \(error)")
+                        }
+                    }
                 }
             }
         }
@@ -51,6 +80,21 @@ struct SettingsView: View {
                         .padding(.vertical, 2)
                     } header: {
                         Text("Topic")
+                            .font(.subheadline)
+                    }
+
+                    Section {
+                        Toggle(isOn: viewStore.$sessionSettings.isShowingProgress, label: {
+                            Text("Show progress")
+                        })
+                        Toggle(isOn: viewStore.$sessionSettings.isShowingBiki, label: {
+                            Text("Show Biki")
+                        })
+                        Toggle(isOn: viewStore.$sessionSettings.isShowingConfetti, label: {
+                            Text("Show confetti")
+                        })
+                    } header: {
+                        Text("Display Settings")
                             .font(.subheadline)
                     }
 

@@ -111,6 +111,7 @@ struct ListeningQuizFeature: Reducer {
         let quizMode: QuizMode
         var secondsElapsed: Int = 0
         var speechSettings: SpeechSynthesisSettings
+        var sessionSettings: SessionSettings
         let topic: Topic
         let topicID: UUID
 
@@ -132,6 +133,9 @@ struct ListeningQuizFeature: Reducer {
 
             @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
             speechSettings = speechSettingsClient.get()
+
+            @Dependency(\.sessionSettingsClient) var sessionSettingsClient
+            sessionSettings = sessionSettingsClient.get()
         }
     }
 
@@ -139,6 +143,7 @@ struct ListeningQuizFeature: Reducer {
         case answerSubmitButtonTapped
         case binding(BindingAction<State>)
         case endSessionButtonTapped
+        case onSessionSettingsUpdated(SessionSettings)
         case onSpeechSettingsUpdated(SpeechSynthesisSettings)
         case onPlaybackError
         case onPlaybackErrorTimeout
@@ -156,6 +161,7 @@ struct ListeningQuizFeature: Reducer {
 
     @Dependency(\.continuousClock) var clock
     @Dependency(\.hapticsClient) var haptics
+    @Dependency(\.sessionSettingsClient) var sessionSettingsClient
     @Dependency(\.speechSynthesisClient) var speechClient
     @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
     @Dependency(\.topicClient) var topicClient
@@ -184,7 +190,9 @@ struct ListeningQuizFeature: Reducer {
                     state.completedChallenges.append(state.challenge)
                     state.pendingSubmissionValue = ""
                     state.bikiAnimation = .init(id: uuid(), kind: .correct)
-                    state.confettiAnimation += 1
+                    if state.sessionSettings.isShowingConfetti {
+                        state.confettiAnimation += 1
+                    }
                     if state.isSessionComplete {
                         return .run { _ in await haptics.success() }
                     } else {
@@ -204,6 +212,10 @@ struct ListeningQuizFeature: Reducer {
                 return .none
 
             case .endSessionButtonTapped:
+                return .none
+
+            case let .onSessionSettingsUpdated(newValue):
+                state.sessionSettings = newValue
                 return .none
 
             case let .onSpeechSettingsUpdated(newValue):
@@ -244,9 +256,14 @@ struct ListeningQuizFeature: Reducer {
                             await send(.onSpeechSettingsUpdated(newValue))
                         }
                     })
+                    .merge(with: .run { send in
+                        for await newValue in sessionSettingsClient.observe() {
+                            await send(.onSessionSettingsUpdated(newValue))
+                        }
+                    })
 
             case .onTimerTick:
-                if state.isViewFrontmost && applicationState == .active {
+                if state.isViewFrontmost, applicationState == .active {
                     state.secondsElapsed += 1
                 }
                 return .none
@@ -270,13 +287,13 @@ struct ListeningQuizFeature: Reducer {
         }
     }
 
-    func generateChallenge(state: inout State) {
+    private func generateChallenge(state: inout State) {
         let question = try! topicClient.generateQuestion(state.topicID) // TODO: handle error
         let challenge = Challenge(id: uuid(), startDate: now, question: question, submissions: [])
         state.challenge = challenge
     }
 
-    private func playBackEffect(state: inout State) -> Effect<Self.Action> {
+    private func playBackEffect(state: inout State) -> Effect<Action> {
         state.isSpeaking = true
         return .run { [settings = state.speechSettings, spokenText = state.question.spokenText] send in
             await withTaskCancellation(id: CancelID.speakAction, cancelInFlight: true) {
@@ -373,7 +390,9 @@ struct ListeningQuizView: View {
 
                 Spacer()
 
-                progressBar(viewStore: viewStore)
+                if viewStore.sessionSettings.isShowingProgress {
+                    progressBar(viewStore: viewStore)
+                }
             }
             .padding(.top, 16)
             .padding(.bottom, 6)
@@ -470,9 +489,11 @@ struct ListeningQuizView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            CountBikiView(bikiAnimation: viewStore.bikiAnimation)
-                .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: 90)
+            if viewStore.sessionSettings.isShowingBiki {
+                CountBikiView(bikiAnimation: viewStore.bikiAnimation)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: 90)
+            }
         }
         .frame(maxWidth: .infinity)
     }
