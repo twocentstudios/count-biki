@@ -29,14 +29,16 @@ struct SettingsFeature: Reducer {
     @Dependency(\.sessionSettingsClient.set) var setSessionSettings
 
     var body: some ReducerOf<Self> {
-        BindingReducer()
-        Reduce { state, action in
-            switch action {
-            case .binding:
-                return .none
-            case .doneButtonTapped:
-                return .run { send in
-                    await dismiss()
+        CombineReducers {
+            BindingReducer()
+            Reduce { state, action in
+                switch action {
+                case .binding:
+                    return .none
+                case .doneButtonTapped:
+                    return .run { send in
+                        await dismiss()
+                    }
                 }
             }
         }
