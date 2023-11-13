@@ -190,7 +190,9 @@ struct ListeningQuizFeature: Reducer {
                     state.completedChallenges.append(state.challenge)
                     state.pendingSubmissionValue = ""
                     state.bikiAnimation = .init(id: uuid(), kind: .correct)
-                    state.confettiAnimation += 1
+                    if state.sessionSettings.showConfetti {
+                        state.confettiAnimation += 1
+                    }
                     if state.isSessionComplete {
                         return playSuccessHaptics(state: state)
                     } else {
