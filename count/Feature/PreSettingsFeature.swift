@@ -25,7 +25,7 @@ struct PreSettingsFeature: Reducer {
     }
 
     @Dependency(\.speechSynthesisClient) var speechClient
-    @Dependency(\.sessionSettingsClient) var sessionSettingsClient
+    @Dependency(\.sessionSettingsClient.set) var setSessionSettings
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -46,12 +46,13 @@ struct PreSettingsFeature: Reducer {
         }
         .onChange(of: \.sessionSettings) { _, newValue in
             Reduce { _, _ in
-                do {
-                    try sessionSettingsClient.set(newValue)
-                } catch {
-                    XCTFail("SessionSettingsClient unexpectedly failed to write")
+                .run { _ in
+                    do {
+                        try await setSessionSettings(newValue)
+                    } catch {
+                        XCTFail("SessionSettingsClient unexpectedly failed to write")
+                    }
                 }
-                return .none
             }
         }
     }
