@@ -178,10 +178,10 @@ struct ListeningQuizFeature: Reducer {
                     state.pendingSubmissionValue = ""
                     state.completedChallenges.append(state.challenge)
                     if state.isSessionComplete {
-                        return .run { _ in await haptics.error() }
+                        return playErrorHaptics(state: state)
                     } else {
                         generateChallenge(state: &state)
-                        return .run { _ in await haptics.error() }
+                        return playErrorHaptics(state: state)
                             .merge(with: playBackEffect(state: &state))
                     }
                 } else if state.question.acceptedAnswer == state.pendingSubmissionValue {
@@ -192,17 +192,17 @@ struct ListeningQuizFeature: Reducer {
                     state.bikiAnimation = .init(id: uuid(), kind: .correct)
                     state.confettiAnimation += 1
                     if state.isSessionComplete {
-                        return .run { _ in await haptics.success() }
+                        return playSuccessHaptics(state: state)
                     } else {
                         generateChallenge(state: &state)
-                        return .run { _ in await haptics.success() }
+                        return playSuccessHaptics(state: state)
                             .merge(with: playBackEffect(state: &state))
                     }
                 } else {
                     let submission = Submission(id: uuid(), date: now, kind: .incorrect, value: state.pendingSubmissionValue)
                     state.challenge.submissions.append(submission)
                     state.bikiAnimation = .init(id: uuid(), kind: .incorrect)
-                    return .run { _ in await haptics.error() }
+                    return playErrorHaptics(state: state)
                         .merge(with: playBackEffect(state: &state))
                 }
 
@@ -291,7 +291,17 @@ struct ListeningQuizFeature: Reducer {
         state.challenge = challenge
     }
 
-    private func playBackEffect(state: inout State) -> Effect<Self.Action> {
+    private func playSuccessHaptics(state: State) -> Effect<Action> {
+        guard state.sessionSettings.playHaptics else { return .none }
+        return .run { _ in await haptics.success() }
+    }
+
+    private func playErrorHaptics(state: State) -> Effect<Action> {
+        guard state.sessionSettings.playHaptics else { return .none }
+        return .run { _ in await haptics.error() }
+    }
+
+    private func playBackEffect(state: inout State) -> Effect<Action> {
         state.isSpeaking = true
         return .run { [settings = state.speechSettings, spokenText = state.question.spokenText] send in
             await withTaskCancellation(id: CancelID.speakAction, cancelInFlight: true) {
