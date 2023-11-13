@@ -178,10 +178,10 @@ struct ListeningQuizFeature: Reducer {
                     state.pendingSubmissionValue = ""
                     state.completedChallenges.append(state.challenge)
                     if state.isSessionComplete {
-                        return playErrorHaptics(state: state)
+                        return .run { _ in await haptics.error() }
                     } else {
                         generateChallenge(state: &state)
-                        return playErrorHaptics(state: state)
+                        return .run { _ in await haptics.error() }
                             .merge(with: playBackEffect(state: &state))
                     }
                 } else if state.question.acceptedAnswer == state.pendingSubmissionValue {
@@ -194,17 +194,17 @@ struct ListeningQuizFeature: Reducer {
                         state.confettiAnimation += 1
                     }
                     if state.isSessionComplete {
-                        return playSuccessHaptics(state: state)
+                        return .run { _ in await haptics.success() }
                     } else {
                         generateChallenge(state: &state)
-                        return playSuccessHaptics(state: state)
+                        return .run { _ in await haptics.success() }
                             .merge(with: playBackEffect(state: &state))
                     }
                 } else {
                     let submission = Submission(id: uuid(), date: now, kind: .incorrect, value: state.pendingSubmissionValue)
                     state.challenge.submissions.append(submission)
                     state.bikiAnimation = .init(id: uuid(), kind: .incorrect)
-                    return playErrorHaptics(state: state)
+                    return .run { _ in await haptics.error() }
                         .merge(with: playBackEffect(state: &state))
                 }
 
@@ -291,16 +291,6 @@ struct ListeningQuizFeature: Reducer {
         let question = try! topicClient.generateQuestion(state.topicID) // TODO: handle error
         let challenge = Challenge(id: uuid(), startDate: now, question: question, submissions: [])
         state.challenge = challenge
-    }
-
-    private func playSuccessHaptics(state: State) -> Effect<Action> {
-        guard state.sessionSettings.playHaptics else { return .none }
-        return .run { _ in await haptics.success() }
-    }
-
-    private func playErrorHaptics(state: State) -> Effect<Action> {
-        guard state.sessionSettings.playHaptics else { return .none }
-        return .run { _ in await haptics.error() }
     }
 
     private func playBackEffect(state: inout State) -> Effect<Action> {

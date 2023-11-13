@@ -93,9 +93,6 @@ struct SettingsView: View {
                         Toggle(isOn: viewStore.$sessionSettings.showConfetti, label: {
                             Text("Show confetti")
                         })
-                        Toggle(isOn: viewStore.$sessionSettings.playHaptics, label: {
-                            Text("Play haptic feedback")
-                        })
                     } header: {
                         Text("Display Settings")
                             .font(.subheadline)

@@ -30,11 +30,10 @@ struct SessionSettings: Equatable, Codable {
     var showProgress: Bool
     var showBiki: Bool
     var showConfetti: Bool
-    var playHaptics: Bool
 }
 
 extension SessionSettings {
-    static let `default`: Self = .init(quizMode: .infinite, questionLimit: 10, timeLimit: 60, showProgress: true, showBiki: true, showConfetti: true, playHaptics: true)
+    static let `default`: Self = .init(quizMode: .infinite, questionLimit: 10, timeLimit: 60, showProgress: true, showBiki: true, showConfetti: true)
 
     static let questionLimitValues: [Int] = [5, 10, 20, 30, 50, 100]
     static let timeLimitValues: [Int] = [30, 1 * 60, 3 * 60, 5 * 60, 10 * 60, 20 * 60]
