@@ -487,9 +487,11 @@ struct ListeningQuizView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            CountBikiView(bikiAnimation: viewStore.bikiAnimation)
-                .aspectRatio(contentMode: .fit)
-                .frame(maxWidth: 90)
+            if viewStore.sessionSettings.showBiki {
+                CountBikiView(bikiAnimation: viewStore.bikiAnimation)
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxWidth: 90)
+            }
         }
         .frame(maxWidth: .infinity)
     }
