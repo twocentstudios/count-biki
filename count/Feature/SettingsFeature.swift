@@ -84,13 +84,13 @@ struct SettingsView: View {
                     }
 
                     Section {
-                        Toggle(isOn: viewStore.$sessionSettings.showProgress, label: {
+                        Toggle(isOn: viewStore.$sessionSettings.isShowingProgress, label: {
                             Text("Show progress")
                         })
-                        Toggle(isOn: viewStore.$sessionSettings.showBiki, label: {
+                        Toggle(isOn: viewStore.$sessionSettings.isShowingBiki, label: {
                             Text("Show Biki")
                         })
-                        Toggle(isOn: viewStore.$sessionSettings.showConfetti, label: {
+                        Toggle(isOn: viewStore.$sessionSettings.isShowingConfetti, label: {
                             Text("Show confetti")
                         })
                     } header: {

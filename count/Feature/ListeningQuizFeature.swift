@@ -190,7 +190,7 @@ struct ListeningQuizFeature: Reducer {
                     state.completedChallenges.append(state.challenge)
                     state.pendingSubmissionValue = ""
                     state.bikiAnimation = .init(id: uuid(), kind: .correct)
-                    if state.sessionSettings.showConfetti {
+                    if state.sessionSettings.isShowingConfetti {
                         state.confettiAnimation += 1
                     }
                     if state.isSessionComplete {
@@ -390,7 +390,7 @@ struct ListeningQuizView: View {
 
                 Spacer()
 
-                if viewStore.sessionSettings.showProgress {
+                if viewStore.sessionSettings.isShowingProgress {
                     progressBar(viewStore: viewStore)
                 }
             }
@@ -489,7 +489,7 @@ struct ListeningQuizView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            if viewStore.sessionSettings.showBiki {
+            if viewStore.sessionSettings.isShowingBiki {
                 CountBikiView(bikiAnimation: viewStore.bikiAnimation)
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: 90)
