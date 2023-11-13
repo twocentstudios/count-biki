@@ -263,7 +263,7 @@ struct ListeningQuizFeature: Reducer {
                     })
 
             case .onTimerTick:
-                if state.isViewFrontmost && applicationState == .active {
+                if state.isViewFrontmost, applicationState == .active {
                     state.secondsElapsed += 1
                 }
                 return .none
@@ -287,7 +287,7 @@ struct ListeningQuizFeature: Reducer {
         }
     }
 
-    func generateChallenge(state: inout State) {
+    private func generateChallenge(state: inout State) {
         let question = try! topicClient.generateQuestion(state.topicID) // TODO: handle error
         let challenge = Challenge(id: uuid(), startDate: now, question: question, submissions: [])
         state.challenge = challenge
