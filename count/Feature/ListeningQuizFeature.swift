@@ -111,6 +111,7 @@ struct ListeningQuizFeature: Reducer {
         let quizMode: QuizMode
         var secondsElapsed: Int = 0
         var speechSettings: SpeechSynthesisSettings
+        var sessionSettings: SessionSettings
         let topic: Topic
         let topicID: UUID
 
@@ -132,6 +133,9 @@ struct ListeningQuizFeature: Reducer {
 
             @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
             speechSettings = speechSettingsClient.get()
+
+            @Dependency(\.sessionSettingsClient) var sessionSettingsClient
+            sessionSettings = sessionSettingsClient.get()
         }
     }
 
@@ -139,6 +143,7 @@ struct ListeningQuizFeature: Reducer {
         case answerSubmitButtonTapped
         case binding(BindingAction<State>)
         case endSessionButtonTapped
+        case onSessionSettingsUpdated(SessionSettings)
         case onSpeechSettingsUpdated(SpeechSynthesisSettings)
         case onPlaybackError
         case onPlaybackErrorTimeout
@@ -156,6 +161,7 @@ struct ListeningQuizFeature: Reducer {
 
     @Dependency(\.continuousClock) var clock
     @Dependency(\.hapticsClient) var haptics
+    @Dependency(\.sessionSettingsClient) var sessionSettingsClient
     @Dependency(\.speechSynthesisClient) var speechClient
     @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
     @Dependency(\.topicClient) var topicClient
@@ -206,6 +212,10 @@ struct ListeningQuizFeature: Reducer {
             case .endSessionButtonTapped:
                 return .none
 
+            case let .onSessionSettingsUpdated(newValue):
+                state.sessionSettings = newValue
+                return .none
+
             case let .onSpeechSettingsUpdated(newValue):
                 state.speechSettings = newValue
                 return .none
@@ -242,6 +252,11 @@ struct ListeningQuizFeature: Reducer {
                     .merge(with: .run { send in
                         for await newValue in speechSettingsClient.observe() {
                             await send(.onSpeechSettingsUpdated(newValue))
+                        }
+                    })
+                    .merge(with: .run { send in
+                        for await newValue in sessionSettingsClient.observe() {
+                            await send(.onSessionSettingsUpdated(newValue))
                         }
                     })
 
