@@ -388,7 +388,9 @@ struct ListeningQuizView: View {
 
                 Spacer()
 
-                progressBar(viewStore: viewStore)
+                if viewStore.sessionSettings.showProgress {
+                    progressBar(viewStore: viewStore)
+                }
             }
             .padding(.top, 16)
             .padding(.bottom, 6)
