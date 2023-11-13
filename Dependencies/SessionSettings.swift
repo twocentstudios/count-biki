@@ -1,9 +1,11 @@
+import AsyncExtensions
 import DependenciesAdditions
 import Foundation
 
 struct SessionSettingsClient {
     var get: @Sendable () -> (SessionSettings)
-    var set: @Sendable (SessionSettings) throws -> Void
+    var set: @Sendable (SessionSettings) async throws -> Void
+    var observe: @Sendable () -> AsyncStream<SessionSettings>
 }
 
 struct SessionSettings: Equatable, Codable {
@@ -58,6 +60,15 @@ extension SessionSettingsClient: DependencyKey {
             set: { newValue in
                 let data = try encode(newValue)
                 userDefaults.set(data, forKey: settingsKey)
+            },
+            observe: {
+                userDefaults.dataValues(forKey: settingsKey)
+                    .compactMap { maybeData in
+                        guard let data = maybeData else { return nil }
+                        guard let value = try? decode(SessionSettings.self, from: data) else { return nil }
+                        return value
+                    }
+                    .eraseToStream()
             }
         )
     }
@@ -65,18 +76,20 @@ extension SessionSettingsClient: DependencyKey {
 
 extension SessionSettingsClient: TestDependencyKey {
     static var previewValue: Self {
-        let storage = LockIsolated(SessionSettings.default)
+        let storage = AsyncCurrentValueSubject(SessionSettings.default)
         return .init(
             get: { storage.value },
-            set: { storage.setValue($0) }
+            set: { storage.send($0) },
+            observe: { storage.eraseToStream() }
         )
     }
 
     static var testValue: Self {
-        let storage = LockIsolated(SessionSettings.default)
+        let storage = AsyncCurrentValueSubject(SessionSettings.default)
         return .init(
             get: { storage.value },
-            set: { storage.setValue($0) }
+            set: { storage.send($0) },
+            observe: { storage.eraseToStream() }
         )
     }
 }
