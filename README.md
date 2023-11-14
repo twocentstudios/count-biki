@@ -8,8 +8,9 @@ Count Biki is an iOS app for drilling Japanese numbers and more. It supports iOS
 
 ## Features
 
-- Infinite listening drills: listen to a number and write it in numerals.
+- Listening drills: listen to a randomly generated number and write it in numerals.
 - Topics in several categories: numbers, money, dates, time durations.
+- Question limit, time limit, or infinite quiz modes.
 - Use any of the iOS system voices.
 - Change voice pitch and speed.
 - Track correct/incorrect answers within a session.
