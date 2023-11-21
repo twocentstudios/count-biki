@@ -149,6 +149,10 @@ struct TopicsView: View {
                                         }
                                     }
                                 }
+                                .safeAreaInset(edge: .bottom) {
+                                    // extra bottom padding for session settings sheet
+                                    Spacer().frame(height: 100)
+                                }
                                 .navigationBarTitleDisplayMode(.inline)
                                 .navigationTitle(category.title)
                                 .toolbar {
