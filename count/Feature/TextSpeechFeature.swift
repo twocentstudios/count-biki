@@ -2,9 +2,9 @@ import Collections
 import ComposableArchitecture
 import SwiftUI
 
-struct TextSpeechFeature: Reducer {
-    struct State: Equatable {
-        @BindingState var textValue: String = ""
+@Reducer struct TextSpeechFeature {
+    @ObservableState struct State: Equatable {
+        var textValue: String = ""
         var submissions: OrderedSet<String> = []
     }
 
@@ -63,82 +63,80 @@ struct TextSpeechFeature: Reducer {
 }
 
 struct TextSpeechView: View {
-    let store: StoreOf<TextSpeechFeature>
+    @Bindable var store: StoreOf<TextSpeechFeature>
     @FocusState private var textFieldFocused: Bool
 
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack {
-                List(viewStore.submissions, id: \.self) { submission in
+        VStack {
+            List(store.submissions, id: \.self) { submission in
+                Button {
+                    store.send(.submissionTapped(submission))
+                } label: {
+                    HStack {
+                        Image(systemName: "chevron.right")
+                            .padding(.trailing)
+                        Text(submission)
+                            .font(.headline)
+                    }
+                }
+                .contextMenu {
+                    Button("Play") {
+                        store.send(.playButtonTapped(submission))
+                    }
+                    Button("Delete", role: .destructive) {
+                        store.send(.onDelete(submission))
+                    }
+                }
+            }
+            .listStyle(.plain)
+        }
+        .safeAreaInset(edge: .bottom) {
+            VStack(spacing: 16) {
+                HStack {
+                    ForEach(["日", "月", "ヶ月", "年", "間"], id: \.self) { character in
+                        Button(character) {
+                            store.send(.appendStringButtonTapped(character))
+                        }
+                    }
                     Button {
-                        viewStore.send(.submissionTapped(submission))
+                        store.send(.clearButtonTapped)
                     } label: {
-                        HStack {
-                            Image(systemName: "chevron.right")
-                                .padding(.trailing)
-                            Text(submission)
-                                .font(.headline)
-                        }
-                    }
-                    .contextMenu {
-                        Button("Play") {
-                            viewStore.send(.playButtonTapped(submission))
-                        }
-                        Button("Delete", role: .destructive) {
-                            viewStore.send(.onDelete(submission))
-                        }
+                        Image(systemName: "xmark.circle")
                     }
                 }
-                .listStyle(.plain)
-            }
-            .safeAreaInset(edge: .bottom) {
-                VStack(spacing: 16) {
-                    HStack {
-                        ForEach(["日", "月", "ヶ月", "年", "間"], id: \.self) { character in
-                            Button(character) {
-                                viewStore.send(.appendStringButtonTapped(character))
-                            }
-                        }
-                        Button {
-                            viewStore.send(.clearButtonTapped)
-                        } label: {
-                            Image(systemName: "xmark.circle")
-                        }
-                    }
-                    .padding(.horizontal)
-                    .buttonStyle(.bordered)
-                    HStack {
-                        TextField("Text-to-speech", text: viewStore.$textValue)
-                            .foregroundStyle(Color.primary)
-                            .font(.largeTitle)
-                            .bold()
-                            .textFieldStyle(.plain)
-                            .keyboardType(.default)
-                            .padding(.horizontal, 4)
-                            .focused($textFieldFocused)
+                .padding(.horizontal)
+                .buttonStyle(.bordered)
+                HStack {
+                    TextField("Text-to-speech", text: $store.textValue)
+                        .foregroundStyle(Color.primary)
+                        .font(.largeTitle)
+                        .bold()
+                        .textFieldStyle(.plain)
+                        .keyboardType(.default)
+                        .padding(.horizontal, 4)
+                        .focused($textFieldFocused)
 
-                        Spacer().frame(width: 16)
+                    Spacer().frame(width: 16)
 
-                        Button {
-                            viewStore.send(.submitButtonTapped)
-                        } label: {
-                            Image(systemName: "play.fill")
-                                .font(.title)
-                        }
-                        .buttonStyle(.borderedProminent)
+                    Button {
+                        store.send(.submitButtonTapped)
+                    } label: {
+                        Image(systemName: "play.fill")
+                            .font(.title)
                     }
-                }
-                .padding()
-                .background {
-                    Color(.secondarySystemBackground)
-                        .ignoresSafeArea(.all, edges: .bottom)
-                        .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
+                    .buttonStyle(.borderedProminent)
                 }
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .onAppear {
-                textFieldFocused = true
+            .padding()
+            .background {
+                Color(.secondarySystemBackground)
+                    .ignoresSafeArea(.all, edges: .bottom)
+                    .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
             }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .onAppear {
+            textFieldFocused = true
         }
     }
 }

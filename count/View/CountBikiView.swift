@@ -1,8 +1,8 @@
 import SceneKit
 import SwiftUI
 
-@MainActor struct CountBikiView: View {
-    @MainActor struct SceneState {
+struct CountBikiView: View {
+    struct SceneState {
         let scene: SCNScene
         let catalogName = "CountBiki.scnassets"
 
@@ -10,19 +10,19 @@ import SwiftUI
             scene = .init(named: "\(catalogName)/count_biki_rig.scn")!
         }
 
-        func playIdle() {
+        @MainActor func playIdle() {
             Self.playAnimation(scene: scene, resourceName: "\(catalogName)/count_biki_anim_idle", isLooped: true)
         }
 
-        func playCorrect() {
+        @MainActor func playCorrect() {
             Self.playAnimation(scene: scene, resourceName: "\(catalogName)/count_biki_anim_correct", isLooped: false)
         }
 
-        func playIncorrect() {
+        @MainActor func playIncorrect() {
             Self.playAnimation(scene: scene, resourceName: "\(catalogName)/count_biki_anim_incorrect", isLooped: false)
         }
 
-        static func playAnimation(scene: SCNScene, resourceName: String, isLooped: Bool = false) {
+        @MainActor static func playAnimation(scene: SCNScene, resourceName: String, isLooped: Bool = false) {
             guard let sceneURL = Bundle.main.url(forResource: resourceName, withExtension: "dae") else {
                 assertionFailure("\(resourceName).dae file not found")
                 return
@@ -76,8 +76,10 @@ import SwiftUI
             updateSceneBackground(colorScheme)
             sceneState.playIdle()
         }
-        .onChange(of: colorScheme, perform: updateSceneBackground)
-        .onChange(of: bikiAnimation) { newValue in
+        .onChange(of: colorScheme) { _, newValue in
+            updateSceneBackground(newValue)
+        }
+        .onChange(of: bikiAnimation) { _, newValue in
             switch newValue?.kind {
             case .correct:
                 sceneState.playCorrect()

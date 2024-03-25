@@ -2,7 +2,7 @@
 
 <img width="250" src="/count/Assets.xcassets/AppIcon.appiconset/icon05.png">
 
-Count Biki is an iOS app for drilling Japanese numbers and more. It supports iOS 16.4+.
+Count Biki is an iOS app for drilling Japanese numbers and more. It supports iOS 17.0+.
 
 ### [Download from the App Store](https://apps.apple.com/us/app/count-biki/id6463796779)
 

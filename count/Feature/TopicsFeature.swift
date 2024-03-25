@@ -17,9 +17,9 @@ extension TopicCategory {
     }
 }
 
-struct TopicsFeature: Reducer {
-    struct State: Equatable {
-        @PresentationState var destination: Destination.State?
+@Reducer struct TopicsFeature {
+    @ObservableState struct State: Equatable {
+        @Presents var destination: Destination.State?
         let listeningCategories: IdentifiedArrayOf<TopicCategory>
 
         init() {
@@ -41,30 +41,10 @@ struct TopicsFeature: Reducer {
         case setDestination(Destination.State)
     }
 
-    struct Destination: Reducer {
-        enum State: Equatable, Sendable {
-            case preSettings(PreSettingsFeature.State)
-            case quiz(ListeningQuizNavigationFeature.State)
-            case about(AboutFeature.State)
-        }
-
-        enum Action: Equatable, Sendable {
-            case preSettings(PreSettingsFeature.Action)
-            case quiz(ListeningQuizNavigationFeature.Action)
-            case about(AboutFeature.Action)
-        }
-
-        var body: some ReducerOf<Self> {
-            Scope(state: /State.preSettings, action: /Action.preSettings) {
-                PreSettingsFeature()
-            }
-            Scope(state: /State.quiz, action: /Action.quiz) {
-                ListeningQuizNavigationFeature()
-            }
-            Scope(state: /State.about, action: /Action.about) {
-                AboutFeature()
-            }
-        }
+    @Reducer(state: .equatable, action: .equatable) enum Destination {
+        case preSettings(PreSettingsFeature)
+        case quiz(ListeningQuizNavigationFeature)
+        case about(AboutFeature)
     }
 
     @Dependency(\.continuousClock) var clock
@@ -99,135 +79,119 @@ struct TopicsFeature: Reducer {
                 }
             }
         }
-        .ifLet(\.$destination, action: /Action.destination) {
-            Destination()
-        }
+        .ifLet(\.$destination, action: \.destination)
     }
 }
 
 struct TopicsView: View {
-    let store: StoreOf<TopicsFeature>
+    @Bindable var store: StoreOf<TopicsFeature>
     let isFavoritesEnabled: Bool = false
 
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            NavigationStack {
-                List {
-                    if isFavoritesEnabled {
-                        Section {
-                            Text("No favorites yet")
-                                .font(.footnote)
-                                .foregroundStyle(.secondary)
-                                .multilineTextAlignment(.center)
-                                .frame(maxWidth: .infinity, alignment: .center)
-                                .padding(.vertical, 20)
-                        } header: {
-                            Text("Favorites \(Image(systemName: "star"))")
-                                .font(.headline)
-                                .foregroundStyle(.secondary)
-                                .textCase(nil)
-                        }
-                    }
-
+        NavigationStack {
+            List {
+                if isFavoritesEnabled {
                     Section {
-                        ForEach(viewStore.listeningCategories) { category in
-                            NavigationLink {
-                                List {
-                                    Section {
-                                        ForEach(category.topics) { topic in
-                                            TopicCell(
-                                                title: topic.title,
-                                                subtitle: topic.description,
-                                                isFavorite: false,
-                                                tapped: { viewStore.send(.topicButtonTapped(topic.id)) },
-                                                toggleFavoriteTapped: nil // TODO: favorite support
-                                            )
-                                        }
-                                    } footer: {
-                                        if isFavoritesEnabled {
-                                            Text("Tip: tap and hold a topic to add/remove a favorite")
-                                        }
-                                    }
-                                }
-                                .safeAreaInset(edge: .bottom) {
-                                    // extra bottom padding for session settings sheet
-                                    Spacer().frame(height: 100)
-                                }
-                                .navigationBarTitleDisplayMode(.inline)
-                                .navigationTitle(category.title)
-                                .toolbar {
-                                    ToolbarItem(placement: .principal) {
-                                        Text(category.title)
-                                            .font(.headline)
-                                    }
-                                }
-                            } label: {
-                                HStack(alignment: .center, spacing: 14) {
-                                    Image(systemName: category.symbolName)
-                                        .font(.body)
-                                        .frame(width: 16, height: 16)
-                                        .foregroundColor(Color(.label))
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(category.title).font(.headline)
-                                        Text(category.description)
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    .padding(.vertical, 2)
-                                }
-                            }
-                        }
+                        Text("No favorites yet")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.vertical, 20)
                     } header: {
-                        Text("Listening \(Image(systemName: "ear"))")
+                        Text("Favorites \(Image(systemName: "star"))")
                             .font(.headline)
                             .foregroundStyle(.secondary)
                             .textCase(nil)
-                    } footer: {
-                        Text("Listen to a clip and transcribe the number")
                     }
                 }
-                .listStyle(.automatic)
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationTitle("Topics")
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        Text("Topics")
-                            .font(.headline)
-                    }
-                    ToolbarItem(placement: .primaryAction) {
-                        Button {
-                            viewStore.send(.aboutButtonTapped)
+
+                Section {
+                    ForEach(store.listeningCategories) { category in
+                        NavigationLink {
+                            List {
+                                Section {
+                                    ForEach(category.topics) { topic in
+                                        TopicCell(
+                                            title: topic.title,
+                                            subtitle: topic.description,
+                                            isFavorite: false,
+                                            tapped: { store.send(.topicButtonTapped(topic.id)) },
+                                            toggleFavoriteTapped: nil // TODO: favorite support
+                                        )
+                                    }
+                                } footer: {
+                                    if isFavoritesEnabled {
+                                        Text("Tip: tap and hold a topic to add/remove a favorite")
+                                    }
+                                }
+                            }
+                            .safeAreaInset(edge: .bottom) {
+                                // extra bottom padding for session settings sheet
+                                Spacer().frame(height: 100)
+                            }
+                            .navigationBarTitleDisplayMode(.inline)
+                            .navigationTitle(category.title)
+                            .toolbar {
+                                ToolbarItem(placement: .principal) {
+                                    Text(category.title)
+                                        .font(.headline)
+                                }
+                            }
                         } label: {
-                            Image(systemName: "info.circle")
+                            HStack(alignment: .center, spacing: 14) {
+                                Image(systemName: category.symbolName)
+                                    .font(.body)
+                                    .frame(width: 16, height: 16)
+                                    .foregroundColor(Color(.label))
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text(category.title).font(.headline)
+                                    Text(category.description)
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
+                                .padding(.vertical, 2)
+                            }
                         }
                     }
+                } header: {
+                    Text("Listening \(Image(systemName: "ear"))")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                        .textCase(nil)
+                } footer: {
+                    Text("Listen to a clip and transcribe the number")
                 }
             }
-            .fullScreenCover(
-                store: store.scope(state: \.$destination, action: { .destination($0) }),
-                state: /TopicsFeature.Destination.State.quiz,
-                action: TopicsFeature.Destination.Action.quiz
-            ) { store in
-                ListeningQuizNavigationView(store: store)
+            .listStyle(.automatic)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Topics")
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Topics")
+                        .font(.headline)
+                }
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        store.send(.aboutButtonTapped)
+                    } label: {
+                        Image(systemName: "info.circle")
+                    }
+                }
             }
-            .sheet(
-                store: store.scope(state: \.$destination, action: { .destination($0) }),
-                state: /TopicsFeature.Destination.State.about,
-                action: TopicsFeature.Destination.Action.about
-            ) { store in
-                AboutView(store: store)
-            }
-            .sheet(
-                store: store.scope(state: \.$destination, action: { .destination($0) }),
-                state: /TopicsFeature.Destination.State.preSettings,
-                action: TopicsFeature.Destination.Action.preSettings
-            ) { store in
-                PreSettingsView(store: store)
-                    .presentationDragIndicator(.visible)
-                    .presentationDetents([.fraction(0.1), .medium, .large])
-                    .presentationBackgroundInteraction(.enabled)
-                    .interactiveDismissDisabled(true)
-            }
+        }
+        .fullScreenCover(item: $store.scope(state: \.destination?.quiz, action: \.destination.quiz)) { store in
+            ListeningQuizNavigationView(store: store)
+        }
+        .sheet(item: $store.scope(state: \.destination?.about, action: \.destination.about)) { store in
+            AboutView(store: store)
+        }
+        .sheet(item: $store.scope(state: \.destination?.preSettings, action: \.destination.preSettings)) { store in
+            PreSettingsView(store: store)
+                .presentationDragIndicator(.visible)
+                .presentationDetents([.fraction(0.1), .medium, .large])
+                .presentationBackgroundInteraction(.enabled)
+                .interactiveDismissDisabled(true)
         }
     }
 }

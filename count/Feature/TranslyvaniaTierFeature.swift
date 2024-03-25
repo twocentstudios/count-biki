@@ -1,9 +1,9 @@
 import ComposableArchitecture
 import SwiftUI
 
-struct TransylvaniaTierFeature: Reducer {
-    struct State: Equatable, Sendable {
-        @PresentationState var alert: AlertState<Never>?
+@Reducer struct TransylvaniaTierFeature {
+    @ObservableState struct State: Equatable, Sendable {
+        @Presents var alert: AlertState<Never>?
         var tierHistory: TierPurchaseHistory
         var availableProducts: DataState<IdentifiedArrayOf<TierProduct>> = .initialized
         var confettiAnimation: Int = 0
@@ -88,7 +88,7 @@ struct TransylvaniaTierFeature: Reducer {
                 }
             }
         }
-        .ifLet(\.$alert, action: /Action.alert)
+        .ifLet(\.$alert, action: \.alert)
     }
 
     private func loadProducts(send: Send<TransylvaniaTierFeature.Action>) async {
@@ -115,107 +115,105 @@ struct TransylvaniaTierFeature: Reducer {
 }
 
 struct TranslyvaniaTierView: View {
-    let store: StoreOf<TransylvaniaTierFeature>
+    @Bindable var store: StoreOf<TransylvaniaTierFeature>
 
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            ScrollView {
-                VStack(spacing: 20) {
-                    VStack(spacing: 10) {
-                        Text(viewStore.hasTranslyvaniaTier ? "You've unlocked..." : "Leave any size tip to unlock...")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                        Text("Translyvania Tier")
-                            .font(.largeTitle)
-                            .fontWeight(.black)
-                            .foregroundStyle(LinearGradient(colors: [Color.red, Color.orange, Color.yellow], startPoint: .bottomLeading, endPoint: .topTrailing))
-                            .confettiCannon(counter: .constant(viewStore.confettiAnimation), num: 85, confettiSize: 7, rainHeight: 1000, fadesOut: false, opacity: 1.0, openingAngle: .degrees(20), closingAngle: .degrees(160), radius: 180, repetitions: 0, repetitionInterval: 2.0)
-                        if viewStore.hasTranslyvaniaTier {
-                            Text("Thanks for supporting development")
-                                .fontDesign(.default)
-                                .italic()
-                        }
-                        VStack(alignment: .leading, spacing: 10) {
-                            Text("\(Image(systemName: "1.circle"))  Choose your favorite app icon")
-                            Text("\(Image(systemName: "2.circle"))  Support ongoing development")
-                        }
-                        .font(.headline)
-                        .padding(.trailing, 20)
-                        .padding(.vertical, 16)
-                        .frame(maxWidth: .infinity, alignment: .center)
+        ScrollView {
+            VStack(spacing: 20) {
+                VStack(spacing: 10) {
+                    Text(store.hasTranslyvaniaTier ? "You've unlocked..." : "Leave any size tip to unlock...")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text("Translyvania Tier")
+                        .font(.largeTitle)
+                        .fontWeight(.black)
+                        .foregroundStyle(LinearGradient(colors: [Color.red, Color.orange, Color.yellow], startPoint: .bottomLeading, endPoint: .topTrailing))
+                        .confettiCannon(counter: .constant(store.confettiAnimation), num: 85, confettiSize: 7, rainHeight: 1000, fadesOut: false, opacity: 1.0, openingAngle: .degrees(20), closingAngle: .degrees(160), radius: 180, repetitions: 0, repetitionInterval: 2.0)
+                    if store.hasTranslyvaniaTier {
+                        Text("Thanks for supporting development")
+                            .fontDesign(.default)
+                            .italic()
                     }
-                    .animation(.default, value: viewStore.hasTranslyvaniaTier)
-                    if viewStore.availableProducts.isLoading {
-                        ProgressView().padding()
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("\(Image(systemName: "1.circle"))  Choose your favorite app icon")
+                        Text("\(Image(systemName: "2.circle"))  Support ongoing development")
                     }
-                    if let error = viewStore.availableProducts.errorMessage {
-                        GroupBox {
-                            Text(error)
-                                .font(.headline)
-                                .multilineTextAlignment(.center)
-                                .foregroundStyle(.red)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                            Button("Try Again") {
-                                viewStore.send(.retryLoadProductsTapped)
-                            }
-                            .buttonStyle(.bordered)
+                    .font(.headline)
+                    .padding(.trailing, 20)
+                    .padding(.vertical, 16)
+                    .frame(maxWidth: .infinity, alignment: .center)
+                }
+                .animation(.default, value: store.hasTranslyvaniaTier)
+                if store.availableProducts.isLoading {
+                    ProgressView().padding()
+                }
+                if let error = store.availableProducts.errorMessage {
+                    GroupBox {
+                        Text(error)
+                            .font(.headline)
+                            .multilineTextAlignment(.center)
+                            .foregroundStyle(.red)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                        Button("Try Again") {
+                            store.send(.retryLoadProductsTapped)
                         }
+                        .buttonStyle(.bordered)
                     }
-                    if let availableProducts = viewStore.availableProducts.value {
-                        let productCounts = viewStore.tierHistory.productCounts
-                        VStack(spacing: 16) {
-                            ForEach(availableProducts) { product in
-                                let count = productCounts[product.id] ?? 0
-                                TipButton(
-                                    imageName: nil,
-                                    title: product.item?.title,
-                                    subtitle: product.displayName,
-                                    description: product.item?.description,
-                                    price: product.displayPrice,
-                                    purchaseCount: (count > 0) ? "\(count)" : nil,
-                                    isBeingPurchased: product.id == viewStore.isPurchasingProductId,
-                                    action: {
-                                        viewStore.send(.purchaseButtonTapped(product))
-                                    }
-                                )
-                                .disabled(viewStore.isPurchasingProductId != nil)
-                            }
-                            .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
-                            HStack(spacing: 20) {
-                                Button {
-                                    viewStore.send(.restorePurchasesTapped)
-                                } label: {
-                                    Text("Restore Purchases")
-                                        .font(.callout)
+                }
+                if let availableProducts = store.availableProducts.value {
+                    let productCounts = store.tierHistory.productCounts
+                    VStack(spacing: 16) {
+                        ForEach(availableProducts) { product in
+                            let count = productCounts[product.id] ?? 0
+                            TipButton(
+                                imageName: nil,
+                                title: product.item?.title,
+                                subtitle: product.displayName,
+                                description: product.item?.description,
+                                price: product.displayPrice,
+                                purchaseCount: (count > 0) ? "\(count)" : nil,
+                                isBeingPurchased: product.id == store.isPurchasingProductId,
+                                action: {
+                                    store.send(.purchaseButtonTapped(product))
                                 }
-                                Link("Privacy Policy", destination: GlobalURL.privacyPolicy)
+                            )
+                            .disabled(store.isPurchasingProductId != nil)
+                        }
+                        .alert($store.scope(state: \.alert, action: \.alert))
+                        HStack(spacing: 20) {
+                            Button {
+                                store.send(.restorePurchasesTapped)
+                            } label: {
+                                Text("Restore Purchases")
                                     .font(.callout)
                             }
-                            .padding(.vertical, 0)
-                            #if DEBUG
-                                Button {
-                                    viewStore.send(.clearPurchaseHistory)
-                                } label: {
-                                    Text("[DEBUG] Clear Purchase History")
-                                        .font(.callout)
-                                }
-                            #endif
+                            Link("Privacy Policy", destination: GlobalURL.privacyPolicy)
+                                .font(.callout)
                         }
+                        .padding(.vertical, 0)
+                        #if DEBUG
+                            Button {
+                                store.send(.clearPurchaseHistory)
+                            } label: {
+                                Text("[DEBUG] Clear Purchase History")
+                                    .font(.callout)
+                            }
+                        #endif
                     }
                 }
-                .padding()
             }
-            .navigationTitle("Translyvania Tier")
-            .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("")
-                }
+            .padding()
+        }
+        .navigationTitle("Translyvania Tier")
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("")
             }
-            .toolbarBackground(.hidden, for: .navigationBar)
-            .task {
-                await viewStore.send(.onTask).finish()
-            }
+        }
+        .toolbarBackground(.hidden, for: .navigationBar)
+        .task {
+            await store.send(.onTask).finish()
         }
     }
 }

@@ -1,9 +1,9 @@
 import ComposableArchitecture
 import SwiftUI
 
-struct SettingsFeature: Reducer {
-    struct State: Equatable {
-        @BindingState var sessionSettings: SessionSettings
+@Reducer struct SettingsFeature {
+    @ObservableState struct State: Equatable {
+        var sessionSettings: SessionSettings
         let topic: Topic
 
         init(topicID: UUID) {
@@ -60,63 +60,61 @@ struct SettingsFeature: Reducer {
 }
 
 struct SettingsView: View {
-    let store: StoreOf<SettingsFeature>
+    @Bindable var store: StoreOf<SettingsFeature>
 
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            NavigationStack {
-                Form {
-                    Section {
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text("\(viewStore.topic.skill.title): \(viewStore.topic.category.title)")
-                                .font(.headline)
-                            Text(viewStore.topic.title)
-                                .font(.subheadline)
-                            Text(viewStore.topic.description)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                        .multilineTextAlignment(.leading)
-                        .padding(.vertical, 2)
-                    } header: {
-                        Text("Topic")
-                            .font(.subheadline)
-                    }
-
-                    Section {
-                        Toggle(isOn: viewStore.$sessionSettings.isShowingProgress, label: {
-                            Text("Show progress")
-                        })
-                        Toggle(isOn: viewStore.$sessionSettings.isShowingBiki, label: {
-                            Text("Show Biki")
-                        })
-                        Toggle(isOn: viewStore.$sessionSettings.isShowingConfetti, label: {
-                            Text("Show confetti")
-                        })
-                    } header: {
-                        Text("Display Settings")
-                            .font(.subheadline)
-                    }
-
-                    SpeechSettingsSection(
-                        store: Store(initialState: .init()) {
-                            SpeechSettingsFeature()
-                        })
-                }
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationTitle("Session")
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        Text("Session")
+        NavigationStack {
+            Form {
+                Section {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("\(store.topic.skill.title): \(store.topic.category.title)")
                             .font(.headline)
+                        Text(store.topic.title)
+                            .font(.subheadline)
+                        Text(store.topic.description)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
-                    ToolbarItem(placement: .primaryAction) {
-                        Button {
-                            viewStore.send(.doneButtonTapped)
-                        } label: {
-                            Text("Done")
-                                .font(.headline)
-                        }
+                    .multilineTextAlignment(.leading)
+                    .padding(.vertical, 2)
+                } header: {
+                    Text("Topic")
+                        .font(.subheadline)
+                }
+
+                Section {
+                    Toggle(isOn: $store.sessionSettings.isShowingProgress, label: {
+                        Text("Show progress")
+                    })
+                    Toggle(isOn: $store.sessionSettings.isShowingBiki, label: {
+                        Text("Show Biki")
+                    })
+                    Toggle(isOn: $store.sessionSettings.isShowingConfetti, label: {
+                        Text("Show confetti")
+                    })
+                } header: {
+                    Text("Display Settings")
+                        .font(.subheadline)
+                }
+
+                SpeechSettingsSection(
+                    store: Store(initialState: .init()) {
+                        SpeechSettingsFeature()
+                    })
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Session")
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Session")
+                        .font(.headline)
+                }
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        store.send(.doneButtonTapped)
+                    } label: {
+                        Text("Done")
+                            .font(.headline)
                     }
                 }
             }

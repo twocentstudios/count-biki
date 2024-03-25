@@ -1,11 +1,11 @@
 import ComposableArchitecture
 import SwiftUI
 
-struct ListeningQuizNavigationFeature: Reducer {
-    struct State: Equatable {
+@Reducer struct ListeningQuizNavigationFeature {
+    @ObservableState struct State: Equatable {
         var listeningQuiz: ListeningQuizFeature.State
         var path = StackState<Path.State>()
-        @PresentationState var settings: SettingsFeature.State?
+        @Presents var settings: SettingsFeature.State?
 
         init(topicID: UUID) {
             @Dependency(\.sessionSettingsClient) var sessionSettingsClient
@@ -21,26 +21,15 @@ struct ListeningQuizNavigationFeature: Reducer {
         case settings(PresentationAction<SettingsFeature.Action>)
     }
 
-    struct Path: Reducer {
-        enum State: Equatable {
-            case summary(SessionSummaryFeature.State)
-        }
-
-        enum Action: Equatable {
-            case summary(SessionSummaryFeature.Action)
-        }
-
-        var body: some ReducerOf<Self> {
-            Scope(state: /State.summary, action: /Action.summary) {
-                SessionSummaryFeature()
-            }
-        }
+    @Reducer(state: .equatable, action: .equatable)
+    enum Path {
+        case summary(SessionSummaryFeature)
     }
 
     @Dependency(\.dismiss) var dismiss
 
     var body: some ReducerOf<Self> {
-        Scope(state: \.listeningQuiz, action: /Action.listeningQuiz) {
+        Scope(state: \.listeningQuiz, action: \.listeningQuiz) {
             ListeningQuizFeature()
         }
         Reduce { state, action in
@@ -88,12 +77,10 @@ struct ListeningQuizNavigationFeature: Reducer {
                 return .none
             }
         }
-        .ifLet(\.$settings, action: /Action.settings) {
+        .ifLet(\.$settings, action: \.settings) {
             SettingsFeature()
         }
-        .forEach(\.path, action: /Action.path) {
-            Path()
-        }
+        .forEach(\.path, action: \.path)
         Reduce { state, action in
             state.listeningQuiz.isViewFrontmost = state.path.isEmpty && state.settings == nil
             return .none
@@ -102,22 +89,18 @@ struct ListeningQuizNavigationFeature: Reducer {
 }
 
 struct ListeningQuizNavigationView: View {
-    let store: StoreOf<ListeningQuizNavigationFeature>
+    @Bindable var store: StoreOf<ListeningQuizNavigationFeature>
 
     var body: some View {
-        NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
-            ListeningQuizView(store: store.scope(state: \.listeningQuiz, action: { .listeningQuiz($0) }))
-        } destination: {
-            switch $0 {
-            case .summary:
-                CaseLet(
-                    /ListeningQuizNavigationFeature.Path.State.summary,
-                    action: ListeningQuizNavigationFeature.Path.Action.summary,
-                    then: SessionSummaryView.init(store:)
-                )
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
+            ListeningQuizView(store: store.scope(state: \.listeningQuiz, action: \.listeningQuiz))
+        } destination: { store in
+            switch store.case {
+            case let .summary(store):
+                SessionSummaryView(store: store)
             }
         }
-        .sheet(store: store.scope(state: \.$settings, action: { .settings($0) })) { store in
+        .sheet(item: $store.scope(state: \.settings, action: \.settings)) { store in
             SettingsView(store: store)
         }
     }
