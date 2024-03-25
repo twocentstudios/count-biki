@@ -181,7 +181,7 @@ struct TranslyvaniaTierView: View {
                                 )
                                 .disabled(viewStore.isPurchasingProductId != nil)
                             }
-                            .alert(store: store.scope(state: \.$alert, action: { .alert($0) }))
+                            .alert(store: store.scope(state: \.$alert, action: \.alert))
                             HStack(spacing: 20) {
                                 Button {
                                     viewStore.send(.restorePurchasesTapped)

@@ -41,7 +41,7 @@ extension TopicCategory {
         case setDestination(Destination.State)
     }
 
-    struct Destination: Reducer {
+    @Reducer struct Destination {
         enum State: Equatable, Sendable {
             case preSettings(PreSettingsFeature.State)
             case quiz(ListeningQuizNavigationFeature.State)
@@ -55,13 +55,13 @@ extension TopicCategory {
         }
 
         var body: some ReducerOf<Self> {
-            Scope(state: /State.preSettings, action: /Action.preSettings) {
+            Scope(state: \.preSettings, action: \.preSettings) {
                 PreSettingsFeature()
             }
-            Scope(state: /State.quiz, action: /Action.quiz) {
+            Scope(state: \.quiz, action: \.quiz) {
                 ListeningQuizNavigationFeature()
             }
-            Scope(state: /State.about, action: /Action.about) {
+            Scope(state: \.about, action: \.about) {
                 AboutFeature()
             }
         }
@@ -204,21 +204,21 @@ struct TopicsView: View {
                 }
             }
             .fullScreenCover(
-                store: store.scope(state: \.$destination, action: { .destination($0) }),
+                store: store.scope(state: \.$destination, action: \.destination),
                 state: /TopicsFeature.Destination.State.quiz,
                 action: TopicsFeature.Destination.Action.quiz
             ) { store in
                 ListeningQuizNavigationView(store: store)
             }
             .sheet(
-                store: store.scope(state: \.$destination, action: { .destination($0) }),
+                store: store.scope(state: \.$destination, action: \.destination),
                 state: /TopicsFeature.Destination.State.about,
                 action: TopicsFeature.Destination.Action.about
             ) { store in
                 AboutView(store: store)
             }
             .sheet(
-                store: store.scope(state: \.$destination, action: { .destination($0) }),
+                store: store.scope(state: \.$destination, action: \.destination),
                 state: /TopicsFeature.Destination.State.preSettings,
                 action: TopicsFeature.Destination.Action.preSettings
             ) { store in

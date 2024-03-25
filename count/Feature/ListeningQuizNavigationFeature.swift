@@ -21,7 +21,7 @@ import SwiftUI
         case settings(PresentationAction<SettingsFeature.Action>)
     }
 
-    struct Path: Reducer {
+    @Reducer struct Path {
         enum State: Equatable {
             case summary(SessionSummaryFeature.State)
         }
@@ -31,7 +31,7 @@ import SwiftUI
         }
 
         var body: some ReducerOf<Self> {
-            Scope(state: /State.summary, action: /Action.summary) {
+            Scope(state: \.summary, action: \.summary) {
                 SessionSummaryFeature()
             }
         }
@@ -40,7 +40,7 @@ import SwiftUI
     @Dependency(\.dismiss) var dismiss
 
     var body: some ReducerOf<Self> {
-        Scope(state: \.listeningQuiz, action: /Action.listeningQuiz) {
+        Scope(state: \.listeningQuiz, action: \.listeningQuiz) {
             ListeningQuizFeature()
         }
         Reduce { state, action in
@@ -105,8 +105,8 @@ struct ListeningQuizNavigationView: View {
     let store: StoreOf<ListeningQuizNavigationFeature>
 
     var body: some View {
-        NavigationStackStore(store.scope(state: \.path, action: { .path($0) })) {
-            ListeningQuizView(store: store.scope(state: \.listeningQuiz, action: { .listeningQuiz($0) }))
+        NavigationStackStore(store.scope(state: \.path, action: \.path)) {
+            ListeningQuizView(store: store.scope(state: \.listeningQuiz, action: \.listeningQuiz))
         } destination: {
             switch $0 {
             case .summary:
@@ -117,7 +117,7 @@ struct ListeningQuizNavigationView: View {
                 )
             }
         }
-        .sheet(store: store.scope(state: \.$settings, action: { .settings($0) })) { store in
+        .sheet(store: store.scope(state: \.$settings, action: \.settings)) { store in
             SettingsView(store: store)
         }
     }

@@ -26,10 +26,10 @@ import SwiftUI
     @Dependency(\.tierProductsClient.purchaseHistoryStream) var purchaseHistoryStream
 
     var body: some ReducerOf<Self> {
-        Scope(state: \.appIcon, action: /Action.appIcon) {
+        Scope(state: \.appIcon, action: \.appIcon) {
             AppIconFeature()
         }
-        Scope(state: \.transylvaniaTier, action: /Action.transylvaniaTier) {
+        Scope(state: \.transylvaniaTier, action: \.transylvaniaTier) {
             TransylvaniaTierFeature()
         }
         Reduce { state, action in
@@ -81,12 +81,12 @@ struct AboutView: View {
 
                     Section {
                         NavigationLink {
-                            TranslyvaniaTierView(store: store.scope(state: \.transylvaniaTier, action: { .transylvaniaTier($0) }))
+                            TranslyvaniaTierView(store: store.scope(state: \.transylvaniaTier, action: \.transylvaniaTier))
                         } label: {
                             Label("Leave a tip", systemImage: "yensign.circle")
                         }
                         NavigationLink {
-                            AppIconView(store: store.scope(state: \.appIcon, action: { .appIcon($0) }))
+                            AppIconView(store: store.scope(state: \.appIcon, action: \.appIcon))
                         } label: {
                             Label("Choose app icon", systemImage: viewStore.transylvaniaTier.hasTranslyvaniaTier ? "app.badge" : "lock")
                         }
