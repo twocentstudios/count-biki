@@ -100,7 +100,7 @@ struct ListeningQuizNavigationView: View {
                 SessionSummaryView(store: store)
             }
         }
-        .sheet(store: store.scope(state: \.$settings, action: \.settings)) { store in
+        .sheet(item: $store.scope(state: \.settings, action: \.settings)) { store in
             SettingsView(store: store)
         }
     }

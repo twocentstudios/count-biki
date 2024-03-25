@@ -41,30 +41,10 @@ extension TopicCategory {
         case setDestination(Destination.State)
     }
 
-    @Reducer struct Destination {
-        enum State: Equatable, Sendable {
-            case preSettings(PreSettingsFeature.State)
-            case quiz(ListeningQuizNavigationFeature.State)
-            case about(AboutFeature.State)
-        }
-
-        enum Action: Equatable, Sendable {
-            case preSettings(PreSettingsFeature.Action)
-            case quiz(ListeningQuizNavigationFeature.Action)
-            case about(AboutFeature.Action)
-        }
-
-        var body: some ReducerOf<Self> {
-            Scope(state: \.preSettings, action: \.preSettings) {
-                PreSettingsFeature()
-            }
-            Scope(state: \.quiz, action: \.quiz) {
-                ListeningQuizNavigationFeature()
-            }
-            Scope(state: \.about, action: \.about) {
-                AboutFeature()
-            }
-        }
+    @Reducer(state: .equatable, action: .equatable) enum Destination {
+        case preSettings(PreSettingsFeature)
+        case quiz(ListeningQuizNavigationFeature)
+        case about(AboutFeature)
     }
 
     @Dependency(\.continuousClock) var clock
@@ -99,14 +79,12 @@ extension TopicCategory {
                 }
             }
         }
-        .ifLet(\.$destination, action: \.destination) {
-            Destination()
-        }
+        .ifLet(\.$destination, action: \.destination)
     }
 }
 
 struct TopicsView: View {
-    let store: StoreOf<TopicsFeature>
+    @Bindable var store: StoreOf<TopicsFeature>
     let isFavoritesEnabled: Bool = false
 
     var body: some View {
@@ -202,13 +180,13 @@ struct TopicsView: View {
                 }
             }
         }
-        .fullScreenCover(store: store.scope(state: \.$destination.quiz, action: \.destination.quiz)) { store in
+        .fullScreenCover(item: $store.scope(state: \.destination?.quiz, action: \.destination.quiz)) { store in
             ListeningQuizNavigationView(store: store)
         }
-        .sheet(store: store.scope(state: \.$destination.about, action: \.destination.about)) { store in
+        .sheet(item: $store.scope(state: \.destination?.about, action: \.destination.about)) { store in
             AboutView(store: store)
         }
-        .sheet(store: store.scope(state: \.$destination.preSettings, action: \.destination.preSettings)) { store in
+        .sheet(item: $store.scope(state: \.destination?.preSettings, action: \.destination.preSettings)) { store in
             PreSettingsView(store: store)
                 .presentationDragIndicator(.visible)
                 .presentationDetents([.fraction(0.1), .medium, .large])
