@@ -2,7 +2,7 @@ import _NotificationDependency
 import ComposableArchitecture
 import SwiftUI
 
-struct PreSettingsFeature: Reducer {
+@Reducer struct PreSettingsFeature {
     struct State: Equatable {
         @BindingState var rawQuizMode: SessionSettings.QuizMode
         @BindingState var rawQuestionLimit: Int

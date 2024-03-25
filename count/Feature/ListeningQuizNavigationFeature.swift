@@ -1,7 +1,7 @@
 import ComposableArchitecture
 import SwiftUI
 
-struct ListeningQuizNavigationFeature: Reducer {
+@Reducer struct ListeningQuizNavigationFeature {
     struct State: Equatable {
         var listeningQuiz: ListeningQuizFeature.State
         var path = StackState<Path.State>()

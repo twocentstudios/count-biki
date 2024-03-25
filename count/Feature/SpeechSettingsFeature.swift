@@ -2,7 +2,7 @@ import _NotificationDependency
 import ComposableArchitecture
 import SwiftUI
 
-struct SpeechSettingsFeature: Reducer {
+@Reducer struct SpeechSettingsFeature {
     struct State: Equatable {
         var availableVoices: [SpeechSynthesisVoice]
         @BindingState var rawSpeechRate: Float

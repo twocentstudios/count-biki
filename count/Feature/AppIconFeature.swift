@@ -2,7 +2,7 @@ import ComposableArchitecture
 import IdentifiedCollections
 import SwiftUI
 
-struct AppIconFeature: Reducer {
+@Reducer struct AppIconFeature {
     struct State: Equatable {
         let appIcons: IdentifiedArrayOf<AppIcon>
         var selectedAppIcon: AppIcon?

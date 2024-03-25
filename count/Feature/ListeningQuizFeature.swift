@@ -13,66 +13,6 @@ struct BikiAnimation: Equatable {
     let kind: Kind
 }
 
-extension ListeningQuizFeature.State {
-    var isSessionComplete: Bool {
-        switch quizMode {
-        case let .questionLimit(limit) where completedChallenges.count >= limit:
-            true
-        case let .timeLimit(limit) where secondsElapsed >= limit:
-            true
-        default:
-            false
-        }
-    }
-    var challengeCount: Int { completedChallenges.count }
-    var lastSubmittedIncorrectValue: String? {
-        challenge.submissions.last(where: { $0.kind == .incorrect })?.value
-    }
-    var isShowingAnswer: Bool {
-        challenge.submissions.last?.kind == .skip
-    }
-    var question: Question {
-        challenge.question
-    }
-    var totalIncorrect: Int {
-        completedChallenges
-            .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
-            .count
-    }
-    var totalCorrect: Int {
-        completedChallenges
-            .filter { $0.submissions.allSatisfy { $0.kind == .correct } }
-            .count
-    }
-    var determiniteProgressPercentage: Double {
-        switch quizMode {
-        case .infinite:
-            1.0
-        case let .questionLimit(limit):
-            (Double(limit - completedChallenges.count) / Double(limit)).clampedPercentage()
-        case let .timeLimit(limit):
-            (Double(limit - secondsElapsed) / Double(limit)).clampedPercentage()
-        }
-    }
-    var determiniteIconName: String {
-        switch quizMode {
-        case .infinite: ""
-        case .questionLimit: "tray.fill"
-        case .timeLimit: "stopwatch"
-        }
-    }
-    var determiniteRemainingTitle: String {
-        switch quizMode {
-        case .infinite:
-            ""
-        case let .questionLimit(limit):
-            "\(limit - completedChallenges.count)"
-        case let .timeLimit(limit):
-            Duration.seconds((limit - secondsElapsed).clamped(to: 0 ... limit)).formatted(.time(pattern: .minuteSecond))
-        }
-    }
-}
-
 enum QuizMode: Equatable {
     case infinite
     case questionLimit(Int) // > 0
@@ -100,7 +40,7 @@ extension QuizMode {
     }
 }
 
-struct ListeningQuizFeature: Reducer {
+@Reducer struct ListeningQuizFeature {
     struct State: Equatable {
         var bikiAnimation: BikiAnimation?
         var confettiAnimation: Int = 0
@@ -136,6 +76,105 @@ struct ListeningQuizFeature: Reducer {
 
             @Dependency(\.sessionSettingsClient) var sessionSettingsClient
             sessionSettings = sessionSettingsClient.get()
+        }
+
+        var isSessionComplete: Bool {
+            switch quizMode {
+            case let .questionLimit(limit) where completedChallenges.count >= limit:
+                true
+            case let .timeLimit(limit) where secondsElapsed >= limit:
+                true
+            default:
+                false
+            }
+        }
+        var challengeCount: Int { completedChallenges.count }
+        var lastSubmittedIncorrectValue: String? {
+            challenge.submissions.last(where: { $0.kind == .incorrect })?.value
+        }
+        var isShowingAnswer: Bool {
+            challenge.submissions.last?.kind == .skip
+        }
+        var question: Question {
+            challenge.question
+        }
+        var totalIncorrect: Int {
+            completedChallenges
+                .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
+                .count
+        }
+        var totalCorrect: Int {
+            completedChallenges
+                .filter { $0.submissions.allSatisfy { $0.kind == .correct } }
+                .count
+        }
+        
+        var determiniteProgressPercentage: Double {
+            switch quizMode {
+            case .infinite:
+                1.0
+            case let .questionLimit(limit):
+                (Double(limit - completedChallenges.count) / Double(limit)).clampedPercentage()
+            case let .timeLimit(limit):
+                (Double(limit - secondsElapsed) / Double(limit)).clampedPercentage()
+            }
+        }
+        var determiniteIconName: String {
+            switch quizMode {
+            case .infinite: ""
+            case .questionLimit: "tray.fill"
+            case .timeLimit: "stopwatch"
+            }
+        }
+        var determiniteRemainingTitle: String {
+            switch quizMode {
+            case .infinite:
+                ""
+            case let .questionLimit(limit):
+                "\(limit - completedChallenges.count)"
+            case let .timeLimit(limit):
+                Duration.seconds((limit - secondsElapsed).clamped(to: 0 ... limit)).formatted(.time(pattern: .minuteSecond))
+            }
+        }
+        var isShowingIncorrect: Bool {
+            lastSubmittedIncorrectValue == pendingSubmissionValue
+        }
+        var isSubmitButtonDisabled: Bool {
+            if isShowingAnswer {
+                return false
+            } else {
+                return pendingSubmissionValue.isEmpty
+            }
+        }
+        var answerText: String {
+            if isShowingAnswer {
+                return question.displayText
+            } else {
+                return "00000"
+            }
+        }
+        enum AnswerButton: String {
+            case checkmark = "checkmark.circle"
+            case arrow = "arrow.right.circle"
+        }
+        var answerButtonKind: AnswerButton {
+            if isShowingAnswer {
+                return .arrow
+            } else {
+                return .checkmark
+            }
+        }
+        var formattedPendingSubmissionValue: String? {
+            guard topic.shouldShowFormattedPendingSubmission else {
+                return nil
+            }
+            guard let formatted = Int(pendingSubmissionValue)?.formatted(.number.grouping(.automatic)) else {
+                return nil
+            }
+            if formatted.count < 4 {
+                return nil
+            }
+            return formatted
         }
     }
 
@@ -306,53 +345,6 @@ struct ListeningQuizFeature: Reducer {
                 }
             }
         }
-    }
-}
-
-extension ListeningQuizFeature.State {
-    var isShowingIncorrect: Bool {
-        lastSubmittedIncorrectValue == pendingSubmissionValue
-    }
-
-    var isSubmitButtonDisabled: Bool {
-        if isShowingAnswer {
-            return false
-        } else {
-            return pendingSubmissionValue.isEmpty
-        }
-    }
-
-    var answerText: String {
-        if isShowingAnswer {
-            return question.displayText
-        } else {
-            return "00000"
-        }
-    }
-
-    enum AnswerButton: String {
-        case checkmark = "checkmark.circle"
-        case arrow = "arrow.right.circle"
-    }
-    var answerButtonKind: AnswerButton {
-        if isShowingAnswer {
-            return .arrow
-        } else {
-            return .checkmark
-        }
-    }
-
-    var formattedPendingSubmissionValue: String? {
-        guard topic.shouldShowFormattedPendingSubmission else {
-            return nil
-        }
-        guard let formatted = Int(pendingSubmissionValue)?.formatted(.number.grouping(.automatic)) else {
-            return nil
-        }
-        if formatted.count < 4 {
-            return nil
-        }
-        return formatted
     }
 }
 

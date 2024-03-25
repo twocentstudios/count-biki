@@ -2,7 +2,7 @@ import ComposableArchitecture
 import StoreKit
 import SwiftUI
 
-struct AboutFeature: Reducer {
+@Reducer struct AboutFeature {
     struct State: Equatable, Sendable {
         var appIcon: AppIconFeature.State
         var transylvaniaTier: TransylvaniaTierFeature.State

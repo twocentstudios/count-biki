@@ -17,7 +17,7 @@ extension TopicCategory {
     }
 }
 
-struct TopicsFeature: Reducer {
+@Reducer struct TopicsFeature {
     struct State: Equatable {
         @PresentationState var destination: Destination.State?
         let listeningCategories: IdentifiedArrayOf<TopicCategory>

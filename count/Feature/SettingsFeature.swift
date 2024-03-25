@@ -1,7 +1,7 @@
 import ComposableArchitecture
 import SwiftUI
 
-struct SettingsFeature: Reducer {
+@Reducer struct SettingsFeature {
     struct State: Equatable {
         @BindingState var sessionSettings: SessionSettings
         let topic: Topic

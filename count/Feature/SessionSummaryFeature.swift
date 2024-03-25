@@ -1,7 +1,7 @@
 import ComposableArchitecture
 import SwiftUI
 
-struct SessionSummaryFeature: Reducer {
+@Reducer struct SessionSummaryFeature {
     struct State: Equatable {
         let topic: Topic
         let sessionChallenges: [Challenge]
@@ -16,6 +16,34 @@ struct SessionSummaryFeature: Reducer {
 
             self.quizMode = quizMode
             self.isSessionComplete = isSessionComplete
+        }
+        
+        var challengesTotalCount: Int { sessionChallenges.count }
+        var challengesCorrectCount: Int { challengesCorrect.count }
+        var challengesIncorrectSkippedCount: Int {
+            sessionChallenges
+                .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
+                .count
+        }
+
+        var challengesCorrect: [Challenge] {
+            sessionChallenges.filter { $0.submissions.allSatisfy { $0.kind == .correct } }
+        }
+        var challengesSkipped: [Challenge] {
+            sessionChallenges.filter { $0.submissions.contains(where: { $0.kind == .skip }) }
+        }
+        var challengesIncorrect: [Challenge] {
+            sessionChallenges.filter { !$0.submissions.contains(where: { $0.kind == .skip }) && $0.submissions.contains(where: { $0.kind == .incorrect }) }
+        }
+        var quizModeTitle: String {
+            switch quizMode {
+            case .infinite:
+                "Infinite"
+            case let .questionLimit(limit):
+                "\(limit) question limit"
+            case let .timeLimit(limit):
+                "\(Duration.seconds(limit).formatted(.units(width: .abbreviated))) limit"
+            }
         }
     }
 
@@ -33,36 +61,6 @@ struct SessionSummaryFeature: Reducer {
                     await haptics.success()
                 }
             }
-        }
-    }
-}
-
-extension SessionSummaryFeature.State {
-    var challengesTotalCount: Int { sessionChallenges.count }
-    var challengesCorrectCount: Int { challengesCorrect.count }
-    var challengesIncorrectSkippedCount: Int {
-        sessionChallenges
-            .filter { $0.submissions.contains(where: { $0.kind == .incorrect || $0.kind == .skip }) }
-            .count
-    }
-
-    var challengesCorrect: [Challenge] {
-        sessionChallenges.filter { $0.submissions.allSatisfy { $0.kind == .correct } }
-    }
-    var challengesSkipped: [Challenge] {
-        sessionChallenges.filter { $0.submissions.contains(where: { $0.kind == .skip }) }
-    }
-    var challengesIncorrect: [Challenge] {
-        sessionChallenges.filter { !$0.submissions.contains(where: { $0.kind == .skip }) && $0.submissions.contains(where: { $0.kind == .incorrect }) }
-    }
-    var quizModeTitle: String {
-        switch quizMode {
-        case .infinite:
-            "Infinite"
-        case let .questionLimit(limit):
-            "\(limit) question limit"
-        case let .timeLimit(limit):
-            "\(Duration.seconds(limit).formatted(.units(width: .abbreviated))) limit"
         }
     }
 }

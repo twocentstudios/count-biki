@@ -2,7 +2,7 @@ import Collections
 import ComposableArchitecture
 import SwiftUI
 
-struct TextSpeechFeature: Reducer {
+@Reducer struct TextSpeechFeature {
     struct State: Equatable {
         @BindingState var textValue: String = ""
         var submissions: OrderedSet<String> = []
