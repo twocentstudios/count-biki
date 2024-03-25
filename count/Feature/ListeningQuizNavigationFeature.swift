@@ -88,10 +88,10 @@ import SwiftUI
                 return .none
             }
         }
-        .ifLet(\.$settings, action: /Action.settings) {
+        .ifLet(\.$settings, action: \.settings) {
             SettingsFeature()
         }
-        .forEach(\.path, action: /Action.path) {
+        .forEach(\.path, action: \.path) {
             Path()
         }
         Reduce { state, action in

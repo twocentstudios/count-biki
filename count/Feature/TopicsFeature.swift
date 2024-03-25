@@ -99,7 +99,7 @@ extension TopicCategory {
                 }
             }
         }
-        .ifLet(\.$destination, action: /Action.destination) {
+        .ifLet(\.$destination, action: \.destination) {
             Destination()
         }
     }

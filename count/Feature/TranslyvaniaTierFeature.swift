@@ -88,7 +88,7 @@ import SwiftUI
                 }
             }
         }
-        .ifLet(\.$alert, action: /Action.alert)
+        .ifLet(\.$alert, action: \.alert)
     }
 
     private func loadProducts(send: Send<TransylvaniaTierFeature.Action>) async {
