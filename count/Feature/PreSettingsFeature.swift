@@ -3,17 +3,19 @@ import ComposableArchitecture
 import SwiftUI
 
 @Reducer struct PreSettingsFeature {
-    struct State: Equatable {
-        @BindingState var rawQuizMode: SessionSettings.QuizMode
-        @BindingState var rawQuestionLimit: Int
-        @BindingState var rawTimeLimit: Int
+    @ObservableState struct State: Equatable {
+        var rawQuizMode: SessionSettings.QuizMode
+        var rawQuestionLimit: Int
+        var rawTimeLimit: Int
         var sessionSettings: SessionSettings
 
         init() {
             @Dependency(\.sessionSettingsClient) var sessionSettingsClient
             @Dependency(\.topicClient.allTopics) var allTopics
 
-            sessionSettings = sessionSettingsClient.get()
+            let sessionSettings = sessionSettingsClient.get()
+            self.sessionSettings = sessionSettings
+            
             rawQuizMode = sessionSettings.quizMode
             rawQuestionLimit = sessionSettings.questionLimit // TODO: validate input
             rawTimeLimit = sessionSettings.timeLimit // TODO: validate input
@@ -31,13 +33,13 @@ import SwiftUI
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .binding(\.$rawQuizMode):
+            case .binding(\.rawQuizMode):
                 state.sessionSettings.quizMode = state.rawQuizMode
                 return .none
-            case .binding(\.$rawQuestionLimit):
+            case .binding(\.rawQuestionLimit):
                 state.sessionSettings.questionLimit = state.rawQuestionLimit
                 return .none
-            case .binding(\.$rawTimeLimit):
+            case .binding(\.rawTimeLimit):
                 state.sessionSettings.timeLimit = state.rawTimeLimit
                 return .none
             case .binding:
@@ -59,68 +61,66 @@ import SwiftUI
 }
 
 struct PreSettingsView: View {
-    let store: StoreOf<PreSettingsFeature>
+    @Bindable var store: StoreOf<PreSettingsFeature>
 
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            NavigationStack {
-                Form {
-                    Section {
-                        Picker(selection: viewStore.$rawQuizMode) {
-                            ForEach(SessionSettings.QuizMode.allCases) { quizMode in
-                                Text(quizMode.title)
-                                    .tag(quizMode)
+        NavigationStack {
+            Form {
+                Section {
+                    Picker(selection: $store.rawQuizMode) {
+                        ForEach(SessionSettings.QuizMode.allCases) { quizMode in
+                            Text(quizMode.title)
+                                .tag(quizMode)
+                        }
+                    } label: {
+                        Text("Quiz Mode")
+                    }
+                    .pickerStyle(.segmented)
+                    .listRowSeparator(.hidden)
+                    switch store.sessionSettings.quizMode {
+                    case .infinite:
+                        EmptyView()
+                    case .questionLimit:
+                        Picker(selection: $store.rawQuestionLimit) {
+                            ForEach(SessionSettings.questionLimitValues, id: \.self) { value in
+                                Text("\(value)")
+                                    .tag(value)
                             }
                         } label: {
-                            Text("Quiz Mode")
+                            Text("Question Limit")
                         }
                         .pickerStyle(.segmented)
-                        .listRowSeparator(.hidden)
-                        switch viewStore.sessionSettings.quizMode {
-                        case .infinite:
-                            EmptyView()
-                        case .questionLimit:
-                            Picker(selection: viewStore.$rawQuestionLimit) {
-                                ForEach(SessionSettings.questionLimitValues, id: \.self) { value in
-                                    Text("\(value)")
-                                        .tag(value)
-                                }
-                            } label: {
-                                Text("Question Limit")
+                    case .timeLimit:
+                        Picker(selection: $store.rawTimeLimit) {
+                            ForEach(SessionSettings.timeLimitValues, id: \.self) { value in
+                                Text("\(Duration.seconds(value).formatted(.units(width: .condensedAbbreviated)))")
+                                    .tag(value)
                             }
-                            .pickerStyle(.segmented)
-                        case .timeLimit:
-                            Picker(selection: viewStore.$rawTimeLimit) {
-                                ForEach(SessionSettings.timeLimitValues, id: \.self) { value in
-                                    Text("\(Duration.seconds(value).formatted(.units(width: .condensedAbbreviated)))")
-                                        .tag(value)
-                                }
-                            } label: {
-                                Text("Time Limit")
-                            }
-                            .pickerStyle(.segmented)
+                        } label: {
+                            Text("Time Limit")
                         }
-                    } header: {
-                        Text("Quiz Mode")
-                            .font(.subheadline)
+                        .pickerStyle(.segmented)
                     }
-                    .listRowBackground(Color(.tertiarySystemBackground))
-
-                    SpeechSettingsSection(
-                        store: Store(initialState: .init()) {
-                            SpeechSettingsFeature()
-                        })
-                        .listRowBackground(Color(.systemGroupedBackground))
+                } header: {
+                    Text("Quiz Mode")
+                        .font(.subheadline)
                 }
-                .scrollContentBackground(.hidden)
-                .background(Color(.tertiarySystemBackground))
-                .navigationBarTitleDisplayMode(.inline)
-                .navigationTitle("Settings")
-                .toolbar {
-                    ToolbarItem(placement: .principal) {
-                        Text("Session Settings")
-                            .font(.headline)
-                    }
+                .listRowBackground(Color(.tertiarySystemBackground))
+
+                SpeechSettingsSection(
+                    store: Store(initialState: .init()) {
+                        SpeechSettingsFeature()
+                    })
+                    .listRowBackground(Color(.systemGroupedBackground))
+            }
+            .scrollContentBackground(.hidden)
+            .background(Color(.tertiarySystemBackground))
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Settings")
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Text("Session Settings")
+                        .font(.headline)
                 }
             }
         }

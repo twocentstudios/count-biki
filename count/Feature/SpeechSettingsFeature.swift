@@ -3,11 +3,11 @@ import ComposableArchitecture
 import SwiftUI
 
 @Reducer struct SpeechSettingsFeature {
-    struct State: Equatable {
+    @ObservableState struct State: Equatable {
         var availableVoices: [SpeechSynthesisVoice]
-        @BindingState var rawSpeechRate: Float
-        @BindingState var rawVoiceIdentifier: String?
-        @BindingState var rawPitchMultiplier: Float
+        var rawSpeechRate: Float
+        var rawVoiceIdentifier: String?
+        var rawPitchMultiplier: Float
         let pitchMultiplierRange: ClosedRange<Float>
         let speechRateRange: ClosedRange<Float>
         var speechSettings: SpeechSynthesisSettings
@@ -16,8 +16,9 @@ import SwiftUI
             @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
             @Dependency(\.speechSynthesisClient) var speechClient
 
-            speechSettings = speechSettingsClient.get()
-
+            let speechSettings = speechSettingsClient.get()
+            self.speechSettings = speechSettings
+            
             availableVoices = speechClient.availableVoices()
             rawVoiceIdentifier = speechSettings.voiceIdentifier ?? speechClient.defaultVoice()?.voiceIdentifier
 
@@ -53,13 +54,13 @@ import SwiftUI
         BindingReducer()
         Reduce { state, action in
             switch action {
-            case .binding(\.$rawSpeechRate):
+            case .binding(\.rawSpeechRate):
                 state.speechSettings.rate = state.rawSpeechRate
                 return .none
-            case .binding(\.$rawVoiceIdentifier):
+            case .binding(\.rawVoiceIdentifier):
                 state.speechSettings.voiceIdentifier = state.rawVoiceIdentifier
                 return .none
-            case .binding(\.$rawPitchMultiplier):
+            case .binding(\.rawPitchMultiplier):
                 state.speechSettings.pitchMultiplier = state.rawPitchMultiplier
                 return .none
             case .binding:
@@ -114,78 +115,76 @@ import SwiftUI
 }
 
 struct SpeechSettingsSection: View {
-    let store: StoreOf<SpeechSettingsFeature>
+    @Bindable var store: StoreOf<SpeechSettingsFeature>
 
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            Section {
-                if let $unwrappedVoiceIdentifier = Binding(viewStore.$rawVoiceIdentifier) {
-                    Picker(selection: $unwrappedVoiceIdentifier) {
-                        ForEach(viewStore.availableVoices) { voice in
-                            Text(voice.name)
-                                .tag(Optional(voice.voiceIdentifier))
-                        }
-                    } label: {
-                        Text("Voice name")
+        Section {
+            if let $unwrappedVoiceIdentifier = Binding($store.rawVoiceIdentifier) {
+                Picker(selection: $unwrappedVoiceIdentifier) {
+                    ForEach(store.availableVoices) { voice in
+                        Text(voice.name)
+                            .tag(Optional(voice.voiceIdentifier))
                     }
-                    .pickerStyle(.navigationLink)
-                    NavigationLink {
-                        GetMoreVoicesView()
-                    } label: {
-                        Text("Get more voices")
-                    }
-                    HStack {
-                        Text("Rate")
-                            .onTapGesture(count: 2) {
-                                viewStore.send(.rateLabelDoubleTapped)
-                            }
-                        Slider(value: viewStore.$rawSpeechRate, in: viewStore.speechRateRange, step: 0.05) {
-                            Text("Speech rate")
-                        } minimumValueLabel: {
-                            Image(systemName: "tortoise")
-                        } maximumValueLabel: {
-                            Image(systemName: "hare")
+                } label: {
+                    Text("Voice name")
+                }
+                .pickerStyle(.navigationLink)
+                NavigationLink {
+                    GetMoreVoicesView()
+                } label: {
+                    Text("Get more voices")
+                }
+                HStack {
+                    Text("Rate")
+                        .onTapGesture(count: 2) {
+                            store.send(.rateLabelDoubleTapped)
                         }
-                    }
-                    HStack {
-                        Text("Pitch")
-                            .onTapGesture(count: 2) {
-                                viewStore.send(.pitchLabelDoubleTapped)
-                            }
-                        Slider(value: viewStore.$rawPitchMultiplier, in: viewStore.pitchMultiplierRange, step: 0.05) {
-                            Text("Pitch")
-                        } minimumValueLabel: {
-                            Image(systemName: "dial.low")
-                        } maximumValueLabel: {
-                            Image(systemName: "dial.high")
-                        }
-                    }
-                    Button {
-                        viewStore.send(.testVoiceButtonTapped)
-                    } label: {
-                        HStack(spacing: 10) {
-                            Image(systemName: "person.wave.2")
-                            Text("Test Voice")
-                        }
-                        .frame(maxWidth: .infinity, alignment: .center)
-                    }
-                } else {
-                    NavigationLink {
-                        GetMoreVoicesView()
-                    } label: {
-                        HStack {
-                            Text("Error: no voices found on device")
-                                .foregroundStyle(Color.red)
-                        }
+                    Slider(value: $store.rawSpeechRate, in: store.speechRateRange, step: 0.05) {
+                        Text("Speech rate")
+                    } minimumValueLabel: {
+                        Image(systemName: "tortoise")
+                    } maximumValueLabel: {
+                        Image(systemName: "hare")
                     }
                 }
-            } header: {
-                Text("Voice Settings")
-                    .font(.subheadline)
+                HStack {
+                    Text("Pitch")
+                        .onTapGesture(count: 2) {
+                            store.send(.pitchLabelDoubleTapped)
+                        }
+                    Slider(value: $store.rawPitchMultiplier, in: store.pitchMultiplierRange, step: 0.05) {
+                        Text("Pitch")
+                    } minimumValueLabel: {
+                        Image(systemName: "dial.low")
+                    } maximumValueLabel: {
+                        Image(systemName: "dial.high")
+                    }
+                }
+                Button {
+                    store.send(.testVoiceButtonTapped)
+                } label: {
+                    HStack(spacing: 10) {
+                        Image(systemName: "person.wave.2")
+                        Text("Test Voice")
+                    }
+                    .frame(maxWidth: .infinity, alignment: .center)
+                }
+            } else {
+                NavigationLink {
+                    GetMoreVoicesView()
+                } label: {
+                    HStack {
+                        Text("Error: no voices found on device")
+                            .foregroundStyle(Color.red)
+                    }
+                }
             }
-            .task {
-                await viewStore.send(.onTask).finish()
-            }
+        } header: {
+            Text("Voice Settings")
+                .font(.subheadline)
+        }
+        .task {
+            await store.send(.onTask).finish()
         }
     }
 }

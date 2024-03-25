@@ -2,10 +2,10 @@ import ComposableArchitecture
 import SwiftUI
 
 @Reducer struct ListeningQuizNavigationFeature {
-    struct State: Equatable {
+    @ObservableState struct State: Equatable {
         var listeningQuiz: ListeningQuizFeature.State
         var path = StackState<Path.State>()
-        @PresentationState var settings: SettingsFeature.State?
+        @Presents var settings: SettingsFeature.State?
 
         init(topicID: UUID) {
             @Dependency(\.sessionSettingsClient) var sessionSettingsClient

@@ -41,13 +41,13 @@ extension QuizMode {
 }
 
 @Reducer struct ListeningQuizFeature {
-    struct State: Equatable {
+    @ObservableState struct State: Equatable {
         var bikiAnimation: BikiAnimation?
         var confettiAnimation: Int = 0
         var isViewFrontmost: Bool = true
         var isShowingPlaybackError: Bool = false
         var isSpeaking: Bool = false
-        @BindingState var pendingSubmissionValue: String = ""
+        var pendingSubmissionValue: String = ""
         let quizMode: QuizMode
         var secondsElapsed: Int = 0
         var speechSettings: SpeechSynthesisSettings
@@ -108,7 +108,7 @@ extension QuizMode {
                 .filter { $0.submissions.allSatisfy { $0.kind == .correct } }
                 .count
         }
-        
+
         var determiniteProgressPercentage: Double {
             switch quizMode {
             case .infinite:
@@ -364,68 +364,66 @@ extension QuizMode {
 }
 
 struct ListeningQuizView: View {
-    let store: StoreOf<ListeningQuizFeature>
+    @Bindable var store: StoreOf<ListeningQuizFeature>
     @FocusState private var answerFieldFocused: Bool
-
+    
     var body: some View {
-        WithViewStore(store, observe: { $0 }) { viewStore in
-            VStack(spacing: 0) {
-                header(viewStore: viewStore)
+        VStack(spacing: 0) {
+            header(store: store)
 
-                Spacer()
+            Spacer()
 
-                answer(viewStore: viewStore)
+            answer(store: store)
 
-                Spacer().frame(maxHeight: 16).layoutPriority(-1)
+            Spacer().frame(maxHeight: 16).layoutPriority(-1)
 
-                playButton(viewStore: viewStore)
+            playButton(store: store)
 
-                Spacer()
+            Spacer()
 
-                if viewStore.sessionSettings.isShowingProgress {
-                    progressBar(viewStore: viewStore)
-                }
+            if store.sessionSettings.isShowingProgress {
+                progressBar(store: store)
             }
-            .padding(.top, 16)
-            .padding(.bottom, 6)
-            .padding(.horizontal, 16)
-            .safeAreaInset(edge: .bottom) {
-                submissionTextField(viewStore: viewStore)
-            }
-            .navigationTitle("Quiz")
-            .toolbar(.hidden, for: .navigationBar)
-            .dynamicTypeSize(.xSmall ... .accessibility2) // TODO: fix layout for accessibility sizes
-            .task {
-                await viewStore.send(.onTask).finish()
-            }
-            .onAppear {
-                answerFieldFocused = true
-            }
+        }
+        .padding(.top, 16)
+        .padding(.bottom, 6)
+        .padding(.horizontal, 16)
+        .safeAreaInset(edge: .bottom) {
+            submissionTextField
+        }
+        .navigationTitle("Quiz")
+        .toolbar(.hidden, for: .navigationBar)
+        .dynamicTypeSize(.xSmall ... .accessibility2) // TODO: fix layout for accessibility sizes
+        .task {
+            await store.send(.onTask).finish()
+        }
+        .onAppear {
+            answerFieldFocused = true
         }
     }
 
-    @ViewBuilder func header(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
+    @ViewBuilder func header(store: StoreOf<ListeningQuizFeature>) -> some View {
         HStack(alignment: .top, spacing: 16) {
             VStack(spacing: 6) {
                 ViewThatFits(in: .horizontal) {
                     HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text(viewStore.topic.category.title)
+                        Text(store.topic.category.title)
                             .font(.title)
                             .fontWeight(.semibold)
                             .lineLimit(1)
-                        Text(viewStore.topic.title)
+                        Text(store.topic.title)
                             .font(.subheadline)
                             .fontWeight(.semibold)
                             .foregroundStyle(Color(.secondaryLabel))
                             .lineLimit(1)
                     }
                     VStack(alignment: .leading, spacing: 0) {
-                        Text(viewStore.topic.category.title)
+                        Text(store.topic.category.title)
                             .font(.title)
                             .fontWeight(.semibold)
                             .lineLimit(1)
                             .minimumScaleFactor(0.6)
-                        Text(viewStore.topic.title)
+                        Text(store.topic.title)
                             .font(.subheadline)
                             .fontWeight(.semibold)
                             .foregroundStyle(Color(.secondaryLabel))
@@ -436,7 +434,7 @@ struct ListeningQuizView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 HStack(spacing: 6) {
                     Button {
-                        viewStore.send(.endSessionButtonTapped)
+                        store.send(.endSessionButtonTapped)
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "door.right.hand.open")
@@ -457,7 +455,7 @@ struct ListeningQuizView: View {
                     }
                     .buttonStyle(.plain)
                     Button {
-                        viewStore.send(.settingsButtonTapped)
+                        store.send(.settingsButtonTapped)
                     } label: {
                         HStack(spacing: 6) {
                             Image(systemName: "gearshape.fill")
@@ -481,8 +479,8 @@ struct ListeningQuizView: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
             }
 
-            if viewStore.sessionSettings.isShowingBiki {
-                CountBikiView(bikiAnimation: viewStore.bikiAnimation)
+            if store.sessionSettings.isShowingBiki {
+                CountBikiView(bikiAnimation: store.bikiAnimation)
                     .aspectRatio(contentMode: .fit)
                     .frame(maxWidth: 90)
             }
@@ -490,17 +488,17 @@ struct ListeningQuizView: View {
         .frame(maxWidth: .infinity)
     }
 
-    @ViewBuilder func answer(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
-        Text(viewStore.answerText)
+    @ViewBuilder func answer(store: StoreOf<ListeningQuizFeature>) -> some View {
+        Text(store.answerText)
             .font(.system(size: 80, weight: .bold))
             .lineLimit(1)
             .minimumScaleFactor(0.4)
-            .foregroundStyle(viewStore.isShowingAnswer ? Color.primary : Color.secondary)
-            .blur(radius: viewStore.isShowingAnswer ? 0 : 18)
+            .foregroundStyle(store.isShowingAnswer ? Color.primary : Color.secondary)
+            .blur(radius: store.isShowingAnswer ? 0 : 18)
             .overlay {
-                if !viewStore.isShowingAnswer {
+                if !store.isShowingAnswer {
                     Button {
-                        viewStore.send(.showAnswerButtonTapped)
+                        store.send(.showAnswerButtonTapped)
                     } label: {
                         Text("Show Answer")
                             .multilineTextAlignment(.center)
@@ -513,22 +511,22 @@ struct ListeningQuizView: View {
                     .buttonStyle(.plain)
                 }
             }
-            .animation(.easeOut(duration: viewStore.isShowingAnswer ? 0.15 : 0.0), value: viewStore.isShowingAnswer)
+            .animation(.easeOut(duration: store.isShowingAnswer ? 0.15 : 0.0), value: store.isShowingAnswer)
     }
 
-    @ViewBuilder func playButton(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
+    @ViewBuilder func playButton(store: StoreOf<ListeningQuizFeature>) -> some View {
         Button {
-            viewStore.send(.playbackButtonTapped)
+            store.send(.playbackButtonTapped)
         } label: {
             VStack(spacing: 10) {
                 Image(systemName: "speaker.wave.3.fill") // same height for different symbols
                     .font(.title)
                     .hidden()
                     .overlay {
-                        Image(systemName: viewStore.isSpeaking ? "speaker.wave.3.fill" : "speaker.fill")
+                        Image(systemName: store.isSpeaking ? "speaker.wave.3.fill" : "speaker.fill")
                             .font(.title)
                     }
-                Text(viewStore.isSpeaking ? "Stop" : "Play Question")
+                Text(store.isSpeaking ? "Stop" : "Play Question")
                     .font(.caption)
                     .foregroundStyle(Color.secondary)
             }
@@ -539,12 +537,12 @@ struct ListeningQuizView: View {
                     .fill(Color(.secondarySystemBackground))
                     .shadow(color: Color.primary.opacity(0.15), radius: 3, x: 0, y: 0)
             }
-            .animation(.bouncy, value: viewStore.isSpeaking)
+            .animation(.bouncy, value: store.isSpeaking)
         }
         .buttonStyle(.plain)
         .background(alignment: .bottom) {
             ZStack {
-                if viewStore.isShowingPlaybackError {
+                if store.isShowingPlaybackError {
                     Text("There was an error playing your question")
                         .font(.caption)
                         .multilineTextAlignment(.center)
@@ -553,16 +551,16 @@ struct ListeningQuizView: View {
                         .transition(.move(edge: .top).combined(with: .opacity))
                 }
             }
-            .animation(.bouncy, value: viewStore.isShowingPlaybackError)
+            .animation(.bouncy, value: store.isShowingPlaybackError)
         }
     }
 
-    @ViewBuilder func progressBar(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
+    @ViewBuilder func progressBar(store: StoreOf<ListeningQuizFeature>) -> some View {
         HStack(spacing: 0) {
-            switch viewStore.quizMode {
+            switch store.quizMode {
             case .infinite:
                 IndeterminateProgressView(
-                    animationCount: viewStore.challengeCount,
+                    animationCount: store.challengeCount,
                     color1: Color(.systemFill),
                     color2: Color(.systemBackground),
                     barCount: 20,
@@ -579,7 +577,7 @@ struct ListeningQuizView: View {
                     .padding(.trailing, 10)
             case .questionLimit, .timeLimit:
                 DeterminateProgressView(
-                    percentage: viewStore.determiniteProgressPercentage,
+                    percentage: store.determiniteProgressPercentage,
                     backgroundColor: Color(.systemBackground),
                     foregroundColor: Color(.systemFill),
                     animation: .snappy
@@ -587,12 +585,12 @@ struct ListeningQuizView: View {
                 .frame(height: 10)
                 .padding(.trailing, 6)
                 HStack(spacing: 3) {
-                    Image(systemName: viewStore.determiniteIconName)
-                    Text(viewStore.determiniteRemainingTitle)
+                    Image(systemName: store.determiniteIconName)
+                    Text(store.determiniteRemainingTitle)
                         .contentTransition(.numericText())
                         .bold()
                         .fontDesign(.monospaced)
-                        .animation(.default, value: viewStore.determiniteRemainingTitle)
+                        .animation(.default, value: store.determiniteRemainingTitle)
                 }
                 .font(.system(.caption, design: .monospaced))
                 .foregroundColor(Color(.secondaryLabel))
@@ -603,20 +601,20 @@ struct ListeningQuizView: View {
                 Image(systemName: "checkmark.circle")
                     .foregroundColor(Color.green)
                 Spacer().frame(width: 2)
-                Text(String(viewStore.totalCorrect))
+                Text(String(store.totalCorrect))
                     .contentTransition(.numericText())
                     .fontDesign(.monospaced)
                     .foregroundColor(Color.green)
-                    .animation(.default, value: viewStore.totalCorrect)
+                    .animation(.default, value: store.totalCorrect)
                 Spacer().frame(width: 8)
                 Image(systemName: "xmark.circle")
                     .foregroundColor(Color.red)
                 Spacer().frame(width: 2)
-                Text(String(viewStore.totalIncorrect))
+                Text(String(store.totalIncorrect))
                     .contentTransition(.numericText())
                     .fontDesign(.monospaced)
                     .foregroundColor(Color.red)
-                    .animation(.default, value: viewStore.totalIncorrect)
+                    .animation(.default, value: store.totalIncorrect)
             }
             .bold()
             .font(.caption)
@@ -624,15 +622,15 @@ struct ListeningQuizView: View {
         }
     }
 
-    @MainActor @ViewBuilder func submissionTextField(viewStore: ViewStoreOf<ListeningQuizFeature>) -> some View {
+    @MainActor @ViewBuilder var submissionTextField: some View {
         HStack(spacing: 0) {
-            if let prefix = viewStore.question.answerPrefix {
+            if let prefix = store.question.answerPrefix {
                 Text(prefix)
                     .font(.title)
                     .foregroundStyle(Color.secondary)
             }
 
-            TextField("Answer", text: viewStore.$pendingSubmissionValue)
+            TextField("Answer", text: $store.pendingSubmissionValue)
                 .foregroundStyle(Color.primary)
                 .font(.largeTitle)
                 .bold()
@@ -641,7 +639,7 @@ struct ListeningQuizView: View {
                 .padding(.horizontal, 4)
                 .focused($answerFieldFocused)
 
-            if let postfix = viewStore.question.answerPostfix {
+            if let postfix = store.question.answerPostfix {
                 Text(postfix)
                     .font(.title)
                     .foregroundStyle(Color.secondary)
@@ -650,17 +648,17 @@ struct ListeningQuizView: View {
             Spacer().frame(width: 16)
 
             Button {
-                viewStore.send(.answerSubmitButtonTapped)
+                store.send(.answerSubmitButtonTapped)
             } label: {
-                Image(systemName: viewStore.answerButtonKind.rawValue)
+                Image(systemName: store.answerButtonKind.rawValue)
                     .font(.title)
             }
             .buttonStyle(.borderedProminent)
-            .disabled(viewStore.isSubmitButtonDisabled)
+            .disabled(store.isSubmitButtonDisabled)
         }
         .padding()
         .overlay(alignment: .top) {
-            Text(viewStore.formattedPendingSubmissionValue ?? "")
+            Text(store.formattedPendingSubmissionValue ?? "")
                 .font(.caption)
         }
         .padding(.top, 4)
@@ -671,14 +669,14 @@ struct ListeningQuizView: View {
         }
         .background(alignment: .top) {
             ZStack {
-                if viewStore.isShowingIncorrect {
+                if store.isShowingIncorrect {
                     Color(hue: 0.0, saturation: 0.88, brightness: 0.96).frame(height: 10)
                         .offset(y: -10)
                         .transition(.scale.combined(with: .opacity))
                 }
             }
-            .animation(.snappy(duration: 0.1), value: viewStore.isShowingIncorrect)
-            .confettiCannon(counter: .constant(viewStore.confettiAnimation), num: 25, confettiSize: 7, rainHeight: 300, fadesOut: true, opacity: 1.0, openingAngle: .degrees(50), closingAngle: .degrees(130), radius: 120, repetitions: 0, repetitionInterval: 1.0)
+            .animation(.snappy(duration: 0.1), value: store.isShowingIncorrect)
+            .confettiCannon(counter: .constant(store.confettiAnimation), num: 25, confettiSize: 7, rainHeight: 300, fadesOut: true, opacity: 1.0, openingAngle: .degrees(50), closingAngle: .degrees(130), radius: 120, repetitions: 0, repetitionInterval: 1.0)
         }
     }
 }
