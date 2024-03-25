@@ -14,12 +14,16 @@ import SwiftUI
         }
     }
 
-    enum Action: Equatable {
+    enum Action: Equatable, ViewAction {
         case appIcon(AppIconFeature.Action)
-        case doneButtonTapped
         case onPurchaseHistoryUpdated(TierPurchaseHistory)
-        case onTask
         case transylvaniaTier(TransylvaniaTierFeature.Action)
+        case view(View)
+
+        enum View {
+            case doneButtonTapped
+            case onTask
+        }
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -34,8 +38,6 @@ import SwiftUI
         }
         Reduce { state, action in
             switch action {
-            case .doneButtonTapped:
-                return .run { _ in await dismiss() }
             case .appIcon:
                 return .none
             case .transylvaniaTier:
@@ -44,7 +46,9 @@ import SwiftUI
                 state.appIcon.isAppIconChangingAvailable = newHistory.status == .unlocked
                 state.transylvaniaTier.tierHistory = newHistory
                 return .none
-            case .onTask:
+            case .view(.doneButtonTapped):
+                return .run { _ in await dismiss() }
+            case .view(.onTask):
                 return .run { send in
                     for await newHistory in purchaseHistoryStream() {
                         await send(.onPurchaseHistoryUpdated(newHistory))
@@ -55,6 +59,7 @@ import SwiftUI
     }
 }
 
+@ViewAction(for: AboutFeature.self)
 struct AboutView: View {
     let store: StoreOf<AboutFeature>
     @Environment(\.requestReview) var requestReview
@@ -187,7 +192,7 @@ struct AboutView: View {
                 ToolbarItem(placement: .principal) { Text("") }
                 ToolbarItem(placement: .primaryAction) {
                     Button {
-                        store.send(.doneButtonTapped)
+                        send(.doneButtonTapped)
                     } label: {
                         Label("Done", systemImage: "xmark.circle")
                             .labelStyle(.iconOnly)
@@ -196,7 +201,7 @@ struct AboutView: View {
             }
             .toolbarBackground(.hidden, for: .navigationBar)
             .task {
-                store.send(.onTask)
+                send(.onTask)
             }
         }
     }
