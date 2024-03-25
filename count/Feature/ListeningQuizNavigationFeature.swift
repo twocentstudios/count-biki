@@ -21,20 +21,9 @@ import SwiftUI
         case settings(PresentationAction<SettingsFeature.Action>)
     }
 
-    @Reducer struct Path {
-        enum State: Equatable {
-            case summary(SessionSummaryFeature.State)
-        }
-
-        enum Action: Equatable {
-            case summary(SessionSummaryFeature.Action)
-        }
-
-        var body: some ReducerOf<Self> {
-            Scope(state: \.summary, action: \.summary) {
-                SessionSummaryFeature()
-            }
-        }
+    @Reducer(state: .equatable, action: .equatable)
+    enum Path {
+        case summary(SessionSummaryFeature)
     }
 
     @Dependency(\.dismiss) var dismiss
@@ -91,9 +80,7 @@ import SwiftUI
         .ifLet(\.$settings, action: \.settings) {
             SettingsFeature()
         }
-        .forEach(\.path, action: \.path) {
-            Path()
-        }
+        .forEach(\.path, action: \.path)
         Reduce { state, action in
             state.listeningQuiz.isViewFrontmost = state.path.isEmpty && state.settings == nil
             return .none
@@ -102,19 +89,15 @@ import SwiftUI
 }
 
 struct ListeningQuizNavigationView: View {
-    let store: StoreOf<ListeningQuizNavigationFeature>
+    @Bindable var store: StoreOf<ListeningQuizNavigationFeature>
 
     var body: some View {
-        NavigationStackStore(store.scope(state: \.path, action: \.path)) {
+        NavigationStack(path: $store.scope(state: \.path, action: \.path)) {
             ListeningQuizView(store: store.scope(state: \.listeningQuiz, action: \.listeningQuiz))
-        } destination: {
-            switch $0 {
-            case .summary:
-                CaseLet(
-                    /ListeningQuizNavigationFeature.Path.State.summary,
-                    action: ListeningQuizNavigationFeature.Path.Action.summary,
-                    then: SessionSummaryView.init(store:)
-                )
+        } destination: { store in
+            switch store.case {
+            case let .summary(store):
+                SessionSummaryView(store: store)
             }
         }
         .sheet(store: store.scope(state: \.$settings, action: \.settings)) { store in
