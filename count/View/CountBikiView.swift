@@ -76,8 +76,10 @@ struct CountBikiView: View {
             updateSceneBackground(colorScheme)
             sceneState.playIdle()
         }
-        .onChange(of: colorScheme, perform: updateSceneBackground)
-        .onChange(of: bikiAnimation) { newValue in
+        .onChange(of: colorScheme) { _, newValue in
+            updateSceneBackground(newValue)
+        }
+        .onChange(of: bikiAnimation) { _, newValue in
             switch newValue?.kind {
             case .correct:
                 sceneState.playCorrect()
