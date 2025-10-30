@@ -24,10 +24,8 @@
 		344242252ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242242ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift */; };
 		344242272ABEBD6F001E2FC8 /* TierProducts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242262ABEBD6F001E2FC8 /* TierProducts.swift */; };
 		344242342AC41EAD001E2FC8 /* DataState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242312AC41EAD001E2FC8 /* DataState.swift */; };
-		F14A07178666470EA2B6EF53 /* ApplicationClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26E068C6B20C4E52B601A112 /* ApplicationClient.swift */; };
 		344242372AC41F9C001E2FC8 /* EquatableError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242362AC41F9C001E2FC8 /* EquatableError.swift */; };
 		3442423A2ACA98CA001E2FC8 /* AsyncExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 344242392ACA98CA001E2FC8 /* AsyncExtensions */; };
-		F1A5D4B32B3C4D5E6F708192 /* Sharing in Frameworks */ = {isa = PBXBuildFile; productRef = F1A5D4B22B3C4D5E6F708192 /* Sharing */; };
 		3478331F2AA7343A005160DC /* PlanningTopicsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3478331E2AA7343A005160DC /* PlanningTopicsFeature.swift */; };
 		348000E32A9CC0A800E7CCEE /* CountBiki.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */; };
 		348000E52A9CCD4700E7CCEE /* CountBikiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348000E42A9CCD4700E7CCEE /* CountBikiView.swift */; };
@@ -46,6 +44,8 @@
 		34E53DC42AF793DC007E4BAE /* DeterminiteProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E53DC32AF793DC007E4BAE /* DeterminiteProgressView.swift */; };
 		34E53DC62AF7AD32007E4BAE /* Clamped.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E53DC52AF7AD32007E4BAE /* Clamped.swift */; };
 		34E53DC82AF7C2D8007E4BAE /* PreSettingsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E53DC72AF7C2D8007E4BAE /* PreSettingsFeature.swift */; };
+		F14A07178666470EA2B6EF53 /* ApplicationClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26E068C6B20C4E52B601A112 /* ApplicationClient.swift */; };
+		F1A5D4B32B3C4D5E6F708192 /* Sharing in Frameworks */ = {isa = PBXBuildFile; productRef = F1A5D4B22B3C4D5E6F708192 /* Sharing */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +59,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		26E068C6B20C4E52B601A112 /* ApplicationClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationClient.swift; sourceTree = "<group>"; };
 		340A51C92A78EC78007DCA0C /* count.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = count.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		340A51CC2A78EC78007DCA0C /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
 		340A51CE2A78EC78007DCA0C /* ListeningQuizFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningQuizFeature.swift; sourceTree = "<group>"; };
@@ -97,7 +98,6 @@
 		34E53DC32AF793DC007E4BAE /* DeterminiteProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeterminiteProgressView.swift; sourceTree = "<group>"; };
 		34E53DC52AF7AD32007E4BAE /* Clamped.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clamped.swift; sourceTree = "<group>"; };
 		34E53DC72AF7C2D8007E4BAE /* PreSettingsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreSettingsFeature.swift; sourceTree = "<group>"; };
-		26E068C6B20C4E52B601A112 /* ApplicationClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -293,7 +293,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1430;
-				LastUpgradeCheck = 1530;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
 					340A51C82A78EC78007DCA0C = {
 						CreatedOnToolsVersion = 14.3.1;
@@ -443,6 +443,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = YK25EF78NT;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -463,8 +464,10 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
 			};
 			name = Debug;
 		};
@@ -504,6 +507,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = YK25EF78NT;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -517,8 +521,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
 			};
 			name = Release;
 		};
@@ -533,9 +539,10 @@
 				CURRENT_PROJECT_VERSION = 20231122012321;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"count/Preview Content\"";
-				DEVELOPMENT_TEAM = YK25EF78NT;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = count/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Count Biki";
@@ -562,7 +569,6 @@
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
@@ -578,9 +584,10 @@
 				CURRENT_PROJECT_VERSION = 20231122012321;
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"count/Preview Content\"";
-				DEVELOPMENT_TEAM = YK25EF78NT;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = count/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Count Biki";
@@ -607,7 +614,6 @@
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_STRICT_CONCURRENCY = complete;
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
@@ -615,14 +621,12 @@
 		340A51F22A78EC79007DCA0C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = YK25EF78NT;
 				GENERATE_INFOPLIST_FILE = YES;
-                IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twocentstudios.countTests;
@@ -630,7 +634,6 @@
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/count.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/count";
 			};
@@ -639,14 +642,12 @@
 		340A51F32A78EC79007DCA0C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEAD_CODE_STRIPPING = YES;
-				DEVELOPMENT_TEAM = YK25EF78NT;
 				GENERATE_INFOPLIST_FILE = YES;
-                IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twocentstudios.countTests;
@@ -654,7 +655,6 @@
 				SDKROOT = auto;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx";
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/count.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/count";
 			};
