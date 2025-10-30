@@ -126,7 +126,7 @@ extension TierProductsClient: DependencyKey {
             wrappedValue: TierPurchaseHistory(),
             .appStorage(TierPurchaseHistory.storageKey)
         )
-        func appendTransaction(_ transaction: Transaction) {
+        @Sendable func appendTransaction(_ transaction: Transaction) {
             sharedPurchaseHistory.withLock { history in
                 history.transactions.append(TierTransaction(transaction))
             }
