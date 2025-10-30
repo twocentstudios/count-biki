@@ -1,5 +1,6 @@
 import Collections
 import ComposableArchitecture
+import Sharing
 import SwiftUI
 
 @Reducer struct TextSpeechFeature {
@@ -19,7 +20,7 @@ import SwiftUI
     }
 
     @Dependency(\.speechSynthesisClient) var speechClient
-    @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
+    @Shared(.appStorage(SpeechSynthesisSettings.storageKey)) var sharedSpeechSettings = SpeechSynthesisSettings()
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -51,9 +52,13 @@ import SwiftUI
     }
 
     private func playBackEffect(text: String) -> Effect<Self.Action> {
-        .run { send in
+        let speechSettings = sharedSpeechSettings
+        return .run { send in
             do {
-                let utterance = SpeechSynthesisUtterance(speechString: text, settings: speechSettingsClient.get())
+                let utterance = SpeechSynthesisUtterance(
+                    speechString: text,
+                    settings: speechSettings
+                )
                 try await speechClient.speak(utterance)
             } catch {
                 print(error.localizedDescription)

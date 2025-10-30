@@ -19,16 +19,15 @@
 		34276FBF2AB34EB600647AE9 /* TextSpeechFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34276FBE2AB34EB600647AE9 /* TextSpeechFeature.swift */; };
 		34276FC22AB354D600647AE9 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 34276FC12AB354D600647AE9 /* Collections */; };
 		34276FC42AB5899C00647AE9 /* AboutFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34276FC32AB5899C00647AE9 /* AboutFeature.swift */; };
-		3442421F2ABD8F1C001E2FC8 /* _NotificationDependency in Frameworks */ = {isa = PBXBuildFile; productRef = 3442421E2ABD8F1C001E2FC8 /* _NotificationDependency */; };
 		344242212ABDBDA8001E2FC8 /* AppIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242202ABDBDA8001E2FC8 /* AppIcon.swift */; };
 		344242232ABDD814001E2FC8 /* AppIconFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242222ABDD814001E2FC8 /* AppIconFeature.swift */; };
 		344242252ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242242ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift */; };
 		344242272ABEBD6F001E2FC8 /* TierProducts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242262ABEBD6F001E2FC8 /* TierProducts.swift */; };
-		3442422C2AC1AB19001E2FC8 /* DependenciesAdditions in Frameworks */ = {isa = PBXBuildFile; productRef = 3442422B2AC1AB19001E2FC8 /* DependenciesAdditions */; };
-		3442422E2AC1D11A001E2FC8 /* TierPurchaseHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3442422D2AC1D11A001E2FC8 /* TierPurchaseHistory.swift */; };
 		344242342AC41EAD001E2FC8 /* DataState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242312AC41EAD001E2FC8 /* DataState.swift */; };
+		F14A07178666470EA2B6EF53 /* ApplicationClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26E068C6B20C4E52B601A112 /* ApplicationClient.swift */; };
 		344242372AC41F9C001E2FC8 /* EquatableError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 344242362AC41F9C001E2FC8 /* EquatableError.swift */; };
 		3442423A2ACA98CA001E2FC8 /* AsyncExtensions in Frameworks */ = {isa = PBXBuildFile; productRef = 344242392ACA98CA001E2FC8 /* AsyncExtensions */; };
+		F1A5D4B32B3C4D5E6F708192 /* Sharing in Frameworks */ = {isa = PBXBuildFile; productRef = F1A5D4B22B3C4D5E6F708192 /* Sharing */; };
 		3478331F2AA7343A005160DC /* PlanningTopicsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3478331E2AA7343A005160DC /* PlanningTopicsFeature.swift */; };
 		348000E32A9CC0A800E7CCEE /* CountBiki.scnassets in Resources */ = {isa = PBXBuildFile; fileRef = 348000E22A9CC0A800E7CCEE /* CountBiki.scnassets */; };
 		348000E52A9CCD4700E7CCEE /* CountBikiView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 348000E42A9CCD4700E7CCEE /* CountBikiView.swift */; };
@@ -80,7 +79,6 @@
 		344242242ABDDEA7001E2FC8 /* TranslyvaniaTierFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TranslyvaniaTierFeature.swift; sourceTree = "<group>"; };
 		344242262ABEBD6F001E2FC8 /* TierProducts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TierProducts.swift; sourceTree = "<group>"; };
 		3442422A2AC192FB001E2FC8 /* StoreKitConfiguration.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = StoreKitConfiguration.storekit; sourceTree = "<group>"; };
-		3442422D2AC1D11A001E2FC8 /* TierPurchaseHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TierPurchaseHistory.swift; sourceTree = "<group>"; };
 		344242312AC41EAD001E2FC8 /* DataState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DataState.swift; sourceTree = "<group>"; };
 		344242362AC41F9C001E2FC8 /* EquatableError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EquatableError.swift; sourceTree = "<group>"; };
 		3478331E2AA7343A005160DC /* PlanningTopicsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlanningTopicsFeature.swift; sourceTree = "<group>"; };
@@ -99,6 +97,7 @@
 		34E53DC32AF793DC007E4BAE /* DeterminiteProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeterminiteProgressView.swift; sourceTree = "<group>"; };
 		34E53DC52AF7AD32007E4BAE /* Clamped.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clamped.swift; sourceTree = "<group>"; };
 		34E53DC72AF7C2D8007E4BAE /* PreSettingsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreSettingsFeature.swift; sourceTree = "<group>"; };
+		26E068C6B20C4E52B601A112 /* ApplicationClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationClient.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -107,11 +106,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				34E2E3EE2AA9C86A002B511A /* ConfettiSwiftUI in Frameworks */,
-				3442422C2AC1AB19001E2FC8 /* DependenciesAdditions in Frameworks */,
 				34A9749A2A7AB0E600E6F672 /* ComposableArchitecture in Frameworks */,
 				3442423A2ACA98CA001E2FC8 /* AsyncExtensions in Frameworks */,
 				34276FC22AB354D600647AE9 /* Collections in Frameworks */,
-				3442421F2ABD8F1C001E2FC8 /* _NotificationDependency in Frameworks */,
+				F1A5D4B32B3C4D5E6F708192 /* Sharing in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -189,7 +187,7 @@
 				34BDC4962AA5C2B6001EF005 /* Haptics.swift */,
 				344242202ABDBDA8001E2FC8 /* AppIcon.swift */,
 				344242262ABEBD6F001E2FC8 /* TierProducts.swift */,
-				3442422D2AC1D11A001E2FC8 /* TierPurchaseHistory.swift */,
+				26E068C6B20C4E52B601A112 /* ApplicationClient.swift */,
 			);
 			path = Dependencies;
 			sourceTree = "<group>";
@@ -262,9 +260,8 @@
 				34A974992A7AB0E600E6F672 /* ComposableArchitecture */,
 				34E2E3ED2AA9C86A002B511A /* ConfettiSwiftUI */,
 				34276FC12AB354D600647AE9 /* Collections */,
-				3442421E2ABD8F1C001E2FC8 /* _NotificationDependency */,
-				3442422B2AC1AB19001E2FC8 /* DependenciesAdditions */,
 				344242392ACA98CA001E2FC8 /* AsyncExtensions */,
+				F1A5D4B22B3C4D5E6F708192 /* Sharing */,
 			);
 			productName = count;
 			productReference = 340A51C92A78EC78007DCA0C /* count.app */;
@@ -318,10 +315,10 @@
 			mainGroup = 340A51C02A78EC78007DCA0C;
 			packageReferences = (
 				34A974982A7AB0E600E6F672 /* XCRemoteSwiftPackageReference "swift-composable-architecture" */,
-				340E70592A83D396004B124B /* XCRemoteSwiftPackageReference "swift-dependencies-additions" */,
 				34E2E3EC2AA9C86A002B511A /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */,
 				34276FC02AB354D600647AE9 /* XCRemoteSwiftPackageReference "swift-collections" */,
 				344242382ACA98CA001E2FC8 /* XCRemoteSwiftPackageReference "AsyncExtensions" */,
+				F1A5D4B12B3C4D5E6F708192 /* XCRemoteSwiftPackageReference "swift-sharing" */,
 			);
 			productRefGroup = 340A51CA2A78EC78007DCA0C /* Products */;
 			projectDirPath = "";
@@ -372,9 +369,9 @@
 				34BDC4972AA5C2B6001EF005 /* Haptics.swift in Sources */,
 				349D04802A88F23F008AFD0A /* SessionSettings.swift in Sources */,
 				34BDC4952AA58A51001EF005 /* GetMoreVoicesView.swift in Sources */,
-				3442422E2AC1D11A001E2FC8 /* TierPurchaseHistory.swift in Sources */,
 				349802222A7BDDF200E352F5 /* IndeterminiteProgressView.swift in Sources */,
 				344242342AC41EAD001E2FC8 /* DataState.swift in Sources */,
+				F14A07178666470EA2B6EF53 /* ApplicationClient.swift in Sources */,
 				348000E52A9CCD4700E7CCEE /* CountBikiView.swift in Sources */,
 				34276FBF2AB34EB600647AE9 /* TextSpeechFeature.swift in Sources */,
 				349D047A2A84EB3A008AFD0A /* SettingsFeature.swift in Sources */,
@@ -625,7 +622,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = YK25EF78NT;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+                IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twocentstudios.countTests;
@@ -649,7 +646,7 @@
 				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = YK25EF78NT;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+                IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MACOSX_DEPLOYMENT_TARGET = 13.3;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.twocentstudios.countTests;
@@ -696,14 +693,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		340E70592A83D396004B124B /* XCRemoteSwiftPackageReference "swift-dependencies-additions" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/tgrapperon/swift-dependencies-additions";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
 		34276FC02AB354D600647AE9 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/apple/swift-collections.git";
@@ -736,6 +725,14 @@
 				minimumVersion = 1.1.0;
 			};
 		};
+		F1A5D4B12B3C4D5E6F708192 /* XCRemoteSwiftPackageReference "swift-sharing" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/pointfreeco/swift-sharing";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -743,16 +740,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 34276FC02AB354D600647AE9 /* XCRemoteSwiftPackageReference "swift-collections" */;
 			productName = Collections;
-		};
-		3442421E2ABD8F1C001E2FC8 /* _NotificationDependency */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 340E70592A83D396004B124B /* XCRemoteSwiftPackageReference "swift-dependencies-additions" */;
-			productName = _NotificationDependency;
-		};
-		3442422B2AC1AB19001E2FC8 /* DependenciesAdditions */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 340E70592A83D396004B124B /* XCRemoteSwiftPackageReference "swift-dependencies-additions" */;
-			productName = DependenciesAdditions;
 		};
 		344242392ACA98CA001E2FC8 /* AsyncExtensions */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -768,6 +755,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 34E2E3EC2AA9C86A002B511A /* XCRemoteSwiftPackageReference "ConfettiSwiftUI" */;
 			productName = ConfettiSwiftUI;
+		};
+		F1A5D4B22B3C4D5E6F708192 /* Sharing */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F1A5D4B12B3C4D5E6F708192 /* XCRemoteSwiftPackageReference "swift-sharing" */;
+			productName = Sharing;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

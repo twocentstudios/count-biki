@@ -1,6 +1,8 @@
-import AsyncExtensions
+import Combine
 import Dependencies
+import Foundation
 import IdentifiedCollections
+import Sharing
 import StoreKit
 
 typealias TierProductID = String
@@ -65,6 +67,8 @@ struct TierPurchaseHistory: Equatable, Codable {
 }
 
 extension TierPurchaseHistory {
+    static let storageKey = "TierPurchaseHistoryClient_PurchaseHistory"
+
     var productCounts: [TierProductID: Int] {
         var counts: [TierProductID: Int] = [:]
         for transaction in transactions {
@@ -118,9 +122,15 @@ extension TierProductsClient: DependencyKey {
         let availableProducts: @Sendable () async throws -> IdentifiedArrayOf<TierProduct> = {
             try await IdentifiedArray(uniqueElements: storeKitProducts().compactMap(TierProduct.init))
         }
-        @Dependency(\.tierPurchaseHistoryClient) var purchaseHistoryClient
-        let loadedHistory = purchaseHistoryClient.get()
-        let purchaseHistorySubject = AsyncCurrentValueSubject(loadedHistory)
+        let sharedPurchaseHistory = Shared(
+            wrappedValue: TierPurchaseHistory(),
+            .appStorage(TierPurchaseHistory.storageKey)
+        )
+        func appendTransaction(_ transaction: Transaction) {
+            sharedPurchaseHistory.withLock { history in
+                history.transactions.append(TierTransaction(transaction))
+            }
+        }
         return TierProductsClient(
             availableProducts: availableProducts,
             purchase: { tierProduct in
@@ -131,12 +141,12 @@ extension TierProductsClient: DependencyKey {
                 let result = try await storeKitProduct.purchase()
                 switch result {
                 case let .success(.verified(transaction)):
-                    purchaseHistorySubject.value.transactions.append(TierTransaction(transaction))
+                    appendTransaction(transaction)
                     await transaction.finish()
                     return .success
                 case let .success(.unverified(transaction, error)):
                     XCTFail("Transaction was unverified(???): \(error.localizedDescription)")
-                    purchaseHistorySubject.value.transactions.append(TierTransaction(transaction))
+                    appendTransaction(transaction)
                     await transaction.finish()
                     return .success
                 case .pending:
@@ -149,13 +159,24 @@ extension TierProductsClient: DependencyKey {
                 }
             },
             purchaseHistory: {
-                purchaseHistorySubject.value
+                sharedPurchaseHistory.wrappedValue
             },
             purchaseHistoryStream: {
-                purchaseHistorySubject.eraseToStream()
+                let shared = sharedPurchaseHistory
+                return AsyncStream { continuation in
+                    let task = Task {
+                        for await newValue in shared.publisher.values {
+                            continuation.yield(newValue)
+                        }
+                        continuation.finish()
+                    }
+                    continuation.onTermination = { _ in task.cancel() }
+                }
             },
             clearPurchaseHistory: {
-                purchaseHistorySubject.value.transactions = []
+                sharedPurchaseHistory.withLock { history in
+                    history.transactions = []
+                }
             },
             restorePurchases: {
                 try? await AppStore.sync()
@@ -165,7 +186,7 @@ extension TierProductsClient: DependencyKey {
                     switch result {
                     case let .unverified(transaction, _),
                          let .verified(transaction):
-                        purchaseHistorySubject.value.transactions.append(TierTransaction(transaction))
+                        appendTransaction(transaction)
                     }
                 }
             },

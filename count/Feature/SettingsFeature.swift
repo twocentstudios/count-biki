@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Sharing
 import SwiftUI
 
 @Reducer struct SettingsFeature {
@@ -8,10 +9,13 @@ import SwiftUI
 
         init(topicID: UUID) {
             @Dependency(\.topicClient.allTopics) var allTopics
-            @Dependency(\.sessionSettingsClient) var sessionSettingsClient
+            let sharedSessionSettings = Shared(
+                wrappedValue: SessionSettings.default,
+                .appStorage(SessionSettings.storageKey)
+            )
 
             topic = allTopics()[id: topicID]!
-            sessionSettings = sessionSettingsClient.get()
+            sessionSettings = sharedSessionSettings.wrappedValue
         }
     }
 
@@ -26,7 +30,7 @@ import SwiftUI
 
     @Dependency(\.continuousClock) var clock
     @Dependency(\.dismiss) var dismiss
-    @Dependency(\.sessionSettingsClient.set) var setSessionSettings
+    @Shared(.appStorage(SessionSettings.storageKey)) var sharedSessionSettings = SessionSettings.default
 
     var body: some ReducerOf<Self> {
         CombineReducers {
@@ -34,9 +38,9 @@ import SwiftUI
             Reduce { state, action in
                 switch action {
                 case .binding:
-                    return .none
+                    .none
                 case .doneButtonTapped:
-                    return .run { send in
+                    .run { send in
                         await dismiss()
                     }
                 }
@@ -47,11 +51,7 @@ import SwiftUI
                 .run { _ in
                     try await withTaskCancellation(id: CancelID.saveDebounce, cancelInFlight: true) {
                         try await clock.sleep(for: .seconds(0.25))
-                        do {
-                            try await setSessionSettings(newValue)
-                        } catch {
-                            XCTFail("SpeechSettingsClient unexpectedly failed to write: \(error)")
-                        }
+                        $sharedSessionSettings.withLock { $0 = newValue }
                     }
                 }
             }

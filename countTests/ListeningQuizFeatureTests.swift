@@ -16,6 +16,7 @@ struct RandomNumberGeneratorWithSeed: RandomNumberGenerator {
 }
 
 final class ListeningQuizFeatureTests: XCTestCase {
+    @MainActor
     func testOnAppear() async throws {
         let speechExpectation = expectation(description: "speaks")
       let store = TestStore(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .infinite)) {
@@ -52,5 +53,7 @@ final class ListeningQuizFeatureTests: XCTestCase {
         }
 
         await fulfillment(of: [speechExpectation], timeout: 1)
+        await store.skipInFlightEffects()
+        await store.finish()
     }
 }

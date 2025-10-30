@@ -1,6 +1,8 @@
-import _NotificationDependency
 import ComposableArchitecture
+import Foundation
+import Sharing
 import SwiftUI
+import UIKit
 
 @Reducer struct SpeechSettingsFeature {
     @ObservableState struct State: Equatable {
@@ -13,12 +15,14 @@ import SwiftUI
         var speechSettings: SpeechSynthesisSettings
 
         init() {
-            @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
             @Dependency(\.speechSynthesisClient) var speechClient
-
-            let speechSettings = speechSettingsClient.get()
+            let sharedSpeechSettings = Shared(
+                wrappedValue: SpeechSynthesisSettings(),
+                .appStorage(SpeechSynthesisSettings.storageKey)
+            )
+            let speechSettings = sharedSpeechSettings.wrappedValue
             self.speechSettings = speechSettings
-            
+
             availableVoices = speechClient.availableVoices()
             rawVoiceIdentifier = speechSettings.voiceIdentifier ?? speechClient.defaultVoice()?.voiceIdentifier
 
@@ -43,12 +47,12 @@ import SwiftUI
 
     private enum CancelID {
         case saveDebounce
+        case foregroundNotifications
     }
 
     @Dependency(\.continuousClock) var clock
-    @Dependency.Notification(\.sceneWillEnterForeground) var sceneWillEnterForeground
-    @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
     @Dependency(\.speechSynthesisClient) var speechClient
+    @Shared(.appStorage(SpeechSynthesisSettings.storageKey)) var sharedSpeechSettings = SpeechSynthesisSettings()
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -78,10 +82,14 @@ import SwiftUI
                 return .none
             case .onTask:
                 return .run { send in
-                    for await _ in sceneWillEnterForeground {
+                    let notifications = NotificationCenter.default.notifications(
+                        named: UIApplication.willEnterForegroundNotification
+                    )
+                    for await _ in notifications {
                         await send(.onSceneWillEnterForeground)
                     }
                 }
+                .cancellable(id: CancelID.foregroundNotifications, cancelInFlight: true)
             case .testVoiceButtonTapped:
                 let spokenText = "1234"
                 enum CancelID { case speakAction }
@@ -102,11 +110,7 @@ import SwiftUI
                 .run { _ in
                     try await withTaskCancellation(id: CancelID.saveDebounce, cancelInFlight: true) {
                         try await clock.sleep(for: .seconds(0.25))
-                        do {
-                            try await speechSettingsClient.set(newValue)
-                        } catch {
-                            XCTFail("SpeechSettingsClient unexpectedly failed to write: \(error)")
-                        }
+                        $sharedSpeechSettings.withLock { $0 = newValue }
                     }
                 }
             }

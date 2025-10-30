@@ -1,5 +1,5 @@
-import _NotificationDependency
 import ComposableArchitecture
+import Sharing
 import SwiftUI
 
 @Reducer struct PreSettingsFeature {
@@ -10,12 +10,13 @@ import SwiftUI
         var sessionSettings: SessionSettings
 
         init() {
-            @Dependency(\.sessionSettingsClient) var sessionSettingsClient
-            @Dependency(\.topicClient.allTopics) var allTopics
-
-            let sessionSettings = sessionSettingsClient.get()
+            let sharedSessionSettings = Shared(
+                wrappedValue: SessionSettings.default,
+                .appStorage(SessionSettings.storageKey)
+            )
+            let sessionSettings = sharedSessionSettings.wrappedValue
             self.sessionSettings = sessionSettings
-            
+
             rawQuizMode = sessionSettings.quizMode
             rawQuestionLimit = sessionSettings.questionLimit // TODO: validate input
             rawTimeLimit = sessionSettings.timeLimit // TODO: validate input
@@ -26,8 +27,7 @@ import SwiftUI
         case binding(BindingAction<State>)
     }
 
-    @Dependency(\.speechSynthesisClient) var speechClient
-    @Dependency(\.sessionSettingsClient.set) var setSessionSettings
+    @Shared(.appStorage(SessionSettings.storageKey)) var sharedSessionSettings = SessionSettings.default
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -49,11 +49,7 @@ import SwiftUI
         .onChange(of: \.sessionSettings) { _, newValue in
             Reduce { _, _ in
                 .run { _ in
-                    do {
-                        try await setSessionSettings(newValue)
-                    } catch {
-                        XCTFail("SessionSettingsClient unexpectedly failed to write")
-                    }
+                    $sharedSessionSettings.withLock { $0 = newValue }
                 }
             }
         }

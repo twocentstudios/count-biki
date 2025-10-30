@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Sharing
 import SwiftUI
 
 @Reducer struct ListeningQuizNavigationFeature {
@@ -8,9 +9,10 @@ import SwiftUI
         @Presents var settings: SettingsFeature.State?
 
         init(topicID: UUID) {
-            @Dependency(\.sessionSettingsClient) var sessionSettingsClient
-            let sessionSettings = sessionSettingsClient.get()
-
+            let sessionSettings = Shared(
+                wrappedValue: SessionSettings.default,
+                .appStorage(SessionSettings.storageKey)
+            ).wrappedValue
             listeningQuiz = .init(topicID: topicID, quizMode: .init(sessionSettings))
         }
     }
