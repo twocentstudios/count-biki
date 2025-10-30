@@ -41,7 +41,7 @@ extension TopicCategory {
         case setDestination(Destination.State)
     }
 
-    @Reducer(state: .equatable, action: .equatable) enum Destination {
+    @Reducer enum Destination {
         case preSettings(PreSettingsFeature)
         case quiz(ListeningQuizNavigationFeature)
         case about(AboutFeature)
@@ -82,6 +82,9 @@ extension TopicCategory {
         .ifLet(\.$destination, action: \.destination)
     }
 }
+
+extension TopicsFeature.Destination.State: Equatable {}
+extension TopicsFeature.Destination.Action: Equatable {}
 
 struct TopicsView: View {
     @Bindable var store: StoreOf<TopicsFeature>

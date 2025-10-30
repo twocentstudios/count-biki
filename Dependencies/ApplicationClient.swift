@@ -7,7 +7,9 @@ struct ApplicationClient: Sendable {
 
 extension ApplicationClient {
     static let live = ApplicationClient {
-        UIApplication.shared.applicationState
+        MainActor.assumeIsolated {
+            UIApplication.shared.applicationState
+        }
     }
 }
 

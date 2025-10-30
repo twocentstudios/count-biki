@@ -46,6 +46,7 @@
 		34E53DC82AF7C2D8007E4BAE /* PreSettingsFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34E53DC72AF7C2D8007E4BAE /* PreSettingsFeature.swift */; };
 		F14A07178666470EA2B6EF53 /* ApplicationClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26E068C6B20C4E52B601A112 /* ApplicationClient.swift */; };
 		F1A5D4B32B3C4D5E6F708192 /* Sharing in Frameworks */ = {isa = PBXBuildFile; productRef = F1A5D4B22B3C4D5E6F708192 /* Sharing */; };
+		F1D2D4A62B4E3F0B00A12345 /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1D2D4A52B4E3F0B00A12345 /* AppIntents.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -98,6 +99,7 @@
 		34E53DC32AF793DC007E4BAE /* DeterminiteProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeterminiteProgressView.swift; sourceTree = "<group>"; };
 		34E53DC52AF7AD32007E4BAE /* Clamped.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Clamped.swift; sourceTree = "<group>"; };
 		34E53DC72AF7C2D8007E4BAE /* PreSettingsFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreSettingsFeature.swift; sourceTree = "<group>"; };
+		F1D2D4A52B4E3F0B00A12345 /* AppIntents.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = System/Library/Frameworks/AppIntents.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -110,6 +112,7 @@
 				3442423A2ACA98CA001E2FC8 /* AsyncExtensions in Frameworks */,
 				34276FC22AB354D600647AE9 /* Collections in Frameworks */,
 				F1A5D4B32B3C4D5E6F708192 /* Sharing in Frameworks */,
+				F1D2D4A62B4E3F0B00A12345 /* AppIntents.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -195,6 +198,7 @@
 		3442421B2ABD892C001E2FC8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F1D2D4A52B4E3F0B00A12345 /* AppIntents.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -568,6 +572,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_EMIT_APPINTENTS_METADATA = NO;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -613,6 +618,7 @@
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_EMIT_APPINTENTS_METADATA = NO;
 				SWIFT_STRICT_CONCURRENCY = complete;
 				TARGETED_DEVICE_FAMILY = 1;
 			};

@@ -127,7 +127,7 @@ extension TierProductsClient: DependencyKey {
             .appStorage(TierPurchaseHistory.storageKey)
         )
         @Sendable func appendTransaction(_ transaction: Transaction) {
-            sharedPurchaseHistory.withLock { history in
+            _ = sharedPurchaseHistory.withLock { history in
                 history.transactions.append(TierTransaction(transaction))
             }
         }
@@ -223,14 +223,17 @@ extension TierProductsClient: TestDependencyKey {
 
     static var testValue: TierProductsClient {
         Self(
-            availableProducts: unimplemented("availableProducts"),
-            purchase: unimplemented("purchase"),
-            purchaseHistory: unimplemented("purchaseHistory"),
-            purchaseHistoryStream: unimplemented("purchaseHistoryStream"),
-            clearPurchaseHistory: unimplemented("clearPurchaseHistory"),
-            restorePurchases: unimplemented("restorePurchases"),
-            monitorPurchases: unimplemented("monitorPurchases"),
-            allowsPurchases: unimplemented("allowsPurchases")
+            availableProducts: unimplemented("availableProducts", placeholder: .init()),
+            purchase: unimplemented("purchase", placeholder: .success),
+            purchaseHistory: unimplemented("purchaseHistory", placeholder: .init()),
+            purchaseHistoryStream: unimplemented(
+                "purchaseHistoryStream",
+                placeholder: AsyncStream { $0.finish() }
+            ),
+            clearPurchaseHistory: unimplemented("clearPurchaseHistory", placeholder: ()),
+            restorePurchases: unimplemented("restorePurchases", placeholder: ()),
+            monitorPurchases: unimplemented("monitorPurchases", placeholder: ()),
+            allowsPurchases: unimplemented("allowsPurchases", placeholder: false)
         )
     }
 }

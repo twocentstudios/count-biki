@@ -23,7 +23,7 @@ import SwiftUI
         case settings(PresentationAction<SettingsFeature.Action>)
     }
 
-    @Reducer(state: .equatable, action: .equatable)
+    @Reducer
     enum Path {
         case summary(SessionSummaryFeature)
     }
@@ -89,6 +89,9 @@ import SwiftUI
         }
     }
 }
+
+extension ListeningQuizNavigationFeature.Path.State: Equatable {}
+extension ListeningQuizNavigationFeature.Path.Action: Equatable {}
 
 struct ListeningQuizNavigationView: View {
     @Bindable var store: StoreOf<ListeningQuizNavigationFeature>

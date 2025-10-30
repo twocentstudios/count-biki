@@ -842,8 +842,18 @@ extension TopicClient: TestDependencyKey {
 
     static var testValue: TopicClient {
         Self(
-            allTopics: unimplemented("allTopics"),
-            generateQuestion: unimplemented("generateQuestion")
+            allTopics: unimplemented("allTopics", placeholder: .init()),
+            generateQuestion: unimplemented(
+                "generateQuestion",
+                placeholder: Question(
+                    topicID: UUID(),
+                    displayText: "",
+                    spokenText: "",
+                    answerPrefix: nil,
+                    answerPostfix: nil,
+                    acceptedAnswer: ""
+                )
+            )
         )
     }
 
