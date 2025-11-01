@@ -9,9 +9,9 @@ import SwiftUI
         let isSessionComplete: Bool
 
         init(topicID: UUID, sessionChallenges: [Challenge], quizMode: QuizMode, isSessionComplete: Bool) {
-            @Dependency(\.topicClient.allTopics) var allTopics
+            @Dependency(TopicClient.self) var topicClient
 
-            topic = allTopics()[id: topicID]!
+            topic = topicClient.allTopics()[id: topicID]!
             self.sessionChallenges = sessionChallenges
 
             self.quizMode = quizMode
@@ -51,7 +51,7 @@ import SwiftUI
         case endSessionButtonTapped
     }
 
-    @Dependency(\.hapticsClient) var haptics
+    @Dependency(HapticsClient.self) var haptics
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in

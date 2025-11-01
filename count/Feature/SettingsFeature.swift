@@ -1,17 +1,23 @@
 import ComposableArchitecture
+import Sharing
 import SwiftUI
 
 @Reducer struct SettingsFeature {
     @ObservableState struct State: Equatable {
-        var sessionSettings: SessionSettings
+        @Shared var sessionSettings: SessionSettings
+        @Shared var speechSynthesisSettings: SpeechSynthesisSettings
         let topic: Topic
 
-        init(topicID: UUID) {
-            @Dependency(\.topicClient.allTopics) var allTopics
-            @Dependency(\.sessionSettingsClient) var sessionSettingsClient
+        init(
+            topicID: UUID,
+            sessionSettings: Shared<SessionSettings>,
+            speechSynthesisSettings: Shared<SpeechSynthesisSettings>
+        ) {
+            @Dependency(TopicClient.self) var topicClient
+            _sessionSettings = sessionSettings
+            _speechSynthesisSettings = speechSynthesisSettings
 
-            topic = allTopics()[id: topicID]!
-            sessionSettings = sessionSettingsClient.get()
+            topic = topicClient.allTopics()[id: topicID]!
         }
     }
 
@@ -20,39 +26,17 @@ import SwiftUI
         case doneButtonTapped
     }
 
-    private enum CancelID {
-        case saveDebounce
-    }
-
-    @Dependency(\.continuousClock) var clock
     @Dependency(\.dismiss) var dismiss
-    @Dependency(\.sessionSettingsClient.set) var setSessionSettings
 
     var body: some ReducerOf<Self> {
-        CombineReducers {
-            BindingReducer()
-            Reduce { state, action in
-                switch action {
-                case .binding:
-                    return .none
-                case .doneButtonTapped:
-                    return .run { send in
-                        await dismiss()
-                    }
-                }
-            }
-        }
-        .onChange(of: \.sessionSettings) { _, newValue in
-            Reduce { state, _ in
-                .run { _ in
-                    try await withTaskCancellation(id: CancelID.saveDebounce, cancelInFlight: true) {
-                        try await clock.sleep(for: .seconds(0.25))
-                        do {
-                            try await setSessionSettings(newValue)
-                        } catch {
-                            XCTFail("SpeechSettingsClient unexpectedly failed to write: \(error)")
-                        }
-                    }
+        BindingReducer()
+        Reduce { state, action in
+            switch action {
+            case .binding:
+                .none
+            case .doneButtonTapped:
+                .run { send in
+                    await dismiss()
                 }
             }
         }
@@ -98,7 +82,7 @@ struct SettingsView: View {
                 }
 
                 SpeechSettingsSection(
-                    store: Store(initialState: .init()) {
+                    store: Store(initialState: .init(speechSettings: store.$speechSynthesisSettings)) {
                         SpeechSettingsFeature()
                     })
             }
@@ -124,11 +108,17 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView(
-        store: Store(initialState: SettingsFeature.State(topicID: Topic.mockID)) {
+        store: Store(
+            initialState: SettingsFeature.State(
+                topicID: Topic.mockID,
+                sessionSettings: Shared(wrappedValue: .default, .appStorage(SessionSettings.storageKey)),
+                speechSynthesisSettings: Shared(wrappedValue: .init(), .appStorage(SpeechSynthesisSettings.storageKey))
+            )
+        ) {
             SettingsFeature()
                 ._printChanges()
         } withDependencies: { deps in
-            // deps.speechSynthesisClient = .noVoices
+            // deps[SpeechSynthesisClient.self] = .noVoices
         }
     )
     .fontDesign(.rounded)

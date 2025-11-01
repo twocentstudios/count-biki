@@ -1,4 +1,5 @@
 import Dependencies
+import DependenciesMacros
 import Foundation
 import IdentifiedCollections
 
@@ -90,6 +91,17 @@ struct Question: Equatable {
     let answerPrefix: String?
     let answerPostfix: String?
     let acceptedAnswer: String
+
+    static func empty(topicID: UUID = UUID()) -> Self {
+        Question(
+            topicID: topicID,
+            displayText: "",
+            spokenText: "",
+            answerPrefix: nil,
+            answerPostfix: nil,
+            acceptedAnswer: ""
+        )
+    }
 }
 
 struct Submission: Identifiable, Equatable {
@@ -112,9 +124,10 @@ struct Challenge: Identifiable, Equatable {
     var submissions: [Submission]
 }
 
+@DependencyClient
 struct TopicClient {
-    var allTopics: @Sendable () -> IdentifiedArrayOf<Topic>
-    var generateQuestion: @Sendable (UUID) throws -> (Question)
+    var allTopics: @Sendable () -> IdentifiedArrayOf<Topic> = { .init() }
+    var generateQuestion: @Sendable (UUID) throws -> Question = { Question.empty(topicID: $0) }
 }
 
 extension Topic {
@@ -842,8 +855,11 @@ extension TopicClient: TestDependencyKey {
 
     static var testValue: TopicClient {
         Self(
-            allTopics: unimplemented("allTopics"),
-            generateQuestion: unimplemented("generateQuestion")
+            allTopics: unimplemented("allTopics", placeholder: .init()),
+            generateQuestion: unimplemented(
+                "generateQuestion",
+                placeholder: Question.empty()
+            )
         )
     }
 
@@ -858,12 +874,5 @@ extension TopicClient: TestDependencyKey {
                 return try! Topic.mockGenerator.generateQuestion(rng)
             }
         )
-    }
-}
-
-extension DependencyValues {
-    var topicClient: TopicClient {
-        get { self[TopicClient.self] }
-        set { self[TopicClient.self] = newValue }
     }
 }

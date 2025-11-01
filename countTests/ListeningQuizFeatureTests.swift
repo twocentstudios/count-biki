@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Sharing
 import XCTest
 
 @testable import count
@@ -16,17 +17,25 @@ struct RandomNumberGeneratorWithSeed: RandomNumberGenerator {
 }
 
 final class ListeningQuizFeatureTests: XCTestCase {
+    @MainActor
     func testOnAppear() async throws {
         let speechExpectation = expectation(description: "speaks")
-      let store = TestStore(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .infinite)) {
+        let store = TestStore(
+            initialState: ListeningQuizFeature.State(
+                topicID: Topic.mockID,
+                quizMode: .infinite,
+                sessionSettings: Shared(value: SessionSettings.default),
+                speechSynthesisSettings: Shared(value: SpeechSynthesisSettings())
+            )
+        ) {
             ListeningQuizFeature()
         } withDependencies: {
-            $0.topicClient = .mock
+            $0[TopicClient.self] = .mock
             $0.uuid = .incrementing
             $0.date.now = .init(timeIntervalSince1970: 0)
-            $0.speechSynthesisClient.availableVoices = { [] }
-            $0.speechSynthesisClient.defaultVoice = { nil }
-            $0.speechSynthesisClient.speak = { _ in speechExpectation.fulfill() }
+            $0[SpeechSynthesisClient.self].availableVoices = { [] }
+            $0[SpeechSynthesisClient.self].defaultVoice = { nil }
+            $0[SpeechSynthesisClient.self].speak = { _ in speechExpectation.fulfill() }
             $0.withRandomNumberGenerator = .init(RandomNumberGeneratorWithSeed(seed: 0))
         }
 
@@ -52,5 +61,6 @@ final class ListeningQuizFeatureTests: XCTestCase {
         }
 
         await fulfillment(of: [speechExpectation], timeout: 1)
+        await store.finish()
     }
 }

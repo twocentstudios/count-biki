@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Sharing
 import SwiftUI
 
 struct TopicCategory: Identifiable, Equatable {
@@ -21,67 +22,77 @@ extension TopicCategory {
     @ObservableState struct State: Equatable {
         @Presents var destination: Destination.State?
         let listeningCategories: IdentifiedArrayOf<TopicCategory>
+        @Shared var sessionSettings: SessionSettings
+        @Shared var speechSynthesisSettings: SpeechSynthesisSettings
 
         init() {
-            @Dependency(\.topicClient.allTopics) var allTopics
+            @Dependency(TopicClient.self) var topicClient
+            let topics = topicClient.allTopics()
             listeningCategories = [
-                .filtered(allTopics(), skill: .listening, category: .number),
-                .filtered(allTopics(), skill: .listening, category: .money),
-                .filtered(allTopics(), skill: .listening, category: .duration),
-                .filtered(allTopics(), skill: .listening, category: .dateTime),
+                .filtered(topics, skill: .listening, category: .number),
+                .filtered(topics, skill: .listening, category: .money),
+                .filtered(topics, skill: .listening, category: .duration),
+                .filtered(topics, skill: .listening, category: .dateTime),
             ]
-            destination = .preSettings(.init())
+            _sessionSettings = Shared(
+                wrappedValue: SessionSettings.default,
+                .appStorage(SessionSettings.storageKey)
+            )
+            _speechSynthesisSettings = Shared(
+                wrappedValue: SpeechSynthesisSettings(),
+                .appStorage(SpeechSynthesisSettings.storageKey)
+            )
         }
     }
 
     enum Action: Equatable, Sendable {
         case aboutButtonTapped
         case destination(PresentationAction<Destination.Action>)
+        case preSettingsButtonTapped
         case topicButtonTapped(UUID)
-        case setDestination(Destination.State)
     }
 
-    @Reducer(state: .equatable, action: .equatable) enum Destination {
+    @Reducer enum Destination {
         case preSettings(PreSettingsFeature)
         case quiz(ListeningQuizNavigationFeature)
         case about(AboutFeature)
     }
 
     @Dependency(\.continuousClock) var clock
-    @Dependency(\.topicClient) var topicClient
+    @Dependency(TopicClient.self) var topicClient
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
             case .aboutButtonTapped:
-                state.destination = nil
-                return .run { send in
-                    await send(.setDestination(.about(.init())))
-                }
-
-            case .destination(.dismiss):
-                // Re-present the preSettings half-modal when any other destination is dismissed
-                return .run { send in
-                    await send(.setDestination(.preSettings(.init())))
-                }
+                state.destination = .about(.init())
+                return .none
 
             case .destination:
                 return .none
 
-            case let .setDestination(destination):
-                state.destination = destination
+            case .preSettingsButtonTapped:
+                state.destination = .preSettings(.init(
+                    sessionSettings: state.$sessionSettings,
+                    speechSynthesisSettings: state.$speechSynthesisSettings
+                ))
                 return .none
 
             case let .topicButtonTapped(topicID):
-                state.destination = nil
-                return .run { send in
-                    await send(.setDestination(.quiz(.init(topicID: topicID))))
-                }
+                state.destination = .quiz(.init(
+                    topicID: topicID,
+                    sessionSettings: state.$sessionSettings,
+                    speechSynthesisSettings: state.$speechSynthesisSettings
+                ))
+                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)
     }
 }
+
+extension TopicsFeature.Destination.State: Equatable {}
+extension TopicsFeature.Destination.Action: Equatable {}
 
 struct TopicsView: View {
     @Bindable var store: StoreOf<TopicsFeature>
@@ -137,6 +148,11 @@ struct TopicsView: View {
                                     Text(category.title)
                                         .font(.headline)
                                 }
+                                ToolbarItem(placement: .bottomBar) {
+                                    SessionSettingsButton {
+                                        store.send(.preSettingsButtonTapped)
+                                    }
+                                }
                             }
                         } label: {
                             HStack(alignment: .center, spacing: 14) {
@@ -178,6 +194,11 @@ struct TopicsView: View {
                         Image(systemName: "info.circle")
                     }
                 }
+                ToolbarItem(placement: .bottomBar) {
+                    SessionSettingsButton {
+                        store.send(.preSettingsButtonTapped)
+                    }
+                }
             }
         }
         .fullScreenCover(item: $store.scope(state: \.destination?.quiz, action: \.destination.quiz)) { store in
@@ -189,9 +210,7 @@ struct TopicsView: View {
         .sheet(item: $store.scope(state: \.destination?.preSettings, action: \.destination.preSettings)) { store in
             PreSettingsView(store: store)
                 .presentationDragIndicator(.visible)
-                .presentationDetents([.fraction(0.1), .medium, .large])
-                .presentationBackgroundInteraction(.enabled)
-                .interactiveDismissDisabled(true)
+                .presentationDetents([.medium, .large])
         }
     }
 }
@@ -234,6 +253,22 @@ struct TopicCell: View {
                     Label(isFavorite ? "Remove Favorite" : "Add Favorite", systemImage: "star")
                 }
             }
+        }
+    }
+}
+
+struct SessionSettingsButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Image(systemName: "slider.horizontal.3")
+                Text("Session Settings")
+            }
+            .font(.headline)
+            .padding(.horizontal)
+            .padding(.vertical)
         }
     }
 }

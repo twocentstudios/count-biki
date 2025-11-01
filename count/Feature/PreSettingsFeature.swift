@@ -1,5 +1,5 @@
-import _NotificationDependency
 import ComposableArchitecture
+import Sharing
 import SwiftUI
 
 @Reducer struct PreSettingsFeature {
@@ -7,54 +7,46 @@ import SwiftUI
         var rawQuizMode: SessionSettings.QuizMode
         var rawQuestionLimit: Int
         var rawTimeLimit: Int
-        var sessionSettings: SessionSettings
+        @Shared var sessionSettings: SessionSettings
+        @Shared var speechSynthesisSettings: SpeechSynthesisSettings
 
-        init() {
-            @Dependency(\.sessionSettingsClient) var sessionSettingsClient
-            @Dependency(\.topicClient.allTopics) var allTopics
+        init(
+            sessionSettings: Shared<SessionSettings>,
+            speechSynthesisSettings: Shared<SpeechSynthesisSettings>
+        ) {
+            _sessionSettings = sessionSettings
+            _speechSynthesisSettings = speechSynthesisSettings
 
-            let sessionSettings = sessionSettingsClient.get()
-            self.sessionSettings = sessionSettings
-            
-            rawQuizMode = sessionSettings.quizMode
-            rawQuestionLimit = sessionSettings.questionLimit // TODO: validate input
-            rawTimeLimit = sessionSettings.timeLimit // TODO: validate input
+            rawQuizMode = sessionSettings.wrappedValue.quizMode
+            rawQuestionLimit = sessionSettings.wrappedValue.questionLimit // TODO: validate input
+            rawTimeLimit = sessionSettings.wrappedValue.timeLimit // TODO: validate input
         }
     }
 
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case dismissButtonTapped
     }
 
-    @Dependency(\.speechSynthesisClient) var speechClient
-    @Dependency(\.sessionSettingsClient.set) var setSessionSettings
+    @Dependency(\.dismiss) var dismiss
 
     var body: some ReducerOf<Self> {
         BindingReducer()
         Reduce { state, action in
             switch action {
             case .binding(\.rawQuizMode):
-                state.sessionSettings.quizMode = state.rawQuizMode
+                state.$sessionSettings.withLock { $0.quizMode = state.rawQuizMode }
                 return .none
             case .binding(\.rawQuestionLimit):
-                state.sessionSettings.questionLimit = state.rawQuestionLimit
+                state.$sessionSettings.withLock { $0.questionLimit = state.rawQuestionLimit }
                 return .none
             case .binding(\.rawTimeLimit):
-                state.sessionSettings.timeLimit = state.rawTimeLimit
+                state.$sessionSettings.withLock { $0.timeLimit = state.rawTimeLimit }
                 return .none
             case .binding:
                 return .none
-            }
-        }
-        .onChange(of: \.sessionSettings) { _, newValue in
-            Reduce { _, _ in
-                .run { _ in
-                    do {
-                        try await setSessionSettings(newValue)
-                    } catch {
-                        XCTFail("SessionSettingsClient unexpectedly failed to write")
-                    }
-                }
+            case .dismissButtonTapped:
+                return .run { _ in await dismiss() }
             }
         }
     }
@@ -108,7 +100,7 @@ struct PreSettingsView: View {
                 .listRowBackground(Color(.tertiarySystemBackground))
 
                 SpeechSettingsSection(
-                    store: Store(initialState: .init()) {
+                    store: Store(initialState: .init(speechSettings: store.$speechSynthesisSettings)) {
                         SpeechSettingsFeature()
                     })
                     .listRowBackground(Color(.systemGroupedBackground))
@@ -122,6 +114,12 @@ struct PreSettingsView: View {
                     Text("Session Settings")
                         .font(.headline)
                 }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        store.send(.dismissButtonTapped)
+                    }
+                    .font(.headline)
+                }
             }
         }
     }
@@ -129,11 +127,16 @@ struct PreSettingsView: View {
 
 #Preview {
     PreSettingsView(
-        store: Store(initialState: PreSettingsFeature.State()) {
+        store: Store(
+            initialState: PreSettingsFeature.State(
+                sessionSettings: Shared(wrappedValue: .default, .appStorage(SessionSettings.storageKey)),
+                speechSynthesisSettings: Shared(wrappedValue: .init(), .appStorage(SpeechSynthesisSettings.storageKey))
+            )
+        ) {
             PreSettingsFeature()
                 ._printChanges()
         } withDependencies: { deps in
-            // deps.speechSynthesisClient = .noVoices
+            // deps[SpeechSynthesisClient.self] = .noVoices
         }
     )
     .fontDesign(.rounded)

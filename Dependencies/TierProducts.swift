@@ -1,6 +1,9 @@
-import AsyncExtensions
+import Combine
 import Dependencies
+import DependenciesMacros
+import Foundation
 import IdentifiedCollections
+import Sharing
 import StoreKit
 
 typealias TierProductID = String
@@ -65,6 +68,8 @@ struct TierPurchaseHistory: Equatable, Codable {
 }
 
 extension TierPurchaseHistory {
+    static let storageKey = "TierPurchaseHistoryClient_PurchaseHistory"
+
     var productCounts: [TierProductID: Int] {
         var counts: [TierProductID: Int] = [:]
         for transaction in transactions {
@@ -99,15 +104,18 @@ extension TierTransaction {
     }
 }
 
+@DependencyClient
 struct TierProductsClient {
-    var availableProducts: @Sendable () async throws -> IdentifiedArrayOf<TierProduct>
-    var purchase: @Sendable (TierProduct) async throws -> TierPurchaseResult
-    var purchaseHistory: @Sendable () -> TierPurchaseHistory
-    var purchaseHistoryStream: @Sendable () -> AsyncStream<TierPurchaseHistory>
-    var clearPurchaseHistory: @Sendable () -> Void
-    var restorePurchases: @Sendable () async -> Void
-    var monitorPurchases: @Sendable () async -> Void
-    var allowsPurchases: @Sendable () -> Bool
+    var availableProducts: @Sendable () async throws -> IdentifiedArrayOf<TierProduct> = { .init() }
+    var purchase: @Sendable (TierProduct) async throws -> TierPurchaseResult = { _ in .userCancelled }
+    var purchaseHistory: @Sendable () -> TierPurchaseHistory = { .init() }
+    var purchaseHistoryStream: @Sendable () -> AsyncStream<TierPurchaseHistory> = {
+        AsyncStream { $0.finish() }
+    }
+    var clearPurchaseHistory: @Sendable () -> Void = {}
+    var restorePurchases: @Sendable () async -> Void = {}
+    var monitorPurchases: @Sendable () async -> Void = {}
+    var allowsPurchases: @Sendable () -> Bool = { false }
 }
 
 extension TierProductsClient: DependencyKey {
@@ -118,9 +126,15 @@ extension TierProductsClient: DependencyKey {
         let availableProducts: @Sendable () async throws -> IdentifiedArrayOf<TierProduct> = {
             try await IdentifiedArray(uniqueElements: storeKitProducts().compactMap(TierProduct.init))
         }
-        @Dependency(\.tierPurchaseHistoryClient) var purchaseHistoryClient
-        let loadedHistory = purchaseHistoryClient.get()
-        let purchaseHistorySubject = AsyncCurrentValueSubject(loadedHistory)
+        let sharedPurchaseHistory = Shared(
+            wrappedValue: TierPurchaseHistory(),
+            .appStorage(TierPurchaseHistory.storageKey)
+        )
+        @Sendable func appendTransaction(_ transaction: Transaction) {
+            _ = sharedPurchaseHistory.withLock { history in
+                history.transactions.append(TierTransaction(transaction))
+            }
+        }
         return TierProductsClient(
             availableProducts: availableProducts,
             purchase: { tierProduct in
@@ -131,12 +145,12 @@ extension TierProductsClient: DependencyKey {
                 let result = try await storeKitProduct.purchase()
                 switch result {
                 case let .success(.verified(transaction)):
-                    purchaseHistorySubject.value.transactions.append(TierTransaction(transaction))
+                    appendTransaction(transaction)
                     await transaction.finish()
                     return .success
                 case let .success(.unverified(transaction, error)):
                     XCTFail("Transaction was unverified(???): \(error.localizedDescription)")
-                    purchaseHistorySubject.value.transactions.append(TierTransaction(transaction))
+                    appendTransaction(transaction)
                     await transaction.finish()
                     return .success
                 case .pending:
@@ -149,13 +163,24 @@ extension TierProductsClient: DependencyKey {
                 }
             },
             purchaseHistory: {
-                purchaseHistorySubject.value
+                sharedPurchaseHistory.wrappedValue
             },
             purchaseHistoryStream: {
-                purchaseHistorySubject.eraseToStream()
+                let shared = sharedPurchaseHistory
+                return AsyncStream { continuation in
+                    let task = Task {
+                        for await newValue in shared.publisher.values {
+                            continuation.yield(newValue)
+                        }
+                        continuation.finish()
+                    }
+                    continuation.onTermination = { _ in task.cancel() }
+                }
             },
             clearPurchaseHistory: {
-                purchaseHistorySubject.value.transactions = []
+                sharedPurchaseHistory.withLock { history in
+                    history.transactions = []
+                }
             },
             restorePurchases: {
                 try? await AppStore.sync()
@@ -165,7 +190,7 @@ extension TierProductsClient: DependencyKey {
                     switch result {
                     case let .unverified(transaction, _),
                          let .verified(transaction):
-                        purchaseHistorySubject.value.transactions.append(TierTransaction(transaction))
+                        appendTransaction(transaction)
                     }
                 }
             },
@@ -202,21 +227,17 @@ extension TierProductsClient: TestDependencyKey {
 
     static var testValue: TierProductsClient {
         Self(
-            availableProducts: unimplemented("availableProducts"),
-            purchase: unimplemented("purchase"),
-            purchaseHistory: unimplemented("purchaseHistory"),
-            purchaseHistoryStream: unimplemented("purchaseHistoryStream"),
-            clearPurchaseHistory: unimplemented("clearPurchaseHistory"),
-            restorePurchases: unimplemented("restorePurchases"),
-            monitorPurchases: unimplemented("monitorPurchases"),
-            allowsPurchases: unimplemented("allowsPurchases")
+            availableProducts: unimplemented("availableProducts", placeholder: .init()),
+            purchase: unimplemented("purchase", placeholder: .success),
+            purchaseHistory: unimplemented("purchaseHistory", placeholder: .init()),
+            purchaseHistoryStream: unimplemented(
+                "purchaseHistoryStream",
+                placeholder: AsyncStream { $0.finish() }
+            ),
+            clearPurchaseHistory: unimplemented("clearPurchaseHistory", placeholder: ()),
+            restorePurchases: unimplemented("restorePurchases", placeholder: ()),
+            monitorPurchases: unimplemented("monitorPurchases", placeholder: ()),
+            allowsPurchases: unimplemented("allowsPurchases", placeholder: false)
         )
-    }
-}
-
-extension DependencyValues {
-    var tierProductsClient: TierProductsClient {
-        get { self[TierProductsClient.self] }
-        set { self[TierProductsClient.self] = newValue }
     }
 }

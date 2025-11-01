@@ -1,6 +1,8 @@
-import _NotificationDependency
 import ComposableArchitecture
+import Foundation
+import Sharing
 import SwiftUI
+import UIKit
 
 @Reducer struct SpeechSettingsFeature {
     @ObservableState struct State: Equatable {
@@ -10,24 +12,21 @@ import SwiftUI
         var rawPitchMultiplier: Float
         let pitchMultiplierRange: ClosedRange<Float>
         let speechRateRange: ClosedRange<Float>
-        var speechSettings: SpeechSynthesisSettings
+        @Shared var speechSettings: SpeechSynthesisSettings
 
-        init() {
-            @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
-            @Dependency(\.speechSynthesisClient) var speechClient
+        init(speechSettings: Shared<SpeechSynthesisSettings>) {
+            @Dependency(SpeechSynthesisClient.self) var speechClient
+            _speechSettings = speechSettings
 
-            let speechSettings = speechSettingsClient.get()
-            self.speechSettings = speechSettings
-            
             availableVoices = speechClient.availableVoices()
-            rawVoiceIdentifier = speechSettings.voiceIdentifier ?? speechClient.defaultVoice()?.voiceIdentifier
+            rawVoiceIdentifier = speechSettings.wrappedValue.voiceIdentifier ?? speechClient.defaultVoice()?.voiceIdentifier
 
             let speechRateAttributes = speechClient.speechRateAttributes()
-            rawSpeechRate = speechSettings.rate ?? speechRateAttributes.defaultRate
+            rawSpeechRate = speechSettings.wrappedValue.rate ?? speechRateAttributes.defaultRate
             speechRateRange = speechRateAttributes.minimumRate ... speechRateAttributes.maximumRate
 
             let pitchMultiplierAttributes = speechClient.pitchMultiplierAttributes()
-            rawPitchMultiplier = speechSettings.pitchMultiplier ?? pitchMultiplierAttributes.defaultPitch
+            rawPitchMultiplier = speechSettings.wrappedValue.pitchMultiplier ?? pitchMultiplierAttributes.defaultPitch
             pitchMultiplierRange = pitchMultiplierAttributes.minimumPitch ... pitchMultiplierAttributes.maximumPitch
         }
     }
@@ -42,46 +41,47 @@ import SwiftUI
     }
 
     private enum CancelID {
-        case saveDebounce
+        case foregroundNotifications
     }
 
-    @Dependency(\.continuousClock) var clock
-    @Dependency.Notification(\.sceneWillEnterForeground) var sceneWillEnterForeground
-    @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
-    @Dependency(\.speechSynthesisClient) var speechClient
+    @Dependency(SpeechSynthesisClient.self) var speechClient
 
     var body: some ReducerOf<Self> {
         BindingReducer()
         Reduce { state, action in
             switch action {
             case .binding(\.rawSpeechRate):
-                state.speechSettings.rate = state.rawSpeechRate
+                state.$speechSettings.withLock { $0.rate = state.rawSpeechRate }
                 return .none
             case .binding(\.rawVoiceIdentifier):
-                state.speechSettings.voiceIdentifier = state.rawVoiceIdentifier
+                state.$speechSettings.withLock { $0.voiceIdentifier = state.rawVoiceIdentifier }
                 return .none
             case .binding(\.rawPitchMultiplier):
-                state.speechSettings.pitchMultiplier = state.rawPitchMultiplier
+                state.$speechSettings.withLock { $0.pitchMultiplier = state.rawPitchMultiplier }
                 return .none
             case .binding:
                 return .none
             case .pitchLabelDoubleTapped:
                 state.rawPitchMultiplier = speechClient.pitchMultiplierAttributes().defaultPitch
-                state.speechSettings.pitchMultiplier = state.rawPitchMultiplier
+                state.$speechSettings.withLock { $0.pitchMultiplier = state.rawPitchMultiplier }
                 return .none
             case .rateLabelDoubleTapped:
                 state.rawSpeechRate = speechClient.speechRateAttributes().defaultRate
-                state.speechSettings.rate = state.rawSpeechRate
+                state.$speechSettings.withLock { $0.rate = state.rawSpeechRate }
                 return .none
             case .onSceneWillEnterForeground:
                 state.availableVoices = speechClient.availableVoices()
                 return .none
             case .onTask:
                 return .run { send in
-                    for await _ in sceneWillEnterForeground {
+                    let notifications = NotificationCenter.default.notifications(
+                        named: UIApplication.willEnterForegroundNotification
+                    )
+                    for await _ in notifications {
                         await send(.onSceneWillEnterForeground)
                     }
                 }
+                .cancellable(id: CancelID.foregroundNotifications, cancelInFlight: true)
             case .testVoiceButtonTapped:
                 let spokenText = "1234"
                 enum CancelID { case speakAction }
@@ -92,20 +92,6 @@ import SwiftUI
                             try await speechClient.speak(utterance)
                         } catch {
                             assertionFailure(error.localizedDescription)
-                        }
-                    }
-                }
-            }
-        }
-        .onChange(of: \.speechSettings) { _, newValue in
-            Reduce { state, _ in
-                .run { _ in
-                    try await withTaskCancellation(id: CancelID.saveDebounce, cancelInFlight: true) {
-                        try await clock.sleep(for: .seconds(0.25))
-                        do {
-                            try await speechSettingsClient.set(newValue)
-                        } catch {
-                            XCTFail("SpeechSettingsClient unexpectedly failed to write: \(error)")
                         }
                     }
                 }

@@ -1,7 +1,10 @@
 import AVFoundation
+import Combine
 import ComposableArchitecture
 import ConfettiSwiftUI
+import Sharing
 import SwiftUI
+import UIKit
 
 struct BikiAnimation: Equatable {
     enum Kind {
@@ -50,32 +53,33 @@ extension QuizMode {
         var pendingSubmissionValue: String = ""
         let quizMode: QuizMode
         var secondsElapsed: Int = 0
-        var speechSettings: SpeechSynthesisSettings
-        var sessionSettings: SessionSettings
+        @Shared var speechSettings: SpeechSynthesisSettings
+        @Shared var sessionSettings: SessionSettings
         let topic: Topic
         let topicID: UUID
 
         var completedChallenges: [Challenge] = []
         var challenge: Challenge
 
-        init(topicID: UUID, quizMode: QuizMode) {
-            @Dependency(\.topicClient.allTopics) var allTopics
-            topic = allTopics()[id: topicID]!
+        init(
+            topicID: UUID,
+            quizMode: QuizMode,
+            sessionSettings: Shared<SessionSettings>,
+            speechSynthesisSettings: Shared<SpeechSynthesisSettings>
+        ) {
+            @Dependency(TopicClient.self) var topicClient
+            topic = topicClient.allTopics()[id: topicID]!
             self.topicID = topicID
             self.quizMode = quizMode
+            _sessionSettings = sessionSettings
+            _speechSettings = speechSynthesisSettings
 
-            @Dependency(\.topicClient.generateQuestion) var generateQuestion
+            let generateQuestion = topicClient.generateQuestion
             @Dependency(\.uuid) var uuid
             @Dependency(\.date.now) var now
             let question = try! generateQuestion(topicID) // TODO: handle error
             let challenge = Challenge(id: uuid(), startDate: now, question: question, submissions: [])
             self.challenge = challenge
-
-            @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
-            speechSettings = speechSettingsClient.get()
-
-            @Dependency(\.sessionSettingsClient) var sessionSettingsClient
-            sessionSettings = sessionSettingsClient.get()
         }
 
         var isSessionComplete: Bool {
@@ -141,16 +145,16 @@ extension QuizMode {
         }
         var isSubmitButtonDisabled: Bool {
             if isShowingAnswer {
-                return false
+                false
             } else {
-                return pendingSubmissionValue.isEmpty
+                pendingSubmissionValue.isEmpty
             }
         }
         var answerText: String {
             if isShowingAnswer {
-                return question.displayText
+                question.displayText
             } else {
-                return "00000"
+                "00000"
             }
         }
         enum AnswerButton: String {
@@ -159,9 +163,9 @@ extension QuizMode {
         }
         var answerButtonKind: AnswerButton {
             if isShowingAnswer {
-                return .arrow
+                .arrow
             } else {
-                return .checkmark
+                .checkmark
             }
         }
         var formattedPendingSubmissionValue: String? {
@@ -182,8 +186,6 @@ extension QuizMode {
         case answerSubmitButtonTapped
         case binding(BindingAction<State>)
         case endSessionButtonTapped
-        case onSessionSettingsUpdated(SessionSettings)
-        case onSpeechSettingsUpdated(SpeechSynthesisSettings)
         case onPlaybackError
         case onPlaybackErrorTimeout
         case onPlaybackFinished
@@ -196,17 +198,16 @@ extension QuizMode {
 
     private enum CancelID {
         case speakAction
+        case timer
     }
 
     @Dependency(\.continuousClock) var clock
-    @Dependency(\.hapticsClient) var haptics
-    @Dependency(\.sessionSettingsClient) var sessionSettingsClient
-    @Dependency(\.speechSynthesisClient) var speechClient
-    @Dependency(\.speechSynthesisSettingsClient) var speechSettingsClient
-    @Dependency(\.topicClient) var topicClient
+    @Dependency(HapticsClient.self) var haptics
+    @Dependency(SpeechSynthesisClient.self) var speechClient
+    @Dependency(TopicClient.self) var topicClient
     @Dependency(\.uuid) var uuid
     @Dependency(\.date.now) var now
-    @Dependency(\.application.applicationState) var applicationState
+    @Dependency(ApplicationClient.self) var application
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -253,14 +254,6 @@ extension QuizMode {
             case .endSessionButtonTapped:
                 return .none
 
-            case let .onSessionSettingsUpdated(newValue):
-                state.sessionSettings = newValue
-                return .none
-
-            case let .onSpeechSettingsUpdated(newValue):
-                state.speechSettings = newValue
-                return .none
-
             case .onPlaybackFinished:
                 guard state.isSpeaking else { return .none }
                 state.isSpeaking = false
@@ -283,26 +276,19 @@ extension QuizMode {
             case .onTask:
                 let shouldStartTimer = state.quizMode.shouldStartTimer
                 return playBackEffect(state: &state)
-                    .merge(with: .run { send in
-                        if shouldStartTimer {
-                            for await _ in clock.timer(interval: .seconds(1)) {
-                                await send(.onTimerTick)
+                    .merge(with:
+                        .run { send in
+                            if shouldStartTimer {
+                                for await _ in clock.timer(interval: .seconds(1)) {
+                                    await send(.onTimerTick)
+                                }
                             }
                         }
-                    })
-                    .merge(with: .run { send in
-                        for await newValue in speechSettingsClient.observe() {
-                            await send(.onSpeechSettingsUpdated(newValue))
-                        }
-                    })
-                    .merge(with: .run { send in
-                        for await newValue in sessionSettingsClient.observe() {
-                            await send(.onSessionSettingsUpdated(newValue))
-                        }
-                    })
+                        .cancellable(id: CancelID.timer, cancelInFlight: true)
+                    )
 
             case .onTimerTick:
-                if state.isViewFrontmost, applicationState == .active {
+                if state.isViewFrontmost, application.applicationState() == .active {
                     state.secondsElapsed += 1
                 }
                 return .none
@@ -350,14 +336,28 @@ extension QuizMode {
 
 #Preview("Infinite") {
     ListeningQuizView(
-        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .infinite)) {
+        store: Store(
+            initialState: ListeningQuizFeature.State(
+                topicID: Topic.mockID,
+                quizMode: .infinite,
+                sessionSettings: Shared(wrappedValue: .default, .appStorage(SessionSettings.storageKey)),
+                speechSynthesisSettings: Shared(wrappedValue: .init(), .appStorage(SpeechSynthesisSettings.storageKey))
+            )
+        ) {
             ListeningQuizFeature()
                 ._printChanges()
         })
 }
 #Preview("Time Limit") {
     ListeningQuizView(
-        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .timeLimit(60))) {
+        store: Store(
+            initialState: ListeningQuizFeature.State(
+                topicID: Topic.mockID,
+                quizMode: .timeLimit(60),
+                sessionSettings: Shared(wrappedValue: .default, .appStorage(SessionSettings.storageKey)),
+                speechSynthesisSettings: Shared(wrappedValue: .init(), .appStorage(SpeechSynthesisSettings.storageKey))
+            )
+        ) {
             ListeningQuizFeature()
                 ._printChanges()
         })
@@ -366,7 +366,7 @@ extension QuizMode {
 struct ListeningQuizView: View {
     @Bindable var store: StoreOf<ListeningQuizFeature>
     @FocusState private var answerFieldFocused: Bool
-    
+
     var body: some View {
         VStack(spacing: 0) {
             header(store: store)
