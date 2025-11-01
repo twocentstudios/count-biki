@@ -189,20 +189,18 @@ struct TopicsView: View {
                         Image(systemName: "info.circle")
                     }
                 }
+                ToolbarItem(placement: .bottomBar) {
+                    Button {
+                        store.send(.preSettingsButtonTapped)
+                    } label: {
+                        HStack {
+                            Image(systemName: "slider.horizontal.3")
+                            Text("Session Settings")
+                        }
+                        .font(.headline)
+                    }
+                }
             }
-        }
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            Button {
-                store.send(.preSettingsButtonTapped)
-            } label: {
-                Label("Session Settings", systemImage: "slider.horizontal.3")
-                    .font(.headline)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-            }
-            .padding(.trailing, 16)
-            .padding(.bottom, 8)
-            .frame(maxWidth: .infinity, alignment: .trailing)
         }
         .fullScreenCover(item: $store.scope(state: \.destination?.quiz, action: \.destination.quiz)) { store in
             ListeningQuizNavigationView(store: store)
