@@ -36,7 +36,7 @@ enum AppIcon: String, CaseIterable, Identifiable, Equatable {
     case icon05 = "AppIcon-05"
 
     var id: String { rawValue }
-    var iconName: String { rawValue }
+    var iconName: String { "Thumb" + rawValue }
     var uikitName: String? {
         if self == .primary {
             nil
