@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Sharing
 import XCTest
 
 @testable import count
@@ -19,7 +20,14 @@ final class ListeningQuizFeatureTests: XCTestCase {
     @MainActor
     func testOnAppear() async throws {
         let speechExpectation = expectation(description: "speaks")
-      let store = TestStore(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .infinite)) {
+        let store = TestStore(
+            initialState: ListeningQuizFeature.State(
+                topicID: Topic.mockID,
+                quizMode: .infinite,
+                sessionSettings: Shared(value: SessionSettings.default),
+                speechSynthesisSettings: Shared(value: SpeechSynthesisSettings())
+            )
+        ) {
             ListeningQuizFeature()
         } withDependencies: {
             $0[TopicClient.self] = .mock

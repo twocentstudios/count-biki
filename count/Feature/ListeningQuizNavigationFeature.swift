@@ -7,13 +7,22 @@ import SwiftUI
         var listeningQuiz: ListeningQuizFeature.State
         var path = StackState<Path.State>()
         @Presents var settings: SettingsFeature.State?
+        @Shared var sessionSettings: SessionSettings
+        @Shared var speechSynthesisSettings: SpeechSynthesisSettings
 
-        init(topicID: UUID) {
-            let sessionSettings = Shared(
-                wrappedValue: SessionSettings.default,
-                .appStorage(SessionSettings.storageKey)
-            ).wrappedValue
-            listeningQuiz = .init(topicID: topicID, quizMode: .init(sessionSettings))
+        init(
+            topicID: UUID,
+            sessionSettings: Shared<SessionSettings>,
+            speechSynthesisSettings: Shared<SpeechSynthesisSettings>
+        ) {
+            _sessionSettings = sessionSettings
+            _speechSynthesisSettings = speechSynthesisSettings
+            listeningQuiz = .init(
+                topicID: topicID,
+                quizMode: .init(sessionSettings.wrappedValue),
+                sessionSettings: sessionSettings,
+                speechSynthesisSettings: speechSynthesisSettings
+            )
         }
     }
 
@@ -52,7 +61,11 @@ import SwiftUI
                 }
 
             case .listeningQuiz(.settingsButtonTapped):
-                state.settings = .init(topicID: state.listeningQuiz.topicID)
+                state.settings = .init(
+                    topicID: state.listeningQuiz.topicID,
+                    sessionSettings: state.$sessionSettings,
+                    speechSynthesisSettings: state.$speechSynthesisSettings
+                )
                 return .none
 
             case .listeningQuiz(.answerSubmitButtonTapped):
@@ -113,7 +126,13 @@ struct ListeningQuizNavigationView: View {
 
 #Preview {
     ListeningQuizNavigationView(
-        store: Store(initialState: ListeningQuizNavigationFeature.State(topicID: Topic.mockID)) {
+        store: Store(
+            initialState: ListeningQuizNavigationFeature.State(
+                topicID: Topic.mockID,
+                sessionSettings: Shared(wrappedValue: .default, .appStorage(SessionSettings.storageKey)),
+                speechSynthesisSettings: Shared(wrappedValue: .init(), .appStorage(SpeechSynthesisSettings.storageKey))
+            )
+        ) {
             ListeningQuizNavigationFeature()
                 ._printChanges()
         }

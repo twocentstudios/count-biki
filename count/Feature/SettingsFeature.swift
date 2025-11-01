@@ -4,18 +4,20 @@ import SwiftUI
 
 @Reducer struct SettingsFeature {
     @ObservableState struct State: Equatable {
-        var sessionSettings: SessionSettings
+        @Shared var sessionSettings: SessionSettings
+        @Shared var speechSynthesisSettings: SpeechSynthesisSettings
         let topic: Topic
 
-        init(topicID: UUID) {
+        init(
+            topicID: UUID,
+            sessionSettings: Shared<SessionSettings>,
+            speechSynthesisSettings: Shared<SpeechSynthesisSettings>
+        ) {
             @Dependency(TopicClient.self) var topicClient
-            let sharedSessionSettings = Shared(
-                wrappedValue: SessionSettings.default,
-                .appStorage(SessionSettings.storageKey)
-            )
+            _sessionSettings = sessionSettings
+            _speechSynthesisSettings = speechSynthesisSettings
 
             topic = topicClient.allTopics()[id: topicID]!
-            sessionSettings = sharedSessionSettings.wrappedValue
         }
     }
 
@@ -24,36 +26,17 @@ import SwiftUI
         case doneButtonTapped
     }
 
-    private enum CancelID {
-        case saveDebounce
-    }
-
-    @Dependency(\.continuousClock) var clock
     @Dependency(\.dismiss) var dismiss
-    /// TODO: does this work with TCA???
-    @Shared(.appStorage(SessionSettings.storageKey)) var sharedSessionSettings = SessionSettings.default
 
     var body: some ReducerOf<Self> {
-        CombineReducers {
-            BindingReducer()
-            Reduce { state, action in
-                switch action {
-                case .binding:
-                    .none
-                case .doneButtonTapped:
-                    .run { send in
-                        await dismiss()
-                    }
-                }
-            }
-        }
-        .onChange(of: \.sessionSettings) { _, newValue in
-            Reduce { state, _ in
-                .run { _ in
-                    try await withTaskCancellation(id: CancelID.saveDebounce, cancelInFlight: true) {
-                        try await clock.sleep(for: .seconds(0.25))
-                        $sharedSessionSettings.withLock { $0 = newValue }
-                    }
+        BindingReducer()
+        Reduce { state, action in
+            switch action {
+            case .binding:
+                .none
+            case .doneButtonTapped:
+                .run { send in
+                    await dismiss()
                 }
             }
         }
@@ -99,7 +82,7 @@ struct SettingsView: View {
                 }
 
                 SpeechSettingsSection(
-                    store: Store(initialState: .init()) {
+                    store: Store(initialState: .init(speechSettings: store.$speechSynthesisSettings)) {
                         SpeechSettingsFeature()
                     })
             }
@@ -125,7 +108,13 @@ struct SettingsView: View {
 
 #Preview {
     SettingsView(
-        store: Store(initialState: SettingsFeature.State(topicID: Topic.mockID)) {
+        store: Store(
+            initialState: SettingsFeature.State(
+                topicID: Topic.mockID,
+                sessionSettings: Shared(wrappedValue: .default, .appStorage(SessionSettings.storageKey)),
+                speechSynthesisSettings: Shared(wrappedValue: .init(), .appStorage(SpeechSynthesisSettings.storageKey))
+            )
+        ) {
             SettingsFeature()
                 ._printChanges()
         } withDependencies: { deps in

@@ -1,4 +1,5 @@
 import ComposableArchitecture
+import Sharing
 import SwiftUI
 
 struct TopicCategory: Identifiable, Equatable {
@@ -21,6 +22,8 @@ extension TopicCategory {
     @ObservableState struct State: Equatable {
         @Presents var destination: Destination.State?
         let listeningCategories: IdentifiedArrayOf<TopicCategory>
+        @Shared var sessionSettings: SessionSettings
+        @Shared var speechSynthesisSettings: SpeechSynthesisSettings
 
         init() {
             @Dependency(TopicClient.self) var topicClient
@@ -31,15 +34,22 @@ extension TopicCategory {
                 .filtered(topics, skill: .listening, category: .duration),
                 .filtered(topics, skill: .listening, category: .dateTime),
             ]
-            destination = .preSettings(.init())
+            _sessionSettings = Shared(
+                wrappedValue: SessionSettings.default,
+                .appStorage(SessionSettings.storageKey)
+            )
+            _speechSynthesisSettings = Shared(
+                wrappedValue: SpeechSynthesisSettings(),
+                .appStorage(SpeechSynthesisSettings.storageKey)
+            )
         }
     }
 
     enum Action: Equatable, Sendable {
         case aboutButtonTapped
         case destination(PresentationAction<Destination.Action>)
+        case preSettingsButtonTapped
         case topicButtonTapped(UUID)
-        case setDestination(Destination.State)
     }
 
     @Reducer enum Destination {
@@ -55,29 +65,26 @@ extension TopicCategory {
         Reduce { state, action in
             switch action {
             case .aboutButtonTapped:
-                state.destination = nil
-                return .run { send in
-                    await send(.setDestination(.about(.init())))
-                }
-
-            case .destination(.dismiss):
-                // Re-present the preSettings half-modal when any other destination is dismissed
-                return .run { send in
-                    await send(.setDestination(.preSettings(.init())))
-                }
+                state.destination = .about(.init())
+                return .none
 
             case .destination:
                 return .none
 
-            case let .setDestination(destination):
-                state.destination = destination
+            case .preSettingsButtonTapped:
+                state.destination = .preSettings(.init(
+                    sessionSettings: state.$sessionSettings,
+                    speechSynthesisSettings: state.$speechSynthesisSettings
+                ))
                 return .none
 
             case let .topicButtonTapped(topicID):
-                state.destination = nil
-                return .run { send in
-                    await send(.setDestination(.quiz(.init(topicID: topicID))))
-                }
+                state.destination = .quiz(.init(
+                    topicID: topicID,
+                    sessionSettings: state.$sessionSettings,
+                    speechSynthesisSettings: state.$speechSynthesisSettings
+                ))
+                return .none
             }
         }
         .ifLet(\.$destination, action: \.destination)
@@ -184,6 +191,19 @@ struct TopicsView: View {
                 }
             }
         }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            Button {
+                store.send(.preSettingsButtonTapped)
+            } label: {
+                Label("Session Settings", systemImage: "slider.horizontal.3")
+                    .font(.headline)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+            }
+            .padding(.trailing, 16)
+            .padding(.bottom, 8)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
         .fullScreenCover(item: $store.scope(state: \.destination?.quiz, action: \.destination.quiz)) { store in
             ListeningQuizNavigationView(store: store)
         }
@@ -193,9 +213,7 @@ struct TopicsView: View {
         .sheet(item: $store.scope(state: \.destination?.preSettings, action: \.destination.preSettings)) { store in
             PreSettingsView(store: store)
                 .presentationDragIndicator(.visible)
-                .presentationDetents([.fraction(0.1), .medium, .large])
-                .presentationBackgroundInteraction(.enabled)
-                .interactiveDismissDisabled(true)
+                .presentationDetents([.medium, .large])
         }
     }
 }

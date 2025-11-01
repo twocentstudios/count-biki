@@ -53,19 +53,26 @@ extension QuizMode {
         var pendingSubmissionValue: String = ""
         let quizMode: QuizMode
         var secondsElapsed: Int = 0
-        var speechSettings: SpeechSynthesisSettings
-        var sessionSettings: SessionSettings
+        @Shared var speechSettings: SpeechSynthesisSettings
+        @Shared var sessionSettings: SessionSettings
         let topic: Topic
         let topicID: UUID
 
         var completedChallenges: [Challenge] = []
         var challenge: Challenge
 
-        init(topicID: UUID, quizMode: QuizMode) {
+        init(
+            topicID: UUID,
+            quizMode: QuizMode,
+            sessionSettings: Shared<SessionSettings>,
+            speechSynthesisSettings: Shared<SpeechSynthesisSettings>
+        ) {
             @Dependency(TopicClient.self) var topicClient
             topic = topicClient.allTopics()[id: topicID]!
             self.topicID = topicID
             self.quizMode = quizMode
+            _sessionSettings = sessionSettings
+            _speechSettings = speechSynthesisSettings
 
             let generateQuestion = topicClient.generateQuestion
             @Dependency(\.uuid) var uuid
@@ -73,16 +80,6 @@ extension QuizMode {
             let question = try! generateQuestion(topicID) // TODO: handle error
             let challenge = Challenge(id: uuid(), startDate: now, question: question, submissions: [])
             self.challenge = challenge
-            let speechSettingsShared = Shared(
-                wrappedValue: SpeechSynthesisSettings(),
-                .appStorage(SpeechSynthesisSettings.storageKey)
-            )
-            speechSettings = speechSettingsShared.wrappedValue
-            let sessionSettingsShared = Shared(
-                wrappedValue: SessionSettings.default,
-                .appStorage(SessionSettings.storageKey)
-            )
-            sessionSettings = sessionSettingsShared.wrappedValue
         }
 
         var isSessionComplete: Bool {
@@ -189,8 +186,6 @@ extension QuizMode {
         case answerSubmitButtonTapped
         case binding(BindingAction<State>)
         case endSessionButtonTapped
-        case onSessionSettingsUpdated(SessionSettings)
-        case onSpeechSettingsUpdated(SpeechSynthesisSettings)
         case onPlaybackError
         case onPlaybackErrorTimeout
         case onPlaybackFinished
@@ -204,8 +199,6 @@ extension QuizMode {
     private enum CancelID {
         case speakAction
         case timer
-        case speechSettingsStream
-        case sessionSettingsStream
     }
 
     @Dependency(\.continuousClock) var clock
@@ -215,8 +208,6 @@ extension QuizMode {
     @Dependency(\.uuid) var uuid
     @Dependency(\.date.now) var now
     @Dependency(ApplicationClient.self) var application
-    @Shared(.appStorage(SpeechSynthesisSettings.storageKey)) var sharedSpeechSettings = SpeechSynthesisSettings()
-    @Shared(.appStorage(SessionSettings.storageKey)) var sharedSessionSettings = SessionSettings.default
 
     var body: some ReducerOf<Self> {
         BindingReducer()
@@ -263,14 +254,6 @@ extension QuizMode {
             case .endSessionButtonTapped:
                 return .none
 
-            case let .onSessionSettingsUpdated(newValue):
-                state.sessionSettings = newValue
-                return .none
-
-            case let .onSpeechSettingsUpdated(newValue):
-                state.speechSettings = newValue
-                return .none
-
             case .onPlaybackFinished:
                 guard state.isSpeaking else { return .none }
                 state.isSpeaking = false
@@ -302,32 +285,6 @@ extension QuizMode {
                             }
                         }
                         .cancellable(id: CancelID.timer, cancelInFlight: true)
-                    )
-                    .merge(with:
-                        .run { [sharedSpeechSettings = $sharedSpeechSettings] send in
-                            var isFirst = true
-                            for await newValue in sharedSpeechSettings.publisher.values {
-                                if isFirst {
-                                    isFirst = false
-                                    continue
-                                }
-                                await send(.onSpeechSettingsUpdated(newValue))
-                            }
-                        }
-                        .cancellable(id: CancelID.speechSettingsStream, cancelInFlight: true)
-                    )
-                    .merge(with:
-                        .run { [sharedSessionSettings = $sharedSessionSettings] send in
-                            var isFirst = true
-                            for await newValue in sharedSessionSettings.publisher.values {
-                                if isFirst {
-                                    isFirst = false
-                                    continue
-                                }
-                                await send(.onSessionSettingsUpdated(newValue))
-                            }
-                        }
-                        .cancellable(id: CancelID.sessionSettingsStream, cancelInFlight: true)
                     )
 
             case .onTimerTick:
@@ -379,14 +336,28 @@ extension QuizMode {
 
 #Preview("Infinite") {
     ListeningQuizView(
-        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .infinite)) {
+        store: Store(
+            initialState: ListeningQuizFeature.State(
+                topicID: Topic.mockID,
+                quizMode: .infinite,
+                sessionSettings: Shared(wrappedValue: .default, .appStorage(SessionSettings.storageKey)),
+                speechSynthesisSettings: Shared(wrappedValue: .init(), .appStorage(SpeechSynthesisSettings.storageKey))
+            )
+        ) {
             ListeningQuizFeature()
                 ._printChanges()
         })
 }
 #Preview("Time Limit") {
     ListeningQuizView(
-        store: Store(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .timeLimit(60))) {
+        store: Store(
+            initialState: ListeningQuizFeature.State(
+                topicID: Topic.mockID,
+                quizMode: .timeLimit(60),
+                sessionSettings: Shared(wrappedValue: .default, .appStorage(SessionSettings.storageKey)),
+                speechSynthesisSettings: Shared(wrappedValue: .init(), .appStorage(SpeechSynthesisSettings.storageKey))
+            )
+        ) {
             ListeningQuizFeature()
                 ._printChanges()
         })

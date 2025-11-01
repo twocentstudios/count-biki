@@ -7,50 +7,46 @@ import SwiftUI
         var rawQuizMode: SessionSettings.QuizMode
         var rawQuestionLimit: Int
         var rawTimeLimit: Int
-        var sessionSettings: SessionSettings
+        @Shared var sessionSettings: SessionSettings
+        @Shared var speechSynthesisSettings: SpeechSynthesisSettings
 
-        init() {
-            let sharedSessionSettings = Shared(
-                wrappedValue: SessionSettings.default,
-                .appStorage(SessionSettings.storageKey)
-            )
-            let sessionSettings = sharedSessionSettings.wrappedValue
-            self.sessionSettings = sessionSettings
+        init(
+            sessionSettings: Shared<SessionSettings>,
+            speechSynthesisSettings: Shared<SpeechSynthesisSettings>
+        ) {
+            _sessionSettings = sessionSettings
+            _speechSynthesisSettings = speechSynthesisSettings
 
-            rawQuizMode = sessionSettings.quizMode
-            rawQuestionLimit = sessionSettings.questionLimit // TODO: validate input
-            rawTimeLimit = sessionSettings.timeLimit // TODO: validate input
+            rawQuizMode = sessionSettings.wrappedValue.quizMode
+            rawQuestionLimit = sessionSettings.wrappedValue.questionLimit // TODO: validate input
+            rawTimeLimit = sessionSettings.wrappedValue.timeLimit // TODO: validate input
         }
     }
 
     enum Action: BindableAction, Equatable {
         case binding(BindingAction<State>)
+        case dismissButtonTapped
     }
 
-    @Shared(.appStorage(SessionSettings.storageKey)) var sharedSessionSettings = SessionSettings.default
+    @Dependency(\.dismiss) var dismiss
 
     var body: some ReducerOf<Self> {
         BindingReducer()
         Reduce { state, action in
             switch action {
             case .binding(\.rawQuizMode):
-                state.sessionSettings.quizMode = state.rawQuizMode
+                state.$sessionSettings.withLock { $0.quizMode = state.rawQuizMode }
                 return .none
             case .binding(\.rawQuestionLimit):
-                state.sessionSettings.questionLimit = state.rawQuestionLimit
+                state.$sessionSettings.withLock { $0.questionLimit = state.rawQuestionLimit }
                 return .none
             case .binding(\.rawTimeLimit):
-                state.sessionSettings.timeLimit = state.rawTimeLimit
+                state.$sessionSettings.withLock { $0.timeLimit = state.rawTimeLimit }
                 return .none
             case .binding:
                 return .none
-            }
-        }
-        .onChange(of: \.sessionSettings) { _, newValue in
-            Reduce { _, _ in
-                .run { _ in
-                    $sharedSessionSettings.withLock { $0 = newValue }
-                }
+            case .dismissButtonTapped:
+                return .run { _ in await dismiss() }
             }
         }
     }
@@ -104,7 +100,7 @@ struct PreSettingsView: View {
                 .listRowBackground(Color(.tertiarySystemBackground))
 
                 SpeechSettingsSection(
-                    store: Store(initialState: .init()) {
+                    store: Store(initialState: .init(speechSettings: store.$speechSynthesisSettings)) {
                         SpeechSettingsFeature()
                     })
                     .listRowBackground(Color(.systemGroupedBackground))
@@ -118,6 +114,12 @@ struct PreSettingsView: View {
                     Text("Session Settings")
                         .font(.headline)
                 }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Done") {
+                        store.send(.dismissButtonTapped)
+                    }
+                    .font(.headline)
+                }
             }
         }
     }
@@ -125,7 +127,12 @@ struct PreSettingsView: View {
 
 #Preview {
     PreSettingsView(
-        store: Store(initialState: PreSettingsFeature.State()) {
+        store: Store(
+            initialState: PreSettingsFeature.State(
+                sessionSettings: Shared(wrappedValue: .default, .appStorage(SessionSettings.storageKey)),
+                speechSynthesisSettings: Shared(wrappedValue: .init(), .appStorage(SpeechSynthesisSettings.storageKey))
+            )
+        ) {
             PreSettingsFeature()
                 ._printChanges()
         } withDependencies: { deps in

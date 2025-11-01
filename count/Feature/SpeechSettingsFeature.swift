@@ -12,26 +12,21 @@ import UIKit
         var rawPitchMultiplier: Float
         let pitchMultiplierRange: ClosedRange<Float>
         let speechRateRange: ClosedRange<Float>
-        var speechSettings: SpeechSynthesisSettings
+        @Shared var speechSettings: SpeechSynthesisSettings
 
-        init() {
+        init(speechSettings: Shared<SpeechSynthesisSettings>) {
             @Dependency(SpeechSynthesisClient.self) var speechClient
-            let sharedSpeechSettings = Shared(
-                wrappedValue: SpeechSynthesisSettings(),
-                .appStorage(SpeechSynthesisSettings.storageKey)
-            )
-            let speechSettings = sharedSpeechSettings.wrappedValue
-            self.speechSettings = speechSettings
+            _speechSettings = speechSettings
 
             availableVoices = speechClient.availableVoices()
-            rawVoiceIdentifier = speechSettings.voiceIdentifier ?? speechClient.defaultVoice()?.voiceIdentifier
+            rawVoiceIdentifier = speechSettings.wrappedValue.voiceIdentifier ?? speechClient.defaultVoice()?.voiceIdentifier
 
             let speechRateAttributes = speechClient.speechRateAttributes()
-            rawSpeechRate = speechSettings.rate ?? speechRateAttributes.defaultRate
+            rawSpeechRate = speechSettings.wrappedValue.rate ?? speechRateAttributes.defaultRate
             speechRateRange = speechRateAttributes.minimumRate ... speechRateAttributes.maximumRate
 
             let pitchMultiplierAttributes = speechClient.pitchMultiplierAttributes()
-            rawPitchMultiplier = speechSettings.pitchMultiplier ?? pitchMultiplierAttributes.defaultPitch
+            rawPitchMultiplier = speechSettings.wrappedValue.pitchMultiplier ?? pitchMultiplierAttributes.defaultPitch
             pitchMultiplierRange = pitchMultiplierAttributes.minimumPitch ... pitchMultiplierAttributes.maximumPitch
         }
     }
@@ -46,36 +41,33 @@ import UIKit
     }
 
     private enum CancelID {
-        case saveDebounce
         case foregroundNotifications
     }
 
-    @Dependency(\.continuousClock) var clock
     @Dependency(SpeechSynthesisClient.self) var speechClient
-    @Shared(.appStorage(SpeechSynthesisSettings.storageKey)) var sharedSpeechSettings = SpeechSynthesisSettings()
 
     var body: some ReducerOf<Self> {
         BindingReducer()
         Reduce { state, action in
             switch action {
             case .binding(\.rawSpeechRate):
-                state.speechSettings.rate = state.rawSpeechRate
+                state.$speechSettings.withLock { $0.rate = state.rawSpeechRate }
                 return .none
             case .binding(\.rawVoiceIdentifier):
-                state.speechSettings.voiceIdentifier = state.rawVoiceIdentifier
+                state.$speechSettings.withLock { $0.voiceIdentifier = state.rawVoiceIdentifier }
                 return .none
             case .binding(\.rawPitchMultiplier):
-                state.speechSettings.pitchMultiplier = state.rawPitchMultiplier
+                state.$speechSettings.withLock { $0.pitchMultiplier = state.rawPitchMultiplier }
                 return .none
             case .binding:
                 return .none
             case .pitchLabelDoubleTapped:
                 state.rawPitchMultiplier = speechClient.pitchMultiplierAttributes().defaultPitch
-                state.speechSettings.pitchMultiplier = state.rawPitchMultiplier
+                state.$speechSettings.withLock { $0.pitchMultiplier = state.rawPitchMultiplier }
                 return .none
             case .rateLabelDoubleTapped:
                 state.rawSpeechRate = speechClient.speechRateAttributes().defaultRate
-                state.speechSettings.rate = state.rawSpeechRate
+                state.$speechSettings.withLock { $0.rate = state.rawSpeechRate }
                 return .none
             case .onSceneWillEnterForeground:
                 state.availableVoices = speechClient.availableVoices()
@@ -101,16 +93,6 @@ import UIKit
                         } catch {
                             assertionFailure(error.localizedDescription)
                         }
-                    }
-                }
-            }
-        }
-        .onChange(of: \.speechSettings) { _, newValue in
-            Reduce { state, _ in
-                .run { _ in
-                    try await withTaskCancellation(id: CancelID.saveDebounce, cancelInFlight: true) {
-                        try await clock.sleep(for: .seconds(0.25))
-                        $sharedSpeechSettings.withLock { $0 = newValue }
                     }
                 }
             }
