@@ -9,7 +9,7 @@ import SwiftUI
         var isAppIconChangingAvailable: Bool
 
         init(isAppIconChangingAvailable: Bool) {
-            @Dependency(\.appIconClient) var appIconClient
+            @Dependency(AppIconClient.self) var appIconClient
             appIcons = appIconClient.allIcons()
             selectedAppIcon = nil
             self.isAppIconChangingAvailable = isAppIconChangingAvailable
@@ -22,7 +22,7 @@ import SwiftUI
         case onTask
     }
 
-    @Dependency(\.appIconClient) var appIconClient
+    @Dependency(AppIconClient.self) var appIconClient
     @Dependency(\.continuousClock) var clock
 
     var body: some ReducerOf<Self> {

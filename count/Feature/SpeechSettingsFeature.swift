@@ -15,7 +15,7 @@ import UIKit
         var speechSettings: SpeechSynthesisSettings
 
         init() {
-            @Dependency(\.speechSynthesisClient) var speechClient
+            @Dependency(SpeechSynthesisClient.self) var speechClient
             let sharedSpeechSettings = Shared(
                 wrappedValue: SpeechSynthesisSettings(),
                 .appStorage(SpeechSynthesisSettings.storageKey)
@@ -51,7 +51,7 @@ import UIKit
     }
 
     @Dependency(\.continuousClock) var clock
-    @Dependency(\.speechSynthesisClient) var speechClient
+    @Dependency(SpeechSynthesisClient.self) var speechClient
     @Shared(.appStorage(SpeechSynthesisSettings.storageKey)) var sharedSpeechSettings = SpeechSynthesisSettings()
 
     var body: some ReducerOf<Self> {

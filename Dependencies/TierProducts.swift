@@ -1,5 +1,6 @@
 import Combine
 import Dependencies
+import DependenciesMacros
 import Foundation
 import IdentifiedCollections
 import Sharing
@@ -103,15 +104,18 @@ extension TierTransaction {
     }
 }
 
+@DependencyClient
 struct TierProductsClient {
-    var availableProducts: @Sendable () async throws -> IdentifiedArrayOf<TierProduct>
-    var purchase: @Sendable (TierProduct) async throws -> TierPurchaseResult
-    var purchaseHistory: @Sendable () -> TierPurchaseHistory
-    var purchaseHistoryStream: @Sendable () -> AsyncStream<TierPurchaseHistory>
-    var clearPurchaseHistory: @Sendable () -> Void
-    var restorePurchases: @Sendable () async -> Void
-    var monitorPurchases: @Sendable () async -> Void
-    var allowsPurchases: @Sendable () -> Bool
+    var availableProducts: @Sendable () async throws -> IdentifiedArrayOf<TierProduct> = { .init() }
+    var purchase: @Sendable (TierProduct) async throws -> TierPurchaseResult = { _ in .userCancelled }
+    var purchaseHistory: @Sendable () -> TierPurchaseHistory = { .init() }
+    var purchaseHistoryStream: @Sendable () -> AsyncStream<TierPurchaseHistory> = {
+        AsyncStream { $0.finish() }
+    }
+    var clearPurchaseHistory: @Sendable () -> Void = {}
+    var restorePurchases: @Sendable () async -> Void = {}
+    var monitorPurchases: @Sendable () async -> Void = {}
+    var allowsPurchases: @Sendable () -> Bool = { false }
 }
 
 extension TierProductsClient: DependencyKey {
@@ -235,12 +239,5 @@ extension TierProductsClient: TestDependencyKey {
             monitorPurchases: unimplemented("monitorPurchases", placeholder: ()),
             allowsPurchases: unimplemented("allowsPurchases", placeholder: false)
         )
-    }
-}
-
-extension DependencyValues {
-    var tierProductsClient: TierProductsClient {
-        get { self[TierProductsClient.self] }
-        set { self[TierProductsClient.self] = newValue }
     }
 }

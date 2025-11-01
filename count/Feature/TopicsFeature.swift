@@ -23,12 +23,13 @@ extension TopicCategory {
         let listeningCategories: IdentifiedArrayOf<TopicCategory>
 
         init() {
-            @Dependency(\.topicClient.allTopics) var allTopics
+            @Dependency(TopicClient.self) var topicClient
+            let topics = topicClient.allTopics()
             listeningCategories = [
-                .filtered(allTopics(), skill: .listening, category: .number),
-                .filtered(allTopics(), skill: .listening, category: .money),
-                .filtered(allTopics(), skill: .listening, category: .duration),
-                .filtered(allTopics(), skill: .listening, category: .dateTime),
+                .filtered(topics, skill: .listening, category: .number),
+                .filtered(topics, skill: .listening, category: .money),
+                .filtered(topics, skill: .listening, category: .duration),
+                .filtered(topics, skill: .listening, category: .dateTime),
             ]
             destination = .preSettings(.init())
         }
@@ -48,7 +49,7 @@ extension TopicCategory {
     }
 
     @Dependency(\.continuousClock) var clock
-    @Dependency(\.topicClient) var topicClient
+    @Dependency(TopicClient.self) var topicClient
 
     var body: some ReducerOf<Self> {
         Reduce { state, action in

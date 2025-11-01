@@ -1,9 +1,11 @@
 import Dependencies
+import DependenciesMacros
 import UIKit
 
+@DependencyClient
 struct HapticsClient {
-    var success: @Sendable @MainActor () -> Void
-    var error: @Sendable @MainActor () -> Void
+    var success: @Sendable @MainActor () -> Void = {}
+    var error: @Sendable @MainActor () -> Void = {}
 }
 extension HapticsClient: DependencyKey {
     static var liveValue: Self {
@@ -12,13 +14,6 @@ extension HapticsClient: DependencyKey {
             success: { generator.value.notificationOccurred(.success) },
             error: { generator.value.notificationOccurred(.error) }
         )
-    }
-}
-
-extension DependencyValues {
-    var hapticsClient: HapticsClient {
-        get { self[HapticsClient.self] }
-        set { self[HapticsClient.self] = newValue }
     }
 }
 

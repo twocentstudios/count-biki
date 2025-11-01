@@ -129,7 +129,7 @@ struct PreSettingsView: View {
             PreSettingsFeature()
                 ._printChanges()
         } withDependencies: { deps in
-            // deps.speechSynthesisClient = .noVoices
+            // deps[SpeechSynthesisClient.self] = .noVoices
         }
     )
     .fontDesign(.rounded)

@@ -22,12 +22,12 @@ final class ListeningQuizFeatureTests: XCTestCase {
       let store = TestStore(initialState: ListeningQuizFeature.State(topicID: Topic.mockID, quizMode: .infinite)) {
             ListeningQuizFeature()
         } withDependencies: {
-            $0.topicClient = .mock
+            $0[TopicClient.self] = .mock
             $0.uuid = .incrementing
             $0.date.now = .init(timeIntervalSince1970: 0)
-            $0.speechSynthesisClient.availableVoices = { [] }
-            $0.speechSynthesisClient.defaultVoice = { nil }
-            $0.speechSynthesisClient.speak = { _ in speechExpectation.fulfill() }
+            $0[SpeechSynthesisClient.self].availableVoices = { [] }
+            $0[SpeechSynthesisClient.self].defaultVoice = { nil }
+            $0[SpeechSynthesisClient.self].speak = { _ in speechExpectation.fulfill() }
             $0.withRandomNumberGenerator = .init(RandomNumberGeneratorWithSeed(seed: 0))
         }
 

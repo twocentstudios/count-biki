@@ -8,13 +8,13 @@ import SwiftUI
         let topic: Topic
 
         init(topicID: UUID) {
-            @Dependency(\.topicClient.allTopics) var allTopics
+            @Dependency(TopicClient.self) var topicClient
             let sharedSessionSettings = Shared(
                 wrappedValue: SessionSettings.default,
                 .appStorage(SessionSettings.storageKey)
             )
 
-            topic = allTopics()[id: topicID]!
+            topic = topicClient.allTopics()[id: topicID]!
             sessionSettings = sharedSessionSettings.wrappedValue
         }
     }
@@ -30,6 +30,7 @@ import SwiftUI
 
     @Dependency(\.continuousClock) var clock
     @Dependency(\.dismiss) var dismiss
+    /// TODO: does this work with TCA???
     @Shared(.appStorage(SessionSettings.storageKey)) var sharedSessionSettings = SessionSettings.default
 
     var body: some ReducerOf<Self> {
@@ -128,7 +129,7 @@ struct SettingsView: View {
             SettingsFeature()
                 ._printChanges()
         } withDependencies: { deps in
-            // deps.speechSynthesisClient = .noVoices
+            // deps[SpeechSynthesisClient.self] = .noVoices
         }
     )
     .fontDesign(.rounded)

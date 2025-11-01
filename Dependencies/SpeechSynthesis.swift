@@ -60,7 +60,7 @@ extension SpeechSynthesisClient: DependencyKey {
             )
         }
     #else
-        static let liveValue = previewValue
+        static var liveValue: Self { previewValue }
     #endif
 
     static var previewValue: Self {
@@ -97,13 +97,6 @@ extension SpeechSynthesisClient: DependencyKey {
         value.availableVoices = { [] }
         value.defaultVoice = { nil }
         return value
-    }
-}
-
-extension DependencyValues {
-    var speechSynthesisClient: SpeechSynthesisClient {
-        get { self[SpeechSynthesisClient.self] }
-        set { self[SpeechSynthesisClient.self] = newValue }
     }
 }
 

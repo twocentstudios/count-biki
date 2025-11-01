@@ -1,11 +1,13 @@
 import Dependencies
+import DependenciesMacros
 import IdentifiedCollections
 import UIKit.UIImage
 
+@DependencyClient
 struct AppIconClient {
-    var allIcons: @Sendable () -> IdentifiedArrayOf<AppIcon>
-    var appIcon: @MainActor @Sendable () -> AppIcon
-    var setAppIcon: @MainActor @Sendable (AppIcon) async throws -> Void
+    var allIcons: @Sendable () -> IdentifiedArrayOf<AppIcon> = { .init() }
+    var appIcon: @MainActor @Sendable () -> AppIcon = { .primary }
+    var setAppIcon: @MainActor @Sendable (AppIcon) async throws -> Void = { _ in }
 }
 
 extension AppIconClient: DependencyKey {
@@ -24,13 +26,6 @@ extension AppIconClient: DependencyKey {
         )
     }
 }
-extension DependencyValues {
-    var appIconClient: AppIconClient {
-        get { self[AppIconClient.self] }
-        set { self[AppIconClient.self] = newValue }
-    }
-}
-
 /// Ref: https://www.avanderlee.com/swift/alternate-app-icon-configuration-in-xcode/
 enum AppIcon: String, CaseIterable, Identifiable, Equatable {
     case primary = "AppIcon"

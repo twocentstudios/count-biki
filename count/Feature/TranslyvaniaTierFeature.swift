@@ -28,7 +28,7 @@ import SwiftUI
         case restorePurchasesTapped
     }
 
-    @Dependency(\.tierProductsClient) var tierProductsClient
+    @Dependency(TierProductsClient.self) var tierProductsClient
     @Dependency(\.continuousClock) var clock
 
     var body: some ReducerOf<Self> {

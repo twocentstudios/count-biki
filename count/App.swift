@@ -14,15 +14,15 @@ struct CountApp: App {
                             ._printChanges()
                     } withDependencies: {
                         #if targetEnvironment(simulator)
-                            // $0.topicClient = .mock
-                            $0.topicClient = .liveValue
+                            // $0[TopicClient.self] = .mock
+                            $0[TopicClient.self] = .liveValue
                         #endif
                     }
                 )
                 .fontDesign(.rounded)
                 .task {
                     // TODO: move this to AppReducer
-                    @Dependency(\.tierProductsClient) var tierProductsClient
+                    @Dependency(TierProductsClient.self) var tierProductsClient
                     await tierProductsClient.monitorPurchases()
                 }
             }

@@ -62,12 +62,12 @@ extension QuizMode {
         var challenge: Challenge
 
         init(topicID: UUID, quizMode: QuizMode) {
-            @Dependency(\.topicClient.allTopics) var allTopics
-            topic = allTopics()[id: topicID]!
+            @Dependency(TopicClient.self) var topicClient
+            topic = topicClient.allTopics()[id: topicID]!
             self.topicID = topicID
             self.quizMode = quizMode
 
-            @Dependency(\.topicClient.generateQuestion) var generateQuestion
+            let generateQuestion = topicClient.generateQuestion
             @Dependency(\.uuid) var uuid
             @Dependency(\.date.now) var now
             let question = try! generateQuestion(topicID) // TODO: handle error
@@ -209,12 +209,12 @@ extension QuizMode {
     }
 
     @Dependency(\.continuousClock) var clock
-    @Dependency(\.hapticsClient) var haptics
-    @Dependency(\.speechSynthesisClient) var speechClient
-    @Dependency(\.topicClient) var topicClient
+    @Dependency(HapticsClient.self) var haptics
+    @Dependency(SpeechSynthesisClient.self) var speechClient
+    @Dependency(TopicClient.self) var topicClient
     @Dependency(\.uuid) var uuid
     @Dependency(\.date.now) var now
-    @Dependency(\.application) var application
+    @Dependency(ApplicationClient.self) var application
     @Shared(.appStorage(SpeechSynthesisSettings.storageKey)) var sharedSpeechSettings = SpeechSynthesisSettings()
     @Shared(.appStorage(SessionSettings.storageKey)) var sharedSessionSettings = SessionSettings.default
 

@@ -8,9 +8,10 @@ import SwiftUI
         var transylvaniaTier: TransylvaniaTierFeature.State
 
         init() {
-            @Dependency(\.tierProductsClient.purchaseHistory) var purchaseHistory
-            appIcon = .init(isAppIconChangingAvailable: purchaseHistory().status == .unlocked)
-            transylvaniaTier = .init(tierHistory: purchaseHistory())
+            @Dependency(TierProductsClient.self) var tierProductsClient
+            let history = tierProductsClient.purchaseHistory()
+            appIcon = .init(isAppIconChangingAvailable: history.status == .unlocked)
+            transylvaniaTier = .init(tierHistory: history)
         }
     }
 
@@ -27,7 +28,7 @@ import SwiftUI
     }
 
     @Dependency(\.dismiss) var dismiss
-    @Dependency(\.tierProductsClient.purchaseHistoryStream) var purchaseHistoryStream
+    @Dependency(TierProductsClient.self) var tierProductsClient
 
     var body: some ReducerOf<Self> {
         Scope(state: \.appIcon, action: \.appIcon) {
@@ -50,7 +51,7 @@ import SwiftUI
                 return .run { _ in await dismiss() }
             case .view(.onTask):
                 return .run { send in
-                    for await newHistory in purchaseHistoryStream() {
+                    for await newHistory in tierProductsClient.purchaseHistoryStream() {
                         await send(.onPurchaseHistoryUpdated(newHistory))
                     }
                 }

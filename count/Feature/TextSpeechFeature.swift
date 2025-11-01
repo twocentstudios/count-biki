@@ -19,7 +19,7 @@ import SwiftUI
         case onDelete(String)
     }
 
-    @Dependency(\.speechSynthesisClient) var speechClient
+    @Dependency(SpeechSynthesisClient.self) var speechClient
     @Shared(.appStorage(SpeechSynthesisSettings.storageKey)) var sharedSpeechSettings = SpeechSynthesisSettings()
 
     var body: some ReducerOf<Self> {
