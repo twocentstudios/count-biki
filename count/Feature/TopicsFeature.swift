@@ -148,6 +148,11 @@ struct TopicsView: View {
                                     Text(category.title)
                                         .font(.headline)
                                 }
+                                ToolbarItem(placement: .bottomBar) {
+                                    SessionSettingsButton {
+                                        store.send(.preSettingsButtonTapped)
+                                    }
+                                }
                             }
                         } label: {
                             HStack(alignment: .center, spacing: 14) {
@@ -190,14 +195,8 @@ struct TopicsView: View {
                     }
                 }
                 ToolbarItem(placement: .bottomBar) {
-                    Button {
+                    SessionSettingsButton {
                         store.send(.preSettingsButtonTapped)
-                    } label: {
-                        HStack {
-                            Image(systemName: "slider.horizontal.3")
-                            Text("Session Settings")
-                        }
-                        .font(.headline)
                     }
                 }
             }
@@ -254,6 +253,20 @@ struct TopicCell: View {
                     Label(isFavorite ? "Remove Favorite" : "Add Favorite", systemImage: "star")
                 }
             }
+        }
+    }
+}
+
+struct SessionSettingsButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                Image(systemName: "slider.horizontal.3")
+                Text("Session Settings")
+            }
+            .font(.headline)
         }
     }
 }
