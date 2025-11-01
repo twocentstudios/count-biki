@@ -61,7 +61,6 @@ final class ListeningQuizFeatureTests: XCTestCase {
         }
 
         await fulfillment(of: [speechExpectation], timeout: 1)
-        await store.skipInFlightEffects()
         await store.finish()
     }
 }
