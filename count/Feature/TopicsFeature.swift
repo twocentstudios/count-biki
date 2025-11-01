@@ -267,6 +267,8 @@ struct SessionSettingsButton: View {
                 Text("Session Settings")
             }
             .font(.headline)
+            .padding(.horizontal)
+            .padding(.vertical)
         }
     }
 }
